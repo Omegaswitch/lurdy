@@ -21,7 +21,8 @@ organiser signs in (code + event code + authenticator) → creates a participant
 | 2 | Offline: participant app shows last copy with "as of" time | 🟡 | implemented; no automated offline test yet |
 | 2 | Lourdes map (OSM, places from the programme, navigate, my location) | 🟡 | 14 sanctuary places with OSM positions; works in web build; device check pending |
 | 3 | Edition settings + event codes (before/during, end now) in admin | ✅ | e2e + axe |
-| 3 | CSV import/export with duplicate detection; edition create/duplicate/archive | ⬜ | |
+| 3 | CSV import (preview, duplicate detection vs. database and within file, per-row decision) and CSV export | ✅ | e2e: 151-row file with 5 planted duplicates + 1 error flagged exactly; 18 unit tests |
+| 3 | Edition create/duplicate/archive | ⬜ | |
 | 4 | Accommodation (facilities, rooms, occupancy, house/move/remove, room responsible) in admin | ✅ | e2e + axe; capacity refused by the database |
 | 4 | Care assignments (primary/backup/temporary with period, gaps, carer load) in admin | ✅ | e2e + axe |
 | 4 | Teams & duties screens in admin | ⬜ | database and app view ready |

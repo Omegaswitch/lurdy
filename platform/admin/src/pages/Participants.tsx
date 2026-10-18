@@ -5,6 +5,7 @@ import { fullName } from '../format';
 import { Icon, Notice } from '../icons';
 import { must, useLive } from '../live';
 import { useReady } from '../session';
+import { exportParticipants, ImportPanel } from './ImportExport';
 import { supabase } from '../supabase';
 
 type Row = Tables<'participants'> & {
@@ -35,6 +36,8 @@ export function Participants() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<'' | Category>('');
   const [selected, setSelected] = useState<string | 'new' | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [notice, setNotice] = useState<{ kind: 'ok' | 'error' | 'warn'; text: string } | null>(null);
 
   const rows = useMemo(() => {
     const q = fold(query.trim());
@@ -51,9 +54,19 @@ export function Participants() {
           <h1>{t('admin.participants')}</h1>
           <p>{data ? `${data.length} osob` : t('common.loading')}</p>
         </div>
-        <button className="btn primary" onClick={() => setSelected('new')}><Icon name="plus" width={18} /> {t('admin.newParticipant')}</button>
+        <div className="row">
+          <button className="btn" onClick={() => setImporting(true)}>Importovat CSV</button>
+          <button className="btn" onClick={() => exportParticipants(edition.id, edition.year).then(
+            () => setNotice({ kind: 'warn', text: 'Soubor obsahuje osobní údaje a přihlašovací kódy. Uložte ho jen na zabezpečené místo a po použití smažte.' }),
+            (e) => setNotice({ kind: 'error', text: friendlyError(e) }))}>Exportovat CSV</button>
+          <button className="btn primary" onClick={() => setSelected('new')}><Icon name="plus" width={18} /> {t('admin.newParticipant')}</button>
+        </div>
       </div>
       {error && <Notice kind="error">{error}</Notice>}
+      {notice && <div style={{ marginBottom: 16 }}><Notice kind={notice.kind}>{notice.text}</Notice></div>}
+      {importing && data && (
+        <ImportPanel existing={data} onClose={(n) => { setImporting(false); if (n) { setNotice({ kind: 'ok', text: `Importováno ${n} osob. Přihlašovací kódy dostali automaticky.` }); reload(); } }} />
+      )}
       <div className={selected ? 'split' : undefined}>
         <section className="panel" aria-label={t('admin.participants')}>
           <div className="toolbar">

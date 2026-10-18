@@ -34,6 +34,7 @@ test.afterAll(async () => {
   const org = await organiserClient(secret);
   await org.from('participants').delete().like('last_name', 'Nemocná%').eq('first_name', 'Test');
   await org.from('rooms').delete().like('number', 'T%').eq('capacity', 0);
+  await org.from('participants').delete().like('last_name', 'Importovaný%');
 });
 
 test('edition: add an event code, then end it', async () => {
@@ -147,6 +148,32 @@ test('reports print with edition stamp; manifests one leg per page', async () =>
   const pages = (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) ?? []).length;
   expect(pages).toBe(legs); // one page per leg in the dev data (all fit on one page)
   if (process.env.SHOTS) writeFileSync(`${process.env.SHOTS}/manifests.pdf`, pdf);
+});
+
+test('CSV import flags exactly the planted duplicates and errors; export contains the result', async () => {
+  // 150 fictional people + 1 broken row; 5 planted duplicates: 3 of existing dev people, 2 within the file.
+  const lines = ['Příjmení;Jméno;Kategorie;Telefon;Vozík'];
+  for (let i = 1; i <= 145; i++) lines.push(`Importovaný${i};Test;${i % 7 === 0 ? 'nemocný' : 'poutník'};;${i % 11 === 0 ? 'ano' : ''}`);
+  lines.push('Poutnický;Petr;poutník;;', 'VZOROVÁ;marie;nemocná;;', 'Někdo;Jiný;poutník;+420 000 000 002;'); // existing: 2 by name, 1 by phone
+  lines.push('Importovaný7;Test;nemocný;;', 'Importovaný8;Test;poutník;;'); // repeated within the file
+  lines.push('Chybný;Řádek;kuchař;;'); // unknown category
+  await go('Účastníci');
+  await page.getByRole('button', { name: 'Importovat CSV' }).click();
+  await page.getByLabel('Soubor', { exact: true }).setInputFiles({ name: 'prihlasky.csv', mimeType: 'text/csv', buffer: Buffer.from('\uFEFF' + lines.join('\r\n'), 'utf8') });
+  await expect(page.getByRole('status').filter({ hasText: 'řádků' })).toHaveText(/151 řádků · 145 nových · 5 možná již existuje · 1 s chybou/);
+  await a11y();
+  await page.getByRole('button', { name: 'Importovat 145 osob' }).click();
+  await expect(page.getByText('Importováno 145 osob.')).toBeVisible({ timeout: 20_000 });
+  await page.getByLabel('Hledat').fill('Importovaný145');
+  await expect(page.getByRole('row').filter({ hasText: 'Importovaný145' }).locator('.mono')).toHaveText(/^\d{4}$/);
+  await page.getByLabel('Hledat').fill('');
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Exportovat CSV' }).click();
+  const csv = (await (await download).createReadStream()).toArray().then((c) => Buffer.concat(c as Buffer[]).toString('utf8'));
+  const text = await csv;
+  expect(text.startsWith('\uFEFFPříjmení;Jméno')).toBe(true);
+  expect(text).toContain('Importovaný145;Test');
+  expect(text.split('\r\n').filter((l) => l.startsWith('Importovaný')).length).toBe(145);
 });
 
 test('clean up the test participant and room', async () => {
