@@ -1,7 +1,20 @@
 {
  "langName": "Deutsch",
  "locale": "de_DE",
- "months": ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+ "months": [
+  "Januar",
+  "Februar",
+  "März",
+  "April",
+  "Mai",
+  "Juni",
+  "Juli",
+  "August",
+  "September",
+  "Oktober",
+  "November",
+  "Dezember"
+ ],
  "ui": {
   "skip": "Zum Inhalt",
   "menu": "Menü",
@@ -30,10 +43,22 @@
   "galleryLink": "Fotos aus früheren Jahren",
   "groupsTitle": "Wer mit uns pilgert",
   "groups": [
-   ["Kranke im Accueil", "Vor allem Rollstuhlfahrer und Schwerkranke. Sie wohnen im barrierefreien Pilgerhaus Accueil Notre-Dame gegenüber der Erscheinungsgrotte, und um jeden von ihnen kümmern sich ein bis drei Teammitglieder."],
-   ["Kranke im Hotel", "Kranke, die selbstständig gehen können. Sie wohnen mit den anderen Pilgern in einem Hotel in der Nähe des Wallfahrtsbezirks."],
-   ["Pilger", "Gesunde Pilger, die mit uns pilgern möchten. Sie wohnen in einem Hotel mit Vollpension."],
-   ["Das Team", "Ritter und Damen des Ordens sowie Freiwillige, die sich während der ganzen Wallfahrt um die Kranken kümmern."]
+   [
+    "Kranke im Accueil",
+    "Vor allem Rollstuhlfahrer und Schwerkranke. Sie wohnen im barrierefreien Pilgerhaus Accueil Notre-Dame gegenüber der Erscheinungsgrotte, und um jeden von ihnen kümmern sich ein bis drei Teammitglieder."
+   ],
+   [
+    "Kranke im Hotel",
+    "Kranke, die selbstständig gehen können. Sie wohnen mit den anderen Pilgern in einem Hotel in der Nähe des Wallfahrtsbezirks."
+   ],
+   [
+    "Pilger",
+    "Gesunde Pilger, die mit uns pilgern möchten. Sie wohnen in einem Hotel mit Vollpension."
+   ],
+   [
+    "Das Team",
+    "Ritter und Damen des Ordens sowie Freiwillige, die sich während der ganzen Wallfahrt um die Kranken kümmern."
+   ]
   ],
   "faqTitle": "Häufige Fragen",
   "faqAll": "Alle Fragen und Antworten",
@@ -72,44 +97,158 @@
   "back": "Zurück zur Anmeldung",
   "notFound": "Seite nicht gefunden",
   "notFoundText": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
-  "status": {"new": "Neuer Inhalt", "translation": "Übersetzung – wartet auf Prüfung", "approval": "Wartet auf Freigabe"}
+  "status": {
+   "new": "Neuer Inhalt",
+   "translation": "Übersetzung – wartet auf Prüfung",
+   "approval": "Wartet auf Freigabe"
+  },
+  "paperTitle": "Lieber auf Papier?",
+  "paperNote": "Sie können das Anmeldeformular (auf Tschechisch) herunterladen, ausfüllen und per E-Mail an lurdy@lurdy.eu oder per Post schicken."
  },
- "nav": ["ucast", "prihlasky", "dotazy", "fotogalerie"],
+ "nav": [
+  "ucast",
+  "prihlasky",
+  "dotazy",
+  "fotogalerie"
+ ],
  "pages": {
-  "home": {"url": "/de/", "title": "Wallfahrt nach Lourdes", "description": "Die Wallfahrt des Großpriorats Böhmen des Malteserordens mit Kranken nach Lourdes: Termin, Anmeldung, häufige Fragen und Fotos aus früheren Jahren."},
-  "ucast": {"url": "/de/teilnahme/", "title": "Teilnahme", "description": "Wie Sie sich zur Wallfahrt des Ordens nach Lourdes anmelden, wie Sie bezahlen und wie Sie mit uns in Kontakt treten.",
-   "body": "<p class=\"lead\">Wenn Sie diese Informationen angesprochen haben und Sie mit uns an der Wallfahrt teilnehmen möchten, gehen Sie bitte so vor:</p><ol class=\"steps\"><li><b>Schicken Sie Ihre Anmeldung</b><span>Wählen Sie auf der Seite <a href=\"{prihlasky}\">Anmeldung</a> das Formular für Ihre Gruppe.</span></li><li><b>Warten Sie auf unsere Nachricht</b><span>Sie erfahren, ob Sie an der Wallfahrt teilnehmen können, und erhalten dazu Ihren persönlichen Verwendungszweck (variables Symbol) für die Zahlung.</span></li><li><b>Bezahlen Sie die Kosten der Wallfahrt</b><span>Auf das Konto Nr. {account} (IBAN {iban}) unter Angabe des Ihnen zugeteilten Verwendungszwecks.</span></li><li><b>Organisatorische Hinweise</b><span>Rechtzeitig erhalten Sie weitere Informationen zum Abflug und zum Ablauf der Wallfahrt.</span></li></ol><p>Wenn Sie an der Wallfahrt teilnehmen möchten, schicken Sie das ausgefüllte Anmeldeformular umgehend. Trotzdem kann es vorkommen, dass alle Plätze bereits vergeben sind und wir Ihre Anmeldung nicht annehmen können. Bitte glauben Sie uns, dass dies nicht aus bösem Willen geschieht und dass wir alles tun, um so vielen Interessenten wie möglich gerecht zu werden. Bitte warten Sie, bis wir Ihnen eine Nachricht schicken oder uns bei Ihnen melden.</p><h2>Organisatorische Hinweise</h2><p>Aufgrund der Erfahrungen der vergangenen Jahre und angesichts des Arbeitsaufwands, den die Organisation der Wallfahrt mit sich bringt, mussten wir folgende Maßnahmen treffen:</p><ul><li>wir verschicken keine Anmeldeformulare per Post; sie stehen auf dieser Website zum Herunterladen bereit oder können online ausgefüllt werden,</li><li>schicken Sie ausgefüllte Anmeldeformulare per E-Mail an <a href=\"mailto:{email}\">{email}</a> oder per Post an {post}; beschriften Sie den Umschlag gut sichtbar mit „Lurdy“,</li><li>alle weiteren Informationen schicken wir Ihnen per E-Mail,</li><li>rufen Sie bitte nicht in den Büros des Großpriorats Böhmen oder von Maltézská pomoc an; keines von beiden ist an der Organisation der Wallfahrt beteiligt und kann nähere Auskünfte geben,</li><li>nutzen Sie für die Kontaktaufnahme ausschließlich die E-Mail-Adresse <a href=\"mailto:{email}\">{email}</a>.</li></ul><p>Wir verstehen, dass dies für viele von Ihnen Schwierigkeiten mit sich bringen kann, doch ohne diese Maßnahmen wäre die Lage für uns nicht zu bewältigen. Bitten Sie gegebenenfalls Freunde oder Familie, Ihnen bei der elektronischen Kommunikation zu helfen.</p>"},
-  "prihlasky": {"url": "/de/anmeldung/", "title": "Anmeldung", "description": "Anmeldeformulare für die Wallfahrt des Ordens nach Lourdes für Kranke, Pilger und Teammitglieder.",
-   "body": "<p class=\"lead\">Um sich zur Wallfahrt anzumelden, gehen Sie bitte so vor:</p><ol class=\"steps\"><li><b>Wählen Sie Ihre Gruppe</b><span>Kranke im Accueil (vor allem Rollstuhlfahrer und Schwerkranke), Kranke im Hotel (Kranke, die gehen können), gesunde Pilger im Hotel oder Teammitglieder.</span></li><li><b>Füllen Sie die Anmeldung aus</b><span>Wählen Sie unten das passende Formular und füllen Sie es online aus, oder laden Sie es herunter und schicken Sie es per E-Mail oder Post.</span></li><li><b>Warten Sie auf unsere Antwort</b><span>So bald wie möglich schicken wir Ihnen ausführliche Informationen zur Zahlung, zum Abreisetermin und zum weiteren Ablauf.</span></li></ol><h2>Einwilligung in die Verarbeitung personenbezogener Daten</h2><p>Mit Ihrer Anmeldung zur Wallfahrt willigen Sie ein, dass Maltézský nadační fond LOURDES zur Durchführung der Wallfahrt Ihre in der Anmeldung angegebenen personenbezogenen Daten verarbeitet, einschließlich der Angaben zu Ihrem Gesundheitszustand und Ihrer medizinischen Versorgung. Nach Ende der Wallfahrt dürfen die personenbezogenen Daten nur noch für statistische und Archivzwecke verarbeitet werden. Näheres finden Sie in der <a href=\"{privacy}\">Datenschutzerklärung</a>.</p><p>Mit dem Absenden der Anmeldung erklären Sie, dass Ihnen bewusst ist, dass falsche oder unvollständige Angaben zum Gesundheitszustand Komplikationen verursachen oder das Leben gefährden können, und Sie übernehmen dafür die volle Verantwortung.</p>"},
-  "nemocni": {"url": "/de/anmeldung/kranke/", "title": "Anmeldung – Kranke", "description": "Anmeldeformular für die Wallfahrt nach Lourdes für Kranke, die im Accueil oder im Hotel wohnen.", "lead": "Für Kranke, die im barrierefreien Pilgerhaus Accueil wohnen, und für Kranke, die im Hotel wohnen."},
-  "poutnici": {"url": "/de/anmeldung/pilger/", "title": "Anmeldung – Pilger", "description": "Anmeldeformular für die Wallfahrt nach Lourdes für gesunde Pilger, die im Hotel wohnen.", "lead": "Für gesunde Pilger, die im Hotel wohnen und gemeinsam mit uns pilgern möchten."},
-  "tym": {"url": "/de/anmeldung/team/", "title": "Anmeldung – Team", "description": "Anmeldeformular für die Wallfahrt nach Lourdes für Mitglieder des Pflege- und Helferteams.", "lead": "Für Mitglieder des Pflege- und Helferteams, die sich während der Wallfahrt um die Kranken kümmern."},
-  "odeslano": {"url": "/de/anmeldung/gesendet/", "title": "Anmeldung gesendet", "description": "Ihre Anmeldung zur Wallfahrt nach Lourdes wurde gesendet.", "body": "<p class=\"lead\">Vielen Dank, Ihre Anmeldung wurde gesendet. In den nächsten Tagen melden wir uns bei Ihnen, um Ihre Teilnahme an der Wallfahrt zu bestätigen.</p>"},
-  "dotazy": {"url": "/de/haeufige-fragen/", "title": "Häufige Fragen", "description": "Antworten auf die häufigsten Fragen zur Wallfahrt nach Lourdes: Gepäck, Wetter, Reisen mit dem Rollstuhl, Unterkunft, Verpflegung und Programm."},
-  "fotogalerie": {"url": "/de/galerie/", "title": "Fotogalerie", "description": "Fotos und kurze Berichte von den Wallfahrten des Großpriorats Böhmen nach Lourdes seit 2003."},
-  "soukromi": {"url": "/de/datenschutz/", "title": "Datenschutz", "description": "Wie Maltézský nadační fond LOURDES personenbezogene Daten aus den Anmeldungen zur Wallfahrt nach Lourdes und Daten der Besucher dieser Website verarbeitet."}
+  "home": {
+   "url": "/de/",
+   "title": "Wallfahrt nach Lourdes",
+   "description": "Die Wallfahrt des Großpriorats Böhmen des Malteserordens mit Kranken nach Lourdes: Termin, Anmeldung, häufige Fragen und Fotos aus früheren Jahren."
+  },
+  "ucast": {
+   "url": "/de/teilnahme/",
+   "title": "Teilnahme",
+   "description": "Wie Sie sich zur Wallfahrt des Ordens nach Lourdes anmelden, wie Sie bezahlen und wie Sie mit uns in Kontakt treten.",
+   "body": "<p class=\"lead\">Wenn Sie diese Informationen angesprochen haben und Sie mit uns an der Wallfahrt teilnehmen möchten, gehen Sie bitte so vor:</p><ol class=\"steps\"><li><b>Schicken Sie Ihre Anmeldung</b><span>Wählen Sie auf der Seite <a href=\"{prihlasky}\">Anmeldung</a> das Formular für Ihre Gruppe.</span></li><li><b>Warten Sie auf unsere Nachricht</b><span>Sie erfahren, ob Sie an der Wallfahrt teilnehmen können, und erhalten dazu Ihren persönlichen Verwendungszweck (variables Symbol) für die Zahlung.</span></li><li><b>Bezahlen Sie die Kosten der Wallfahrt</b><span>Auf das Konto Nr. {account} (IBAN {iban}) unter Angabe des Ihnen zugeteilten Verwendungszwecks.</span></li><li><b>Organisatorische Hinweise</b><span>Rechtzeitig erhalten Sie weitere Informationen zum Abflug und zum Ablauf der Wallfahrt.</span></li></ol><p>Wenn Sie an der Wallfahrt teilnehmen möchten, schicken Sie das ausgefüllte Anmeldeformular umgehend. Trotzdem kann es vorkommen, dass alle Plätze bereits vergeben sind und wir Ihre Anmeldung nicht annehmen können. Bitte glauben Sie uns, dass dies nicht aus bösem Willen geschieht und dass wir alles tun, um so vielen Interessenten wie möglich gerecht zu werden. Bitte warten Sie, bis wir Ihnen eine Nachricht schicken oder uns bei Ihnen melden.</p><h2>Organisatorische Hinweise</h2><p>Aufgrund der Erfahrungen der vergangenen Jahre und angesichts des Arbeitsaufwands, den die Organisation der Wallfahrt mit sich bringt, mussten wir folgende Maßnahmen treffen:</p><ul><li>wir verschicken keine Anmeldeformulare per Post; sie stehen auf dieser Website zum Herunterladen bereit oder können online ausgefüllt werden,</li><li>schicken Sie ausgefüllte Anmeldeformulare per E-Mail an <a href=\"mailto:{email}\">{email}</a> oder per Post an {post}; beschriften Sie den Umschlag gut sichtbar mit „Lurdy“,</li><li>alle weiteren Informationen schicken wir Ihnen per E-Mail,</li><li>rufen Sie bitte nicht in den Büros des Großpriorats Böhmen oder von Maltézská pomoc an; keines von beiden ist an der Organisation der Wallfahrt beteiligt und kann nähere Auskünfte geben,</li><li>nutzen Sie für die Kontaktaufnahme ausschließlich die E-Mail-Adresse <a href=\"mailto:{email}\">{email}</a>.</li></ul><p>Wir verstehen, dass dies für viele von Ihnen Schwierigkeiten mit sich bringen kann, doch ohne diese Maßnahmen wäre die Lage für uns nicht zu bewältigen. Bitten Sie gegebenenfalls Freunde oder Familie, Ihnen bei der elektronischen Kommunikation zu helfen.</p>"
+  },
+  "prihlasky": {
+   "url": "/de/anmeldung/",
+   "title": "Anmeldung",
+   "description": "Anmeldeformulare für die Wallfahrt des Ordens nach Lourdes für Kranke, Pilger und Teammitglieder.",
+   "body": "<p class=\"lead\">Um sich zur Wallfahrt anzumelden, gehen Sie bitte so vor:</p><ol class=\"steps\"><li><b>Wählen Sie Ihre Gruppe</b><span>Kranke im Accueil (vor allem Rollstuhlfahrer und Schwerkranke), Kranke im Hotel (Kranke, die gehen können), gesunde Pilger im Hotel oder Teammitglieder.</span></li><li><b>Füllen Sie die Anmeldung aus</b><span>Wählen Sie unten das passende Formular und füllen Sie es online aus, oder laden Sie es herunter und schicken Sie es per E-Mail oder Post.</span></li><li><b>Warten Sie auf unsere Antwort</b><span>So bald wie möglich schicken wir Ihnen ausführliche Informationen zur Zahlung, zum Abreisetermin und zum weiteren Ablauf.</span></li></ol><h2>Einwilligung in die Verarbeitung personenbezogener Daten</h2><p>Mit Ihrer Anmeldung zur Wallfahrt willigen Sie ein, dass Maltézský nadační fond LOURDES zur Durchführung der Wallfahrt Ihre in der Anmeldung angegebenen personenbezogenen Daten verarbeitet, einschließlich der Angaben zu Ihrem Gesundheitszustand und Ihrer medizinischen Versorgung. Nach Ende der Wallfahrt dürfen die personenbezogenen Daten nur noch für statistische und Archivzwecke verarbeitet werden. Näheres finden Sie in der <a href=\"{privacy}\">Datenschutzerklärung</a>.</p><p>Mit dem Absenden der Anmeldung erklären Sie, dass Ihnen bewusst ist, dass falsche oder unvollständige Angaben zum Gesundheitszustand Komplikationen verursachen oder das Leben gefährden können, und Sie übernehmen dafür die volle Verantwortung.</p>"
+  },
+  "nemocni": {
+   "url": "/de/anmeldung/kranke/",
+   "title": "Anmeldung – Kranke",
+   "description": "Anmeldeformular für die Wallfahrt nach Lourdes für Kranke, die im Accueil oder im Hotel wohnen.",
+   "lead": "Für Kranke, die im barrierefreien Pilgerhaus Accueil wohnen, und für Kranke, die im Hotel wohnen."
+  },
+  "poutnici": {
+   "url": "/de/anmeldung/pilger/",
+   "title": "Anmeldung – Pilger",
+   "description": "Anmeldeformular für die Wallfahrt nach Lourdes für gesunde Pilger, die im Hotel wohnen.",
+   "lead": "Für gesunde Pilger, die im Hotel wohnen und gemeinsam mit uns pilgern möchten."
+  },
+  "tym": {
+   "url": "/de/anmeldung/team/",
+   "title": "Anmeldung – Team",
+   "description": "Anmeldeformular für die Wallfahrt nach Lourdes für Mitglieder des Pflege- und Helferteams.",
+   "lead": "Für Mitglieder des Pflege- und Helferteams, die sich während der Wallfahrt um die Kranken kümmern."
+  },
+  "odeslano": {
+   "url": "/de/anmeldung/gesendet/",
+   "title": "Anmeldung gesendet",
+   "description": "Ihre Anmeldung zur Wallfahrt nach Lourdes wurde gesendet.",
+   "body": "<p class=\"lead\">Vielen Dank, Ihre Anmeldung wurde gesendet. In den nächsten Tagen melden wir uns bei Ihnen, um Ihre Teilnahme an der Wallfahrt zu bestätigen.</p>"
+  },
+  "dotazy": {
+   "url": "/de/haeufige-fragen/",
+   "title": "Häufige Fragen",
+   "description": "Antworten auf die häufigsten Fragen zur Wallfahrt nach Lourdes: Gepäck, Wetter, Reisen mit dem Rollstuhl, Unterkunft, Verpflegung und Programm."
+  },
+  "fotogalerie": {
+   "url": "/de/galerie/",
+   "title": "Fotogalerie",
+   "description": "Fotos und kurze Berichte von den Wallfahrten des Großpriorats Böhmen nach Lourdes seit 2003."
+  },
+  "soukromi": {
+   "url": "/de/datenschutz/",
+   "title": "Datenschutz",
+   "description": "Wie Maltézský nadační fond LOURDES personenbezogene Daten aus den Anmeldungen zur Wallfahrt nach Lourdes und Daten der Besucher dieser Website verarbeitet."
+  }
  },
  "faq": [
-  ["Warum fahren Mitglieder des Malteserordens nach Lourdes und kümmern sich dort um Kranke?", "<p>Seit seiner Gründung im 11. Jahrhundert gehört neben der Verteidigung des Glaubens die Sorge um Kranke und Leidende zu den wichtigsten Aufgaben des Ordens. Die Mitglieder des Ordens gaben ihnen die nötige Pflege und Hilfe, stets auf dem besten Stand, der zur jeweiligen Zeit möglich war. Von Anfang an waren die Malteserritter auch große Verehrer der Muttergottes.</p><p>In Lourdes verbinden sich diese beiden Seiten im Leben der Ordensmitglieder. Wir pilgern nach Lourdes, um dort die Muttergottes zu ehren, und kümmern uns zugleich um die Kranken und Leidenden, und das nicht nur körperlich. Auch in Lourdes bemühen wir uns nach der Tradition des Ordens, den Kranken, die die Malteserritter seit Jahrhunderten „unsere Herren Kranken“ nennen, die bestmögliche Pflege und Annehmlichkeit zu bieten.</p><p>Für alle Mitglieder unserer „großen Malteserfamilie“ ist es immer eine Freude, anderen aus verschiedenen Ländern zu begegnen. Jedes Jahr kommen rund 10.000 Mitglieder und Freiwillige des Ordens in Lourdes zusammen, und es ermutigt uns zu wissen, dass wir zu einer großen Familie mit tausendjähriger Tradition gehören.</p>"],
-  ["Warum tragen die Teammitglieder die Aufschrift „BOHEMIA“ auf der Uniform?", "<p>Unsere Wallfahrt wird vom Großpriorat Böhmen des Malteserordens veranstaltet, französisch Grand Prieuré de Bohême. Bohemia ist der lateinische Name der Länder der Böhmischen Krone. Das Großpriorat Böhmen ist eines der ältesten der Welt und besteht seit seiner Gründung ununterbrochen. Aus Achtung vor dieser Tradition tragen alle Mitglieder unserer Gruppe, gleich welcher Nationalität, das Abzeichen BOHEMIA auf ihrer Uniform.</p>"],
-  ["Welches Gepäck soll ich mitnehmen?", "<p>Packen Sie Ihre Sachen am besten in einen Koffer und ein kleineres Handgepäckstück. Das Handgepäck muss den Sicherheitsvorschriften am Flughafen entsprechen: Es darf kein Messer, keine Schere und keine anderen spitzen Gegenstände enthalten, auch keine noch so kleinen, und keine Flüssigkeiten. Diese werden bei der Sicherheitskontrolle ausnahmslos abgenommen.</p><p>Vergessen Sie nicht, alle Medikamente, die Sie einnehmen, in ausreichender Menge mitzunehmen.</p>"],
-  ["Mit welchem Wetter ist zu rechnen, was soll ich anziehen?", "<p>Nehmen Sie Kleidung für warmes und kühles Wetter und für Regen mit, denn das Wetter in Lourdes ist unberechenbar. Wir empfehlen mehrere Schichten, die sich kombinieren oder ablegen lassen (zum Beispiel einen Wollpullover), und eine Kopfbedeckung gegen Sonne und Regen. Wenn Sie einen Rollstuhl benutzen, ist auch ein Regenschutz für den Rollstuhl nützlich.</p>"],
-  ["Wie reist man mit dem Rollstuhl im Flugzeug?", "<p>Pilger im Rollstuhl werden am Flughafen zusammen mit ihrem Rollstuhl abgefertigt und fahren darin mit Hilfe ihres Betreuers aus dem Malteserteam bis zum Flugzeug. Spezialisten des Flughafenpersonals helfen ihnen an Bord, und der Rollstuhl wird im Frachtraum verstaut. Nach der Landung läuft alles genauso in umgekehrter Reihenfolge ab.</p>"],
-  ["Warum kann man nicht mit einem Elektrorollstuhl reisen?", "<p>Die Fluggesellschaften wünschen das aus Sicherheitsgründen nicht. Selbst mit einer Einzelgenehmigung kann der Flugkapitän die Beförderung eines solchen Rollstuhls ablehnen. Auch in Lourdes wäre ein Elektrorollstuhl wegen des Verkehrs und der Organisation vor Ort eher hinderlich.</p>"],
-  ["Wer kümmert sich um unser Gepäck?", "<p>Melden Sie sich nach Ihrer Ankunft am Flughafen bei den zuständigen Personen des Organisationsteams; sie sind gut erkennbar gekennzeichnet. Sie erhalten Anhänger für Ihr Gepäck, Ihren Rollstuhl und alles andere, was Sie mitnehmen. Alles muss mit diesen Anhängern versehen werden, auch wenn Sie schon eigene haben; die Anhänger folgen einem System, das den Organisatoren beim Umgang mit dem Gepäck hilft.</p><p>Sie bekommen außerdem ein Namensschild zum Umhängen mit Ihrem Namen, Ihrer Unterkunft, der Bezeichnung unserer Gruppe und den Kontaktdaten des Organisators Ihrer Gruppe. Um das Gepäck kümmert sich das Organisationsteam von der Abfertigung am Flughafen bis zur Ankunft im Hotel.</p>"],
-  ["Gibt es während der Reise Verpflegung?", "<p>Während des Fluges wird an Bord die übliche Verpflegung serviert. Diabetiker nehmen nach vorheriger Absprache die nötige Insulindosis mit ins Flugzeug.</p>"],
-  ["Wo werden wir untergebracht?", "<p>Die Unterbringung erfolgt im Hotel oder im Accueil. Eine ausführliche Beschreibung finden Sie in den Reiseinformationen. Die Gepäckanhänger haben je nach Unterkunft unterschiedliche Farben; deshalb ist es unbedingt nötig, dass jedes Gepäckstück den Anhänger trägt, den Sie von den Organisatoren erhalten.</p>"],
-  ["Wie sind die Zimmer ausgestattet?", "<p>Im Accueil gibt es Zwei-, Drei- und Sechsbettzimmer, vollständig barrierefrei, mit Bad und WC. Sämtliche Bettwäsche und die nötige Pflegeausstattung sind vorhanden. Im Hotel gibt es Zwei- und Dreibettzimmer mit Bad und WC, Bettwäsche und Handtüchern.</p>"],
-  ["Wie ist die Verpflegung vor Ort geregelt?", "<p>Alle erhalten Vollpension in ihrer Unterkunft (Hotel oder Accueil). Serviert werden in der Regel ein französisches Frühstück sowie ein Mittag- und Abendessen mit mehreren Gängen. Nach den Angaben in der Anmeldung sorgen wir für Diätkost.</p>"],
-  ["Wie wird das Programm vor Ort organisiert?", "<p>Wir alle nehmen an der internationalen Wallfahrt des Malteserordens teil und folgen deshalb dem gemeinsamen Programm; Einzelheiten finden Sie in der Broschüre, die Sie am Flughafen erhalten. An manche Orte gehen wir alle gemeinsam, zu anderen Zeiten teilen wir uns in kleinere Gruppen auf. Die Einzelheiten erfahren Sie vor Ort.</p>"],
-  ["Wie läuft das Bad in den Bädern ab?", "<p>Die Bäder, die aus der Quelle der Grotte gespeist werden, sind gut organisiert. Alles wird von Freiwilligen vor Ort geleitet, und im Wasser stehen Helfer bereit. Eigene Badekleidung ist nicht nötig; Sie erhalten ein Tuch, mit dem Sie sich beim Eintauchen bedecken. Alles geschieht ruhig und würdevoll, und die Helfer sind sehr rücksichtsvoll.</p>"],
-  ["Was sollen Priester mitbringen?", "<p>Zur Konzelebration bringen Priester ein tschechisches Messbuch, eine Albe und eine Stola mit. Alles andere für die Feier der heiligen Messe ist vor Ort vorhanden.</p>"],
-  ["Ist die Teilnahme an der heiligen Messe jeden Tag möglich?", "<p>Die heilige Messe ist für jeden Tag geplant. Am An- und Abreisetag sind Änderungen möglich, da dann alles vom Verlauf der Reise und vom Wetter abhängt.</p><p>Falls Ihnen etwas verwirrend erscheint, bedenken Sie bitte, dass alle Termine in Lourdes ein Jahr im Voraus angemeldet werden mussten und die Organisatoren in Lourdes die Wünsche aller Gruppen aufeinander abstimmen müssen.</p>"],
-  ["Kann ich Lourdes-Wasser mit nach Hause nehmen?", "<p>Am Felsen gibt es eigene Wasserhähne, an denen die Pilger beliebig viel Wasser in eigene Gefäße abfüllen können. Flaschen in allen Größen kann man vor Ort kaufen.</p>"],
-  ["Sollen wir für die Reise eine Versicherung abschließen?", "<p>Die tschechische Krankenversicherung garantiert in der Europäischen Union die notwendige medizinische Versorgung. Was als notwendig gilt, ist jedoch von Land zu Land verschieden, und vieles muss selbst bezahlt werden. Mit einer Reiseversicherung ist die Reise in jedem Fall sicherer.</p>"],
-  ["Wo kann man Andenken aus Lourdes kaufen?", "<p>In Lourdes gibt es viele Geschäfte mit Andenken aller Art. Sie liegen außerhalb des Heiligtumsbezirks und stören die Gottesdienste daher in keiner Weise. Die Geschäfte sind barrierefrei, und auch die Kranken werden genug Zeit haben, mit Hilfe ihrer Betreuer einzukaufen.</p><p>Religiöse Gegenstände können Ihnen die Priester segnen, die unsere Wallfahrt begleiten; zum Abschluss der Wallfahrt wird ganz sicher alles gesegnet.</p>"]
+  [
+   "Warum fahren Mitglieder des Malteserordens nach Lourdes und kümmern sich dort um Kranke?",
+   "<p>Seit seiner Gründung im 11. Jahrhundert gehört neben der Verteidigung des Glaubens die Sorge um Kranke und Leidende zu den wichtigsten Aufgaben des Ordens. Die Mitglieder des Ordens gaben ihnen die nötige Pflege und Hilfe, stets auf dem besten Stand, der zur jeweiligen Zeit möglich war. Von Anfang an waren die Malteserritter auch große Verehrer der Muttergottes.</p><p>In Lourdes verbinden sich diese beiden Seiten im Leben der Ordensmitglieder. Wir pilgern nach Lourdes, um dort die Muttergottes zu ehren, und kümmern uns zugleich um die Kranken und Leidenden, und das nicht nur körperlich. Auch in Lourdes bemühen wir uns nach der Tradition des Ordens, den Kranken, die die Malteserritter seit Jahrhunderten „unsere Herren Kranken“ nennen, die bestmögliche Pflege und Annehmlichkeit zu bieten.</p><p>Für alle Mitglieder unserer „großen Malteserfamilie“ ist es immer eine Freude, anderen aus verschiedenen Ländern zu begegnen. Jedes Jahr kommen rund 10.000 Mitglieder und Freiwillige des Ordens in Lourdes zusammen, und es ermutigt uns zu wissen, dass wir zu einer großen Familie mit tausendjähriger Tradition gehören.</p>"
+  ],
+  [
+   "Warum tragen die Teammitglieder die Aufschrift „BOHEMIA“ auf der Uniform?",
+   "<p>Unsere Wallfahrt wird vom Großpriorat Böhmen des Malteserordens veranstaltet, französisch Grand Prieuré de Bohême. Bohemia ist der lateinische Name der Länder der Böhmischen Krone. Das Großpriorat Böhmen ist eines der ältesten der Welt und besteht seit seiner Gründung ununterbrochen. Aus Achtung vor dieser Tradition tragen alle Mitglieder unserer Gruppe, gleich welcher Nationalität, das Abzeichen BOHEMIA auf ihrer Uniform.</p>"
+  ],
+  [
+   "Welches Gepäck soll ich mitnehmen?",
+   "<p>Packen Sie Ihre Sachen am besten in einen Koffer und ein kleineres Handgepäckstück. Das Handgepäck muss den Sicherheitsvorschriften am Flughafen entsprechen: Es darf kein Messer, keine Schere und keine anderen spitzen Gegenstände enthalten, auch keine noch so kleinen, und keine Flüssigkeiten. Diese werden bei der Sicherheitskontrolle ausnahmslos abgenommen.</p><p>Vergessen Sie nicht, alle Medikamente, die Sie einnehmen, in ausreichender Menge mitzunehmen.</p>"
+  ],
+  [
+   "Mit welchem Wetter ist zu rechnen, was soll ich anziehen?",
+   "<p>Nehmen Sie Kleidung für warmes und kühles Wetter und für Regen mit, denn das Wetter in Lourdes ist unberechenbar. Wir empfehlen mehrere Schichten, die sich kombinieren oder ablegen lassen (zum Beispiel einen Wollpullover), und eine Kopfbedeckung gegen Sonne und Regen. Wenn Sie einen Rollstuhl benutzen, ist auch ein Regenschutz für den Rollstuhl nützlich.</p>"
+  ],
+  [
+   "Wie reist man mit dem Rollstuhl im Flugzeug?",
+   "<p>Pilger im Rollstuhl werden am Flughafen zusammen mit ihrem Rollstuhl abgefertigt und fahren darin mit Hilfe ihres Betreuers aus dem Malteserteam bis zum Flugzeug. Spezialisten des Flughafenpersonals helfen ihnen an Bord, und der Rollstuhl wird im Frachtraum verstaut. Nach der Landung läuft alles genauso in umgekehrter Reihenfolge ab.</p>"
+  ],
+  [
+   "Warum kann man nicht mit einem Elektrorollstuhl reisen?",
+   "<p>Die Fluggesellschaften wünschen das aus Sicherheitsgründen nicht. Selbst mit einer Einzelgenehmigung kann der Flugkapitän die Beförderung eines solchen Rollstuhls ablehnen. Auch in Lourdes wäre ein Elektrorollstuhl wegen des Verkehrs und der Organisation vor Ort eher hinderlich.</p>"
+  ],
+  [
+   "Wer kümmert sich um unser Gepäck?",
+   "<p>Melden Sie sich nach Ihrer Ankunft am Flughafen bei den zuständigen Personen des Organisationsteams; sie sind gut erkennbar gekennzeichnet. Sie erhalten Anhänger für Ihr Gepäck, Ihren Rollstuhl und alles andere, was Sie mitnehmen. Alles muss mit diesen Anhängern versehen werden, auch wenn Sie schon eigene haben; die Anhänger folgen einem System, das den Organisatoren beim Umgang mit dem Gepäck hilft.</p><p>Sie bekommen außerdem ein Namensschild zum Umhängen mit Ihrem Namen, Ihrer Unterkunft, der Bezeichnung unserer Gruppe und den Kontaktdaten des Organisators Ihrer Gruppe. Um das Gepäck kümmert sich das Organisationsteam von der Abfertigung am Flughafen bis zur Ankunft im Hotel.</p>"
+  ],
+  [
+   "Gibt es während der Reise Verpflegung?",
+   "<p>Während des Fluges wird an Bord die übliche Verpflegung serviert. Diabetiker nehmen nach vorheriger Absprache die nötige Insulindosis mit ins Flugzeug.</p>"
+  ],
+  [
+   "Wo werden wir untergebracht?",
+   "<p>Die Unterbringung erfolgt im Hotel oder im Accueil. Eine ausführliche Beschreibung finden Sie in den Reiseinformationen. Die Gepäckanhänger haben je nach Unterkunft unterschiedliche Farben; deshalb ist es unbedingt nötig, dass jedes Gepäckstück den Anhänger trägt, den Sie von den Organisatoren erhalten.</p>"
+  ],
+  [
+   "Wie sind die Zimmer ausgestattet?",
+   "<p>Im Accueil gibt es Zwei-, Drei- und Sechsbettzimmer, vollständig barrierefrei, mit Bad und WC. Sämtliche Bettwäsche und die nötige Pflegeausstattung sind vorhanden. Im Hotel gibt es Zwei- und Dreibettzimmer mit Bad und WC, Bettwäsche und Handtüchern.</p>"
+  ],
+  [
+   "Wie ist die Verpflegung vor Ort geregelt?",
+   "<p>Alle erhalten Vollpension in ihrer Unterkunft (Hotel oder Accueil). Serviert werden in der Regel ein französisches Frühstück sowie ein Mittag- und Abendessen mit mehreren Gängen. Nach den Angaben in der Anmeldung sorgen wir für Diätkost.</p>"
+  ],
+  [
+   "Wie wird das Programm vor Ort organisiert?",
+   "<p>Wir alle nehmen an der internationalen Wallfahrt des Malteserordens teil und folgen deshalb dem gemeinsamen Programm; Einzelheiten finden Sie in der Broschüre, die Sie am Flughafen erhalten. An manche Orte gehen wir alle gemeinsam, zu anderen Zeiten teilen wir uns in kleinere Gruppen auf. Die Einzelheiten erfahren Sie vor Ort.</p>"
+  ],
+  [
+   "Wie läuft das Bad in den Bädern ab?",
+   "<p>Die Bäder, die aus der Quelle der Grotte gespeist werden, sind gut organisiert. Alles wird von Freiwilligen vor Ort geleitet, und im Wasser stehen Helfer bereit. Eigene Badekleidung ist nicht nötig; Sie erhalten ein Tuch, mit dem Sie sich beim Eintauchen bedecken. Alles geschieht ruhig und würdevoll, und die Helfer sind sehr rücksichtsvoll.</p>"
+  ],
+  [
+   "Was sollen Priester mitbringen?",
+   "<p>Zur Konzelebration bringen Priester ein tschechisches Messbuch, eine Albe und eine Stola mit. Alles andere für die Feier der heiligen Messe ist vor Ort vorhanden.</p>"
+  ],
+  [
+   "Ist die Teilnahme an der heiligen Messe jeden Tag möglich?",
+   "<p>Die heilige Messe ist für jeden Tag geplant. Am An- und Abreisetag sind Änderungen möglich, da dann alles vom Verlauf der Reise und vom Wetter abhängt.</p><p>Falls Ihnen etwas verwirrend erscheint, bedenken Sie bitte, dass alle Termine in Lourdes ein Jahr im Voraus angemeldet werden mussten und die Organisatoren in Lourdes die Wünsche aller Gruppen aufeinander abstimmen müssen.</p>"
+  ],
+  [
+   "Kann ich Lourdes-Wasser mit nach Hause nehmen?",
+   "<p>Am Felsen gibt es eigene Wasserhähne, an denen die Pilger beliebig viel Wasser in eigene Gefäße abfüllen können. Flaschen in allen Größen kann man vor Ort kaufen.</p>"
+  ],
+  [
+   "Sollen wir für die Reise eine Versicherung abschließen?",
+   "<p>Die tschechische Krankenversicherung garantiert in der Europäischen Union die notwendige medizinische Versorgung. Was als notwendig gilt, ist jedoch von Land zu Land verschieden, und vieles muss selbst bezahlt werden. Mit einer Reiseversicherung ist die Reise in jedem Fall sicherer.</p>"
+  ],
+  [
+   "Wo kann man Andenken aus Lourdes kaufen?",
+   "<p>In Lourdes gibt es viele Geschäfte mit Andenken aller Art. Sie liegen außerhalb des Heiligtumsbezirks und stören die Gottesdienste daher in keiner Weise. Die Geschäfte sind barrierefrei, und auch die Kranken werden genug Zeit haben, mit Hilfe ihrer Betreuer einzukaufen.</p><p>Religiöse Gegenstände können Ihnen die Priester segnen, die unsere Wallfahrt begleiten; zum Abschluss der Wallfahrt wird ganz sicher alles gesegnet.</p>"
+  ]
  ],
- "faqHome": [0, 2, 1, 3],
+ "faqHome": [
+  0,
+  2,
+  1,
+  3
+ ],
  "gallery": {
   "lead": "Fotos und kurze Berichte aus früheren Jahren.",
   "2003": "Unsere erste eigene Wallfahrt in der jüngeren Geschichte von Maltézská pomoc. 11 Kranke und 13 Teammitglieder pilgerten nach Lourdes. Die Gruppe wurde von den Ordenskaplänen P. Jiří Jeřábek und P. František Hofman begleitet. Wie auch in vielen folgenden Jahren leiteten das Ehepaar Bettina und Jiří Lobkowicz die Wallfahrt. Wir flogen mit einem Linienflug nach Paris, durchquerten Paris mit dem Bus und fuhren mit dem Hochgeschwindigkeitszug TGV bis nach Lourdes.",
@@ -180,12 +319,18 @@
   "helpsick": "Möchten Sie den Kranken aktiv helfen?"
  },
  "opts": {
-  "tp": "TP", "ztp": "ZTP", "ztpp": "ZTP/P",
+  "tp": "TP",
+  "ztp": "ZTP",
+  "ztpp": "ZTP/P",
   "wheelchair": "Schieberollstuhl (kein Elektrorollstuhl)",
   "assisted": "Rollstuhl und Gehen mit Unterstützung",
-  "self": "völlig selbstständig", "help": "mit Unterstützung", "dependent": "vollständig auf die Hilfe einer anderen Person angewiesen",
-  "yes": "ja", "no": "nein",
-  "diabetic": "Diabetikerkost", "nosalt": "salzfrei"
+  "self": "völlig selbstständig",
+  "help": "mit Unterstützung",
+  "dependent": "vollständig auf die Hilfe einer anderen Person angewiesen",
+  "yes": "ja",
+  "no": "nein",
+  "diabetic": "Diabetikerkost",
+  "nosalt": "salzfrei"
  },
  "privacyBody": "<h2>Verantwortlicher</h2><p>Verantwortlicher für die personenbezogenen Daten ist {controller} (Malteser Stiftungsfonds LOURDES), IČO {ico}, mit Sitz in {seat}, eingetragen im Stiftungsregister beim Stadtgericht Prag unter dem Aktenzeichen N 751. Fragen und Anträge zu personenbezogenen Daten richten Sie bitte an <a href=\"mailto:{email}\">{email}</a>.</p><h2>Anmeldungen zur Wallfahrt</h2><p>Die Daten aus der Anmeldung (Name, Geburtsdatum, Kontaktdaten, Angaben zum Ausweisdokument, Kontakt zu einem Familienangehörigen und bei Kranken zum Hausarzt) verarbeiten wir, um die Wallfahrt organisieren zu können: um Sie in die Wallfahrt aufzunehmen, Flugticket und Unterkunft zu besorgen und die Zahlung zu vereinbaren. Rechtsgrundlage ist die Erfüllung des Vertrags über die Teilnahme an der Wallfahrt (Art. 6 Abs. 1 lit. b DSGVO).</p><p>Angaben zum Gesundheitszustand, zu Medikamenten, Diät, Allergien und zur nötigen Pflege verarbeiten wir nur mit Ihrer ausdrücklichen Einwilligung (Art. 9 Abs. 2 lit. a DSGVO), damit wir Ihnen auf der Wallfahrt eine sichere Pflege, eine geeignete Unterkunft und Verpflegung bieten können. Sie können Ihre Einwilligung jederzeit per E-Mail widerrufen; der Widerruf berührt nicht die bis dahin erfolgte Verarbeitung, ohne diese Angaben können wir jedoch Ihre sichere Teilnahme nicht gewährleisten.</p><p>Die Daten sehen nur die Mitglieder des Organisationsteams der Wallfahrt, die sie benötigen, sowie im erforderlichen Umfang die Fluggesellschaft, die Unterkünfte und das Heiligtum von Lourdes. Nach Ende der Wallfahrt bewahren wir die Daten nur für statistische und Archivzwecke auf; die Angaben zum Gesundheitszustand löschen wir nach Ende der Wallfahrt.</p><p>Die Online-Anmeldung wird verschlüsselt übermittelt und per E-Mail über den Dienst Resend (Resend, Inc., USA) zugestellt, der für uns als Auftragsverarbeiter E-Mails versendet. Die Website speichert die Anmeldung nicht. An die in der Anmeldung angegebene E-Mail-Adresse senden wir nur eine Eingangsbestätigung, ohne Daten aus der Anmeldung.</p><h2>Cookies und Reichweitenmessung</h2><p>Diese Website verwendet keine Cookies und keine Analyse- oder Werbewerkzeuge und verfolgt die Besucher nicht. Schriften und Bilder werden direkt von dieser Website geladen.</p><h2>Betrieb der Website</h2><p>Die Website läuft auf Servern der Vercel Inc. (USA). Bei jedem Besuch werden die Daten verarbeitet, die nötig sind, um die Seite auszuliefern und die Website vor Missbrauch zu schützen (IP-Adresse, Zeitpunkt und Adresse der Anfrage, Angaben zum Browser). Rechtsgrundlage ist unser berechtigtes Interesse am sicheren Betrieb der Website (Art. 6 Abs. 1 lit. f DSGVO). Die Übermittlung in die USA erfolgt auf Grundlage des EU-US-Datenschutzrahmens (Data Privacy Framework) oder von Standardvertragsklauseln.</p><h2>Ihre Rechte</h2><p>Sie haben das Recht auf Auskunft über Ihre personenbezogenen Daten, auf deren Berichtigung oder Löschung, auf Einschränkung der Verarbeitung und auf Datenübertragbarkeit, das Recht, Ihre Einwilligung zu widerrufen, und das Recht, Widerspruch gegen eine auf berechtigtem Interesse beruhende Verarbeitung einzulegen. Sie haben außerdem das Recht, Beschwerde beim Amt für den Schutz personenbezogener Daten (Úřad pro ochranu osobních údajů), Pplk. Sochora 27, 170 00 Praha 7, <a href=\"https://uoou.gov.cz/\">uoou.gov.cz</a>, einzulegen.</p><p>Letzte Aktualisierung: 18. Oktober 2026.</p>"
 }

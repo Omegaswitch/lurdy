@@ -389,6 +389,14 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .apply .consent{align-items:flex-start;min-height:0;padding-block:var(--s2)}
 .apply input[type=checkbox],.apply input[type=radio]{width:20px;height:20px;flex:none;margin:0;accent-color:var(--red)}
 .apply .consent input{margin-top:3px}
+.submit{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3) var(--s5);padding:var(--s5) var(--s6);background:var(--grey);border-top:3px solid var(--red)}
+.submit p{margin:0;flex:1 1 16rem}
+button.btn{border:0;font-family:var(--ui);cursor:pointer}
+.btn--submit{min-height:54px;padding:0 var(--s6);font-size:1.05rem;letter-spacing:.01em;gap:var(--s3);box-shadow:0 6px 16px rgba(227,26,24,.22)}
+.btn--submit::after{content:"";width:8px;height:8px;border-top:2px solid currentColor;border-right:2px solid currentColor;transform:rotate(45deg);transition:transform var(--fast) var(--ease)}
+.btn--submit:hover::after{transform:translateX(3px) rotate(45deg)}
+.paper{margin-top:var(--s7);padding-top:var(--s5);border-top:1px solid var(--rule);max-width:760px}
+.paper p{margin:var(--s2) 0 var(--s4)}
 .apply button[disabled]{opacity:.7;cursor:progress}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 @media (max-width:960px){
@@ -402,4 +410,6 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
   .next{padding:var(--s5)}
   .groups li{grid-template-columns:minmax(0,1fr);gap:2px}
   .apply fieldset{grid-template-columns:minmax(0,1fr)}
+  .submit{padding:var(--s5)}
+  .btn--submit{width:100%;justify-content:center}
 }

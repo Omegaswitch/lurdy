@@ -1,7 +1,20 @@
 {
  "langName": "Italiano",
  "locale": "it_IT",
- "months": ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"],
+ "months": [
+  "gennaio",
+  "febbraio",
+  "marzo",
+  "aprile",
+  "maggio",
+  "giugno",
+  "luglio",
+  "agosto",
+  "settembre",
+  "ottobre",
+  "novembre",
+  "dicembre"
+ ],
  "ui": {
   "skip": "Vai al contenuto",
   "menu": "Menu",
@@ -30,10 +43,22 @@
   "galleryLink": "Foto degli anni passati",
   "groupsTitle": "Chi viene con noi",
   "groups": [
-   ["Malati all’Accueil", "Soprattutto persone in sedia a rotelle e malati gravi. Alloggiano nella casa per pellegrini senza barriere architettoniche Accueil Notre-Dame, di fronte alla Grotta delle apparizioni, e ciascuno è assistito da uno a tre membri della squadra."],
-   ["Malati in albergo", "Malati che camminano da soli. Alloggiano con gli altri pellegrini in un albergo vicino al Santuario."],
-   ["Pellegrini", "Pellegrini in buona salute che desiderano fare il pellegrinaggio con noi. Alloggiano in albergo con pensione completa."],
-   ["La squadra", "Cavalieri e dame dell’Ordine e volontari che si prendono cura dei malati per tutta la durata del pellegrinaggio."]
+   [
+    "Malati all’Accueil",
+    "Soprattutto persone in sedia a rotelle e malati gravi. Alloggiano nella casa per pellegrini senza barriere architettoniche Accueil Notre-Dame, di fronte alla Grotta delle apparizioni, e ciascuno è assistito da uno a tre membri della squadra."
+   ],
+   [
+    "Malati in albergo",
+    "Malati che camminano da soli. Alloggiano con gli altri pellegrini in un albergo vicino al Santuario."
+   ],
+   [
+    "Pellegrini",
+    "Pellegrini in buona salute che desiderano fare il pellegrinaggio con noi. Alloggiano in albergo con pensione completa."
+   ],
+   [
+    "La squadra",
+    "Cavalieri e dame dell’Ordine e volontari che si prendono cura dei malati per tutta la durata del pellegrinaggio."
+   ]
   ],
   "faqTitle": "Domande frequenti",
   "faqAll": "Tutte le domande e risposte",
@@ -72,44 +97,158 @@
   "back": "Torna all’iscrizione",
   "notFound": "Pagina non trovata",
   "notFoundText": "La pagina che cercate non esiste o è stata spostata.",
-  "status": {"new": "Nuovo contenuto", "translation": "Traduzione – in attesa di revisione", "approval": "In attesa di approvazione"}
+  "status": {
+   "new": "Nuovo contenuto",
+   "translation": "Traduzione – in attesa di revisione",
+   "approval": "In attesa di approvazione"
+  },
+  "paperTitle": "Preferite il modulo cartaceo?",
+  "paperNote": "Potete scaricare il modulo (in ceco), compilarlo e inviarlo via e-mail a lurdy@lurdy.eu o per posta."
  },
- "nav": ["ucast", "prihlasky", "dotazy", "fotogalerie"],
+ "nav": [
+  "ucast",
+  "prihlasky",
+  "dotazy",
+  "fotogalerie"
+ ],
  "pages": {
-  "home": {"url": "/it/", "title": "Pellegrinaggio a Lourdes", "description": "Il pellegrinaggio con i malati a Lourdes del Gran Priorato di Boemia dell’Ordine di Malta: date, iscrizioni, domande frequenti e foto degli anni passati."},
-  "ucast": {"url": "/it/partecipare/", "title": "Partecipare", "description": "Come iscriversi al pellegrinaggio dell’Ordine a Lourdes, come pagare e come comunicare con noi.",
-   "body": "<p class=\"lead\">Se queste informazioni vi interessano e desiderate partecipare al pellegrinaggio con noi, procedete come segue:</p><ol class=\"steps\"><li><b>Inviate l’iscrizione</b><span>Scegliete il modulo del vostro gruppo nella pagina <a href=\"{prihlasky}\">Iscrizioni</a>.</span></li><li><b>Attendete la nostra comunicazione</b><span>Riceverete un messaggio sull’accettazione della vostra iscrizione al pellegrinaggio e, insieme, un codice di pagamento personale (simbolo variabile).</span></li><li><b>Pagate la quota del pellegrinaggio</b><span>Sul conto n. {account} (IBAN {iban}), indicando il codice di pagamento che vi è stato assegnato.</span></li><li><b>Indicazioni pratiche</b><span>A tempo debito riceverete ulteriori informazioni sulla partenza e sullo svolgimento del pellegrinaggio.</span></li></ol><p>Se desiderate partecipare al pellegrinaggio, inviate subito il modulo compilato. Può comunque succedere che i posti siano già esauriti e che non possiamo accettare la vostra iscrizione. Credeteci: non lo facciamo per cattiva volontà e facciamo tutto il possibile per accogliere il maggior numero di richieste. Vi preghiamo di attendere finché non vi invieremo un messaggio o non vi contatteremo noi.</p><h2>Indicazioni pratiche</h2><p>In base all’esperienza degli anni precedenti e vista la mole di lavoro che l’organizzazione del pellegrinaggio comporta, abbiamo dovuto adottare le seguenti misure:</p><ul><li>non inviamo i moduli d’iscrizione per posta: si possono scaricare da questo sito o compilare online,</li><li>inviate i moduli compilati per e-mail a <a href=\"mailto:{email}\">{email}</a> oppure per posta all’indirizzo {post}; scrivete ben visibile sulla busta la parola «Lurdy»,</li><li>tutte le ulteriori informazioni vi saranno inviate per e-mail,</li><li>vi preghiamo di non telefonare agli uffici del Gran Priorato di Boemia né di Maltézská pomoc: nessuno dei due si occupa dell’organizzazione del pellegrinaggio e non può fornire informazioni dettagliate,</li><li>per contattarci usate esclusivamente l’indirizzo <a href=\"mailto:{email}\">{email}</a>.</li></ul><p>Comprendiamo che questo possa creare difficoltà a molti di voi, ma senza queste misure la situazione sarebbe per noi ingestibile. Chiedete pure ad amici o familiari di aiutarvi con la posta elettronica.</p>"},
-  "prihlasky": {"url": "/it/iscrizioni/", "title": "Iscrizioni", "description": "Moduli d’iscrizione al pellegrinaggio dell’Ordine a Lourdes per malati, pellegrini e membri della squadra.",
-   "body": "<p class=\"lead\">Per iscrivervi al pellegrinaggio, procedete come segue:</p><ol class=\"steps\"><li><b>Scegliete il vostro gruppo</b><span>Malato alloggiato all’Accueil (soprattutto persone in sedia a rotelle e malati gravi), malato alloggiato in albergo (malati che camminano), pellegrino in buona salute alloggiato in albergo, oppure membro della squadra.</span></li><li><b>Compilate il modulo</b><span>Scegliete qui sotto il modulo che vi riguarda e compilatelo online, oppure scaricatelo e inviatelo per e-mail o per posta.</span></li><li><b>Attendete la nostra risposta</b><span>Al più presto vi invieremo informazioni dettagliate sul pagamento, sulla data di partenza e sul resto del programma.</span></li></ol><h2>Consenso al trattamento dei dati personali</h2><p>Iscrivendovi al pellegrinaggio, acconsentite che Maltézský nadační fond LOURDES tratti, ai fini dell’organizzazione del pellegrinaggio, i dati personali indicati nel modulo, compresi i dati relativi al vostro stato di salute e alle cure di cui avete bisogno. Dopo il pellegrinaggio i dati personali possono essere trattati solo per fini statistici e di archiviazione. Maggiori dettagli si trovano nell’<a href=\"{privacy}\">informativa sulla privacy</a>.</p><p>Inviando l’iscrizione dichiarate di essere consapevoli che informazioni false o incomplete sul vostro stato di salute possono causare complicazioni o mettere in pericolo la vostra vita, e ve ne assumete la piena responsabilità.</p>"},
-  "nemocni": {"url": "/it/iscrizioni/malati/", "title": "Iscrizione – malati", "description": "Modulo d’iscrizione al pellegrinaggio a Lourdes per i malati alloggiati all’Accueil o in albergo.", "lead": "Per i malati alloggiati nella casa per pellegrini senza barriere Accueil e per i malati alloggiati in albergo."},
-  "poutnici": {"url": "/it/iscrizioni/pellegrini/", "title": "Iscrizione – pellegrini", "description": "Modulo d’iscrizione al pellegrinaggio a Lourdes per i pellegrini in buona salute alloggiati in albergo.", "lead": "Per i pellegrini in buona salute alloggiati in albergo che desiderano fare il pellegrinaggio con noi."},
-  "tym": {"url": "/it/iscrizioni/squadra/", "title": "Iscrizione – squadra", "description": "Modulo d’iscrizione al pellegrinaggio a Lourdes per i membri della squadra di assistenza e di servizio.", "lead": "Per i membri della squadra di assistenza e di servizio che durante il pellegrinaggio si prendono cura dei malati."},
-  "odeslano": {"url": "/it/iscrizioni/inviata/", "title": "Iscrizione inviata", "description": "La vostra iscrizione al pellegrinaggio a Lourdes è stata inviata.", "body": "<p class=\"lead\">Grazie, la vostra iscrizione è stata inviata. Nei prossimi giorni vi contatteremo per confermare la vostra partecipazione al pellegrinaggio.</p>"},
-  "dotazy": {"url": "/it/domande-frequenti/", "title": "Domande frequenti", "description": "Risposte alle domande più frequenti sul pellegrinaggio a Lourdes: bagagli, meteo, viaggiare in sedia a rotelle, alloggio, pasti e programma."},
-  "fotogalerie": {"url": "/it/galleria/", "title": "Galleria fotografica", "description": "Foto e brevi resoconti dei pellegrinaggi del Gran Priorato di Boemia a Lourdes dal 2003."},
-  "soukromi": {"url": "/it/privacy/", "title": "Privacy", "description": "Come Maltézský nadační fond LOURDES tratta i dati personali delle iscrizioni al pellegrinaggio a Lourdes e i dati dei visitatori del sito."}
+  "home": {
+   "url": "/it/",
+   "title": "Pellegrinaggio a Lourdes",
+   "description": "Il pellegrinaggio con i malati a Lourdes del Gran Priorato di Boemia dell’Ordine di Malta: date, iscrizioni, domande frequenti e foto degli anni passati."
+  },
+  "ucast": {
+   "url": "/it/partecipare/",
+   "title": "Partecipare",
+   "description": "Come iscriversi al pellegrinaggio dell’Ordine a Lourdes, come pagare e come comunicare con noi.",
+   "body": "<p class=\"lead\">Se queste informazioni vi interessano e desiderate partecipare al pellegrinaggio con noi, procedete come segue:</p><ol class=\"steps\"><li><b>Inviate l’iscrizione</b><span>Scegliete il modulo del vostro gruppo nella pagina <a href=\"{prihlasky}\">Iscrizioni</a>.</span></li><li><b>Attendete la nostra comunicazione</b><span>Riceverete un messaggio sull’accettazione della vostra iscrizione al pellegrinaggio e, insieme, un codice di pagamento personale (simbolo variabile).</span></li><li><b>Pagate la quota del pellegrinaggio</b><span>Sul conto n. {account} (IBAN {iban}), indicando il codice di pagamento che vi è stato assegnato.</span></li><li><b>Indicazioni pratiche</b><span>A tempo debito riceverete ulteriori informazioni sulla partenza e sullo svolgimento del pellegrinaggio.</span></li></ol><p>Se desiderate partecipare al pellegrinaggio, inviate subito il modulo compilato. Può comunque succedere che i posti siano già esauriti e che non possiamo accettare la vostra iscrizione. Credeteci: non lo facciamo per cattiva volontà e facciamo tutto il possibile per accogliere il maggior numero di richieste. Vi preghiamo di attendere finché non vi invieremo un messaggio o non vi contatteremo noi.</p><h2>Indicazioni pratiche</h2><p>In base all’esperienza degli anni precedenti e vista la mole di lavoro che l’organizzazione del pellegrinaggio comporta, abbiamo dovuto adottare le seguenti misure:</p><ul><li>non inviamo i moduli d’iscrizione per posta: si possono scaricare da questo sito o compilare online,</li><li>inviate i moduli compilati per e-mail a <a href=\"mailto:{email}\">{email}</a> oppure per posta all’indirizzo {post}; scrivete ben visibile sulla busta la parola «Lurdy»,</li><li>tutte le ulteriori informazioni vi saranno inviate per e-mail,</li><li>vi preghiamo di non telefonare agli uffici del Gran Priorato di Boemia né di Maltézská pomoc: nessuno dei due si occupa dell’organizzazione del pellegrinaggio e non può fornire informazioni dettagliate,</li><li>per contattarci usate esclusivamente l’indirizzo <a href=\"mailto:{email}\">{email}</a>.</li></ul><p>Comprendiamo che questo possa creare difficoltà a molti di voi, ma senza queste misure la situazione sarebbe per noi ingestibile. Chiedete pure ad amici o familiari di aiutarvi con la posta elettronica.</p>"
+  },
+  "prihlasky": {
+   "url": "/it/iscrizioni/",
+   "title": "Iscrizioni",
+   "description": "Moduli d’iscrizione al pellegrinaggio dell’Ordine a Lourdes per malati, pellegrini e membri della squadra.",
+   "body": "<p class=\"lead\">Per iscrivervi al pellegrinaggio, procedete come segue:</p><ol class=\"steps\"><li><b>Scegliete il vostro gruppo</b><span>Malato alloggiato all’Accueil (soprattutto persone in sedia a rotelle e malati gravi), malato alloggiato in albergo (malati che camminano), pellegrino in buona salute alloggiato in albergo, oppure membro della squadra.</span></li><li><b>Compilate il modulo</b><span>Scegliete qui sotto il modulo che vi riguarda e compilatelo online, oppure scaricatelo e inviatelo per e-mail o per posta.</span></li><li><b>Attendete la nostra risposta</b><span>Al più presto vi invieremo informazioni dettagliate sul pagamento, sulla data di partenza e sul resto del programma.</span></li></ol><h2>Consenso al trattamento dei dati personali</h2><p>Iscrivendovi al pellegrinaggio, acconsentite che Maltézský nadační fond LOURDES tratti, ai fini dell’organizzazione del pellegrinaggio, i dati personali indicati nel modulo, compresi i dati relativi al vostro stato di salute e alle cure di cui avete bisogno. Dopo il pellegrinaggio i dati personali possono essere trattati solo per fini statistici e di archiviazione. Maggiori dettagli si trovano nell’<a href=\"{privacy}\">informativa sulla privacy</a>.</p><p>Inviando l’iscrizione dichiarate di essere consapevoli che informazioni false o incomplete sul vostro stato di salute possono causare complicazioni o mettere in pericolo la vostra vita, e ve ne assumete la piena responsabilità.</p>"
+  },
+  "nemocni": {
+   "url": "/it/iscrizioni/malati/",
+   "title": "Iscrizione – malati",
+   "description": "Modulo d’iscrizione al pellegrinaggio a Lourdes per i malati alloggiati all’Accueil o in albergo.",
+   "lead": "Per i malati alloggiati nella casa per pellegrini senza barriere Accueil e per i malati alloggiati in albergo."
+  },
+  "poutnici": {
+   "url": "/it/iscrizioni/pellegrini/",
+   "title": "Iscrizione – pellegrini",
+   "description": "Modulo d’iscrizione al pellegrinaggio a Lourdes per i pellegrini in buona salute alloggiati in albergo.",
+   "lead": "Per i pellegrini in buona salute alloggiati in albergo che desiderano fare il pellegrinaggio con noi."
+  },
+  "tym": {
+   "url": "/it/iscrizioni/squadra/",
+   "title": "Iscrizione – squadra",
+   "description": "Modulo d’iscrizione al pellegrinaggio a Lourdes per i membri della squadra di assistenza e di servizio.",
+   "lead": "Per i membri della squadra di assistenza e di servizio che durante il pellegrinaggio si prendono cura dei malati."
+  },
+  "odeslano": {
+   "url": "/it/iscrizioni/inviata/",
+   "title": "Iscrizione inviata",
+   "description": "La vostra iscrizione al pellegrinaggio a Lourdes è stata inviata.",
+   "body": "<p class=\"lead\">Grazie, la vostra iscrizione è stata inviata. Nei prossimi giorni vi contatteremo per confermare la vostra partecipazione al pellegrinaggio.</p>"
+  },
+  "dotazy": {
+   "url": "/it/domande-frequenti/",
+   "title": "Domande frequenti",
+   "description": "Risposte alle domande più frequenti sul pellegrinaggio a Lourdes: bagagli, meteo, viaggiare in sedia a rotelle, alloggio, pasti e programma."
+  },
+  "fotogalerie": {
+   "url": "/it/galleria/",
+   "title": "Galleria fotografica",
+   "description": "Foto e brevi resoconti dei pellegrinaggi del Gran Priorato di Boemia a Lourdes dal 2003."
+  },
+  "soukromi": {
+   "url": "/it/privacy/",
+   "title": "Privacy",
+   "description": "Come Maltézský nadační fond LOURDES tratta i dati personali delle iscrizioni al pellegrinaggio a Lourdes e i dati dei visitatori del sito."
+  }
  },
  "faq": [
-  ["Perché i membri dell’Ordine di Malta vanno a Lourdes e si prendono cura dei malati?", "<p>Fin dalla sua fondazione nell’XI secolo, l’Ordine ha avuto tra le sue priorità, accanto alla difesa della fede, la cura dei malati e dei sofferenti. I membri dell’Ordine offrivano loro le cure e l’aiuto necessari, sempre al miglior livello disponibile all’epoca. Fin dall’inizio i Cavalieri di Malta sono stati anche grandi devoti della Madonna.</p><p>A Lourdes queste due dimensioni della vita dei membri dell’Ordine si uniscono. Andiamo in pellegrinaggio a Lourdes per onorare la Madonna e, allo stesso tempo, ci prendiamo cura dei malati e dei sofferenti, e non solo nel corpo. Anche a Lourdes, secondo la tradizione dell’Ordine, cerchiamo di offrire le cure migliori e il massimo conforto ai malati, che i Cavalieri di Malta da secoli chiamano «i nostri signori malati».</p><p>Per tutti i membri della nostra «grande famiglia melitense» è sempre una gioia incontrare gli altri, provenienti da paesi diversi. Ogni anno a Lourdes si riuniscono circa 10.000 membri e volontari dell’Ordine, ed è per noi incoraggiante sapere di appartenere a una grande famiglia con una tradizione millenaria.</p>"],
-  ["Perché i membri della squadra portano sull’uniforme la scritta «BOHEMIA»?", "<p>Il nostro pellegrinaggio è organizzato dal Gran Priorato di Boemia dell’Ordine di Malta, in francese Grand Prieuré de Bohême. Bohemia è il nome latino dei Paesi della Corona boema. Il Gran Priorato di Boemia è uno dei più antichi al mondo ed esiste ininterrottamente dalla sua fondazione. Per rispetto di questa tradizione, tutti i membri del nostro gruppo, di qualunque nazionalità siano, portano sull’uniforme lo scudetto BOHEMIA.</p>"],
-  ["Quali bagagli portare?", "<p>È meglio sistemare le proprie cose in una valigia e in un bagaglio a mano più piccolo. Il bagaglio a mano deve rispettare le norme di sicurezza aeroportuali: non deve contenere coltelli, forbici o altri oggetti appuntiti o taglienti, anche minuscoli, né liquidi. Questi vengono sequestrati senza eccezioni al controllo di sicurezza.</p><p>Non dimenticate di portare tutti i medicinali che assumete, in quantità sufficiente.</p>"],
-  ["Che tempo aspettarsi e come vestirsi?", "<p>Preparate abiti sia per il caldo sia per il freddo e per la pioggia: il tempo a Lourdes è imprevedibile. Consigliamo di vestirsi a strati da combinare o togliere (per esempio un maglione di lana) e di portare un copricapo contro il sole e la pioggia. Se usate una sedia a rotelle, è utile anche una mantella antipioggia per la sedia.</p>"],
-  ["Come si viaggia in aereo con la sedia a rotelle?", "<p>All’aeroporto il pellegrino in sedia a rotelle fa il check-in insieme alla sedia e, con l’aiuto del suo assistente della squadra maltese, arriva con essa fino all’aereo. Il personale aeroportuale specializzato lo aiuta a salire a bordo e la sedia viene sistemata nella stiva. Dopo l’atterraggio tutto si svolge allo stesso modo, in ordine inverso.</p>"],
-  ["Perché non è possibile viaggiare con una sedia a rotelle elettrica?", "<p>Le compagnie aeree non lo desiderano per motivi di sicurezza. Anche con un’autorizzazione individuale, il comandante può rifiutare il trasporto di una sedia di questo tipo. Anche a Lourdes una sedia elettrica sarebbe piuttosto un impaccio, considerati il traffico e l’organizzazione sul posto.</p>"],
-  ["Chi si occuperà dei nostri bagagli?", "<p>Arrivati all’aeroporto, presentatevi agli incaricati della squadra organizzativa, che saranno ben riconoscibili. Riceverete le etichette per i bagagli, per la sedia a rotelle e per tutti gli altri oggetti che portate con voi. Tutto deve essere contrassegnato con queste etichette, anche se avete già le vostre: le etichette seguono un sistema che aiuta gli organizzatori nella gestione dei bagagli.</p><p>Riceverete anche un cartellino da portare al collo con il vostro nome, il luogo di alloggio, il nome del nostro gruppo e il recapito dell’organizzatore del vostro gruppo. Dei bagagli si occupa la squadra organizzativa, dal check-in all’aeroporto fino all’arrivo in albergo.</p>"],
-  ["Sono previsti i pasti durante il viaggio?", "<p>Durante il volo viene servito a bordo il consueto spuntino. I diabetici, previo accordo, portano in aereo la dose di insulina necessaria.</p>"],
-  ["Dove alloggeremo?", "<p>L’alloggio è previsto in albergo o all’Accueil. Una descrizione dettagliata si trova nelle informazioni di viaggio. Le etichette dei bagagli hanno colori diversi a seconda del luogo di alloggio: è quindi indispensabile che ogni bagaglio porti l’etichetta che riceverete dagli organizzatori.</p>"],
-  ["Come sono attrezzate le camere?", "<p>All’Accueil ci sono camere a due, tre e sei letti, completamente senza barriere architettoniche, con bagno e WC. Sono a disposizione tutta la biancheria da letto e le attrezzature assistenziali necessarie. In albergo ci sono camere a due e tre letti con bagno e WC, biancheria da letto e asciugamani.</p>"],
-  ["Come sono organizzati i pasti sul posto?", "<p>Ognuno consuma i pasti nel luogo in cui alloggia (albergo o Accueil), con pensione completa. Di solito vengono serviti una colazione continentale e un pranzo e una cena di più portate. In base alle indicazioni del modulo d’iscrizione prepareremo pasti dietetici.</p>"],
-  ["Come sarà organizzato il programma sul posto?", "<p>Partecipiamo tutti al pellegrinaggio internazionale dell’Ordine di Malta e prendiamo quindi parte al programma comune; i dettagli si trovano nell’opuscolo che riceverete all’aeroporto. In alcuni luoghi andremo tutti insieme, altre volte ci divideremo in gruppi più piccoli. I dettagli vi saranno comunicati sul posto.</p>"],
-  ["Come si svolge il bagno nelle piscine?", "<p>Le piscine, alimentate dalla sorgente della Grotta, sono ben organizzate. Tutto è diretto da volontari del posto e in acqua aiutano degli assistenti. Non serve un costume da bagno: vi verrà dato un telo con cui coprirvi durante l’immersione. Tutto si svolge con calma e dignità, e gli assistenti sono molto premurosi.</p>"],
-  ["Che cosa devono portare i sacerdoti?", "<p>Per concelebrare, i sacerdoti portano un messale ceco, il camice e la stola. Tutto il resto per la celebrazione della santa messa è disponibile sul posto.</p>"],
-  ["Sarà possibile partecipare alla santa messa ogni giorno?", "<p>La santa messa è prevista ogni giorno. Sono possibili cambiamenti nei giorni di arrivo e di partenza, quando tutto dipende dall’andamento del viaggio e dal tempo.</p><p>Se qualcosa vi sembrasse confuso, tenete presente che tutti gli orari sono stati prenotati a Lourdes con un anno di anticipo e che gli organizzatori di Lourdes devono conciliare le richieste di tutti i gruppi.</p>"],
-  ["Posso portare a casa l’acqua di Lourdes?", "<p>Vicino alla roccia ci sono appositi rubinetti dai quali i pellegrini possono riempire i propri contenitori con tutta l’acqua che desiderano. Sul posto si possono acquistare bottiglie di ogni misura.</p>"],
-  ["Conviene assicurarsi per il viaggio?", "<p>L’assicurazione sanitaria ceca garantisce le cure mediche necessarie nell’Unione europea. Tuttavia, che cosa si intenda per cure necessarie varia da paese a paese e molte prestazioni sono a pagamento. In ogni caso, con un’assicurazione di viaggio si viaggia più tranquilli.</p>"],
-  ["Dove si possono comprare i ricordi di Lourdes?", "<p>A Lourdes ci sono molti negozi di souvenir di ogni genere. Si trovano fuori dall’area del Santuario e quindi non disturbano in alcun modo le celebrazioni. I negozi sono senza barriere e anche i malati avranno tempo a sufficienza per fare acquisti con l’aiuto dei loro assistenti.</p><p>Gli oggetti sacri possono essere benedetti dai sacerdoti che accompagnano il nostro pellegrinaggio; alla fine del pellegrinaggio tutto sarà sicuramente benedetto.</p>"]
+  [
+   "Perché i membri dell’Ordine di Malta vanno a Lourdes e si prendono cura dei malati?",
+   "<p>Fin dalla sua fondazione nell’XI secolo, l’Ordine ha avuto tra le sue priorità, accanto alla difesa della fede, la cura dei malati e dei sofferenti. I membri dell’Ordine offrivano loro le cure e l’aiuto necessari, sempre al miglior livello disponibile all’epoca. Fin dall’inizio i Cavalieri di Malta sono stati anche grandi devoti della Madonna.</p><p>A Lourdes queste due dimensioni della vita dei membri dell’Ordine si uniscono. Andiamo in pellegrinaggio a Lourdes per onorare la Madonna e, allo stesso tempo, ci prendiamo cura dei malati e dei sofferenti, e non solo nel corpo. Anche a Lourdes, secondo la tradizione dell’Ordine, cerchiamo di offrire le cure migliori e il massimo conforto ai malati, che i Cavalieri di Malta da secoli chiamano «i nostri signori malati».</p><p>Per tutti i membri della nostra «grande famiglia melitense» è sempre una gioia incontrare gli altri, provenienti da paesi diversi. Ogni anno a Lourdes si riuniscono circa 10.000 membri e volontari dell’Ordine, ed è per noi incoraggiante sapere di appartenere a una grande famiglia con una tradizione millenaria.</p>"
+  ],
+  [
+   "Perché i membri della squadra portano sull’uniforme la scritta «BOHEMIA»?",
+   "<p>Il nostro pellegrinaggio è organizzato dal Gran Priorato di Boemia dell’Ordine di Malta, in francese Grand Prieuré de Bohême. Bohemia è il nome latino dei Paesi della Corona boema. Il Gran Priorato di Boemia è uno dei più antichi al mondo ed esiste ininterrottamente dalla sua fondazione. Per rispetto di questa tradizione, tutti i membri del nostro gruppo, di qualunque nazionalità siano, portano sull’uniforme lo scudetto BOHEMIA.</p>"
+  ],
+  [
+   "Quali bagagli portare?",
+   "<p>È meglio sistemare le proprie cose in una valigia e in un bagaglio a mano più piccolo. Il bagaglio a mano deve rispettare le norme di sicurezza aeroportuali: non deve contenere coltelli, forbici o altri oggetti appuntiti o taglienti, anche minuscoli, né liquidi. Questi vengono sequestrati senza eccezioni al controllo di sicurezza.</p><p>Non dimenticate di portare tutti i medicinali che assumete, in quantità sufficiente.</p>"
+  ],
+  [
+   "Che tempo aspettarsi e come vestirsi?",
+   "<p>Preparate abiti sia per il caldo sia per il freddo e per la pioggia: il tempo a Lourdes è imprevedibile. Consigliamo di vestirsi a strati da combinare o togliere (per esempio un maglione di lana) e di portare un copricapo contro il sole e la pioggia. Se usate una sedia a rotelle, è utile anche una mantella antipioggia per la sedia.</p>"
+  ],
+  [
+   "Come si viaggia in aereo con la sedia a rotelle?",
+   "<p>All’aeroporto il pellegrino in sedia a rotelle fa il check-in insieme alla sedia e, con l’aiuto del suo assistente della squadra maltese, arriva con essa fino all’aereo. Il personale aeroportuale specializzato lo aiuta a salire a bordo e la sedia viene sistemata nella stiva. Dopo l’atterraggio tutto si svolge allo stesso modo, in ordine inverso.</p>"
+  ],
+  [
+   "Perché non è possibile viaggiare con una sedia a rotelle elettrica?",
+   "<p>Le compagnie aeree non lo desiderano per motivi di sicurezza. Anche con un’autorizzazione individuale, il comandante può rifiutare il trasporto di una sedia di questo tipo. Anche a Lourdes una sedia elettrica sarebbe piuttosto un impaccio, considerati il traffico e l’organizzazione sul posto.</p>"
+  ],
+  [
+   "Chi si occuperà dei nostri bagagli?",
+   "<p>Arrivati all’aeroporto, presentatevi agli incaricati della squadra organizzativa, che saranno ben riconoscibili. Riceverete le etichette per i bagagli, per la sedia a rotelle e per tutti gli altri oggetti che portate con voi. Tutto deve essere contrassegnato con queste etichette, anche se avete già le vostre: le etichette seguono un sistema che aiuta gli organizzatori nella gestione dei bagagli.</p><p>Riceverete anche un cartellino da portare al collo con il vostro nome, il luogo di alloggio, il nome del nostro gruppo e il recapito dell’organizzatore del vostro gruppo. Dei bagagli si occupa la squadra organizzativa, dal check-in all’aeroporto fino all’arrivo in albergo.</p>"
+  ],
+  [
+   "Sono previsti i pasti durante il viaggio?",
+   "<p>Durante il volo viene servito a bordo il consueto spuntino. I diabetici, previo accordo, portano in aereo la dose di insulina necessaria.</p>"
+  ],
+  [
+   "Dove alloggeremo?",
+   "<p>L’alloggio è previsto in albergo o all’Accueil. Una descrizione dettagliata si trova nelle informazioni di viaggio. Le etichette dei bagagli hanno colori diversi a seconda del luogo di alloggio: è quindi indispensabile che ogni bagaglio porti l’etichetta che riceverete dagli organizzatori.</p>"
+  ],
+  [
+   "Come sono attrezzate le camere?",
+   "<p>All’Accueil ci sono camere a due, tre e sei letti, completamente senza barriere architettoniche, con bagno e WC. Sono a disposizione tutta la biancheria da letto e le attrezzature assistenziali necessarie. In albergo ci sono camere a due e tre letti con bagno e WC, biancheria da letto e asciugamani.</p>"
+  ],
+  [
+   "Come sono organizzati i pasti sul posto?",
+   "<p>Ognuno consuma i pasti nel luogo in cui alloggia (albergo o Accueil), con pensione completa. Di solito vengono serviti una colazione continentale e un pranzo e una cena di più portate. In base alle indicazioni del modulo d’iscrizione prepareremo pasti dietetici.</p>"
+  ],
+  [
+   "Come sarà organizzato il programma sul posto?",
+   "<p>Partecipiamo tutti al pellegrinaggio internazionale dell’Ordine di Malta e prendiamo quindi parte al programma comune; i dettagli si trovano nell’opuscolo che riceverete all’aeroporto. In alcuni luoghi andremo tutti insieme, altre volte ci divideremo in gruppi più piccoli. I dettagli vi saranno comunicati sul posto.</p>"
+  ],
+  [
+   "Come si svolge il bagno nelle piscine?",
+   "<p>Le piscine, alimentate dalla sorgente della Grotta, sono ben organizzate. Tutto è diretto da volontari del posto e in acqua aiutano degli assistenti. Non serve un costume da bagno: vi verrà dato un telo con cui coprirvi durante l’immersione. Tutto si svolge con calma e dignità, e gli assistenti sono molto premurosi.</p>"
+  ],
+  [
+   "Che cosa devono portare i sacerdoti?",
+   "<p>Per concelebrare, i sacerdoti portano un messale ceco, il camice e la stola. Tutto il resto per la celebrazione della santa messa è disponibile sul posto.</p>"
+  ],
+  [
+   "Sarà possibile partecipare alla santa messa ogni giorno?",
+   "<p>La santa messa è prevista ogni giorno. Sono possibili cambiamenti nei giorni di arrivo e di partenza, quando tutto dipende dall’andamento del viaggio e dal tempo.</p><p>Se qualcosa vi sembrasse confuso, tenete presente che tutti gli orari sono stati prenotati a Lourdes con un anno di anticipo e che gli organizzatori di Lourdes devono conciliare le richieste di tutti i gruppi.</p>"
+  ],
+  [
+   "Posso portare a casa l’acqua di Lourdes?",
+   "<p>Vicino alla roccia ci sono appositi rubinetti dai quali i pellegrini possono riempire i propri contenitori con tutta l’acqua che desiderano. Sul posto si possono acquistare bottiglie di ogni misura.</p>"
+  ],
+  [
+   "Conviene assicurarsi per il viaggio?",
+   "<p>L’assicurazione sanitaria ceca garantisce le cure mediche necessarie nell’Unione europea. Tuttavia, che cosa si intenda per cure necessarie varia da paese a paese e molte prestazioni sono a pagamento. In ogni caso, con un’assicurazione di viaggio si viaggia più tranquilli.</p>"
+  ],
+  [
+   "Dove si possono comprare i ricordi di Lourdes?",
+   "<p>A Lourdes ci sono molti negozi di souvenir di ogni genere. Si trovano fuori dall’area del Santuario e quindi non disturbano in alcun modo le celebrazioni. I negozi sono senza barriere e anche i malati avranno tempo a sufficienza per fare acquisti con l’aiuto dei loro assistenti.</p><p>Gli oggetti sacri possono essere benedetti dai sacerdoti che accompagnano il nostro pellegrinaggio; alla fine del pellegrinaggio tutto sarà sicuramente benedetto.</p>"
+  ]
  ],
- "faqHome": [0, 2, 1, 3],
+ "faqHome": [
+  0,
+  2,
+  1,
+  3
+ ],
  "gallery": {
   "lead": "Foto e brevi resoconti degli anni passati.",
   "2003": "Il nostro primo pellegrinaggio autonomo nella storia recente di Maltézská pomoc. A Lourdes si recarono 11 malati e 13 membri della squadra. Il gruppo era accompagnato dai cappellani dell’Ordine don Jiří Jeřábek e don František Hofman. Come per molti anni a seguire, il pellegrinaggio era guidato dai coniugi Bettina e Jiří Lobkowicz. Prendemmo un volo di linea per Parigi, attraversammo Parigi in pullman e proseguimmo fino a Lourdes con il treno ad alta velocità TGV.",
@@ -180,12 +319,18 @@
   "helpsick": "Desiderate aiutare attivamente i malati?"
  },
  "opts": {
-  "tp": "TP", "ztp": "ZTP", "ztpp": "ZTP/P",
+  "tp": "TP",
+  "ztp": "ZTP",
+  "ztpp": "ZTP/P",
   "wheelchair": "sedia a rotelle manuale (non elettrica)",
   "assisted": "sedia a rotelle e deambulazione con aiuto",
-  "self": "pienamente autosufficiente", "help": "con aiuto", "dependent": "totalmente dipendente dall’aiuto di un’altra persona",
-  "yes": "sì", "no": "no",
-  "diabetic": "per diabetici", "nosalt": "senza sale"
+  "self": "pienamente autosufficiente",
+  "help": "con aiuto",
+  "dependent": "totalmente dipendente dall’aiuto di un’altra persona",
+  "yes": "sì",
+  "no": "no",
+  "diabetic": "per diabetici",
+  "nosalt": "senza sale"
  },
  "privacyBody": "<h2>Titolare del trattamento</h2><p>Il titolare del trattamento dei dati personali è {controller} (Fondo di fondazione maltese LOURDES), IČO {ico}, con sede in {seat}, iscritto nel registro delle fondazioni tenuto dal Tribunale municipale di Praga al n. N 751. Domande e richieste relative ai dati personali vanno inviate a <a href=\"mailto:{email}\">{email}</a>.</p><h2>Iscrizioni al pellegrinaggio</h2><p>Trattiamo i dati del modulo d’iscrizione (nome, data di nascita, recapiti, dati del documento d’identità, recapito di un familiare e, per i malati, del medico di base) per poter organizzare il pellegrinaggio: iscrivervi al pellegrinaggio, provvedere al biglietto aereo e all’alloggio e concordare il pagamento. La base giuridica è l’esecuzione del contratto di partecipazione al pellegrinaggio (art. 6, paragrafo 1, lettera b) del GDPR).</p><p>Trattiamo i dati relativi allo stato di salute, ai farmaci, alla dieta, alle allergie e all’assistenza necessaria solo con il vostro consenso esplicito (art. 9, paragrafo 2, lettera a) del GDPR), per potervi garantire durante il pellegrinaggio un’assistenza sicura, un alloggio e pasti adeguati. Potete revocare il consenso in qualsiasi momento per e-mail; la revoca non pregiudica il trattamento effettuato in precedenza, ma senza questi dati non possiamo garantire la vostra partecipazione in sicurezza.</p><p>I dati sono visibili solo ai membri della squadra organizzativa del pellegrinaggio che ne hanno bisogno e, nella misura necessaria, alla compagnia aerea, alle strutture ricettive e al Santuario di Lourdes. Dopo il pellegrinaggio conserviamo i dati solo per fini statistici e di archiviazione; i dati relativi allo stato di salute vengono cancellati al termine del pellegrinaggio.</p><p>L’iscrizione online viene trasmessa in forma cifrata e recapitata per e-mail tramite il servizio Resend (Resend, Inc., USA), che invia le e-mail per nostro conto in qualità di responsabile del trattamento. Il sito non memorizza l’iscrizione. All’indirizzo e-mail indicato nell’iscrizione inviamo solo una conferma di ricezione, senza i dati dell’iscrizione.</p><h2>Cookie e misurazione delle visite</h2><p>Questo sito non utilizza cookie né strumenti di analisi o pubblicitari e non traccia i visitatori. I caratteri e le immagini vengono caricati direttamente da questo sito.</p><h2>Gestione del sito</h2><p>Il sito è ospitato sui server della società Vercel Inc. (USA). A ogni visita vengono trattati i dati necessari per visualizzare la pagina e proteggere il sito da abusi (indirizzo IP, ora e indirizzo della richiesta, informazioni sul browser). La base giuridica è il nostro legittimo interesse al funzionamento sicuro del sito (art. 6, paragrafo 1, lettera f) del GDPR). Il trasferimento negli USA è disciplinato dal quadro UE–USA per la protezione dei dati personali (Data Privacy Framework) o da clausole contrattuali tipo.</p><h2>I vostri diritti</h2><p>Avete il diritto di accesso ai vostri dati personali, di rettifica o cancellazione, di limitazione del trattamento e alla portabilità dei dati, il diritto di revocare il consenso e il diritto di opporvi al trattamento basato sul legittimo interesse. Avete inoltre il diritto di proporre reclamo all’Ufficio per la protezione dei dati personali (Úřad pro ochranu osobních údajů), Pplk. Sochora 27, 170 00 Praha 7, <a href=\"https://uoou.gov.cz/\">uoou.gov.cz</a>.</p><p>Ultimo aggiornamento: 18 ottobre 2026.</p>"
 }

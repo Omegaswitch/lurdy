@@ -58,9 +58,8 @@ def image_size(rel_url):
 
 def photo(name, alt, sizes="100vw", eager=False, cls=""):
     """/media/<name>-800.webp plus the 1600 px version when it exists."""
-    src = f"/media/{name}-800.webp"
-    big = f"/media/{name}-1600.webp"
-    srcset = f' srcset="{src} 800w, {big} 1600w" sizes="{esc(sizes)}"' if (STATIC / big.lstrip("/")).exists() else ""
+    src, small, big = (f"/media/{name}-{w}.webp" for w in (800, 480, 1600))
+    srcset = f' srcset="{small} 480w, {src} 800w' + (f', {big} 1600w' if (STATIC / big.lstrip("/")).exists() else "") + f'" sizes="{esc(sizes)}"'
     w, h = image_size(src)
     load = 'fetchpriority="high"' if eager else 'loading="lazy"'
     return f'<img class="ph-img {cls}" src="{src}"{srcset} alt="{esc(alt)}" width="{w}" height="{h}" {load} decoding="async">'
@@ -93,6 +92,8 @@ def facts(lang):
 # ---------------------------------------------------------------- layout
 
 FONTS_PRELOAD = ["asap-latin-400-normal", "eb-garamond-latin-500-normal"]
+# inlined in every page (about 8 kB compressed): no render-blocking stylesheet request
+CSS = re.sub(r"\s*([{}:;,>])\s*", r"\1", re.sub(r"/\*.*?\*/|\n\s*", "", (STATIC / "css" / "site.css").read_text(encoding="utf-8"), flags=re.S)).replace(";}", "}")
 
 
 def lang_switch(lang, key):
@@ -129,7 +130,8 @@ def layout(*, lang, key, title, body, description="", image="/media/lurdy-1600.w
     robots = '<meta name="robots" content="noindex, nofollow">' if not PRODUCTION or robots_extra else ""
     alt_links = "".join(f'<link rel="alternate" hreflang="{l}" href="{SITE["baseUrl"]}{url_of(key, l)}">' for l in LANGS) + \
         f'<link rel="alternate" hreflang="x-default" href="{SITE["baseUrl"]}{url_of(key, "cs")}">' if key else ""
-    preload = "".join(f'<link rel="preload" href="/fonts/{f}.woff2" as="font" type="font/woff2" crossorigin>' for f in FONTS_PRELOAD) + \
+    hero = '<link rel="preload" as="image" href="/media/lurdy-800.webp" imagesrcset="/media/lurdy-480.webp 480w, /media/lurdy-800.webp 800w, /media/lurdy-1600.webp 1600w" imagesizes="100vw" fetchpriority="high">' if key == "home" else ""
+    preload = hero + "".join(f'<link rel="preload" href="/fonts/{f}.woff2" as="font" type="font/woff2" crossorigin>' for f in FONTS_PRELOAD) + \
         '<link rel="preload" href="/img/banner/banner-photo.webp" as="image" fetchpriority="high">'
     ld = ""
     if key == "home":  # who we are, for search engines (data only, not executed)
@@ -167,7 +169,7 @@ def layout(*, lang, key, title, body, description="", image="/media/lurdy-1600.w
 <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
 <link rel="apple-touch-icon" href="/img/favicon/apple-touch-icon-180x180.png">
 {preload}
-<link rel="stylesheet" href="/css/site.css?v={ASSET_VERSION}">
+<style>{CSS}</style>
 <script src="/js/head.js?v={ASSET_VERSION}"></script>
 <script src="/js/site.js?v={ASSET_VERSION}" defer></script>
 </head>
@@ -295,8 +297,8 @@ def form_html(form, lang):
   <p class="small"><a href="{url_of('soukromi', lang)}">{esc(u['privacyMore'])}</a></p>
  </fieldset>
  <div class="hp" aria-hidden="true"><label>Web <input name="web" tabindex="-1" autocomplete="off"></label></div>
- <p><button class="btn" type="submit" data-sending="{esc(u['sending'])}">{esc(u['submit'])}</button></p>
- <p class="small">{esc(u['copyNote'])}</p>
+ <div class="submit"><button class="btn btn--submit" type="submit" data-sending="{esc(u['sending'])}">{esc(u['submit'])}</button>
+ <p class="small">{esc(u['copyNote'])}</p></div>
 </form>"""
 
 
@@ -312,7 +314,7 @@ def render_home(lang):
     links = "".join(f'<li><a href="{esc(h)}">{esc(n)}</a></li>' for n, h in s["links"])
     body = f"""
 <section class="hero" aria-labelledby="home-title">
- <div class="hero-media">{photo('lurdy', '', sizes='(min-width: 961px) 60vw, 100vw', eager=True)}</div>
+ <div class="hero-media">{photo('lurdy', '', sizes='100vw', eager=True)}</div>
  <div class="wrap hero-grid">
   <div class="hero-text">
    <p class="kicker">{esc(u['kicker'])}</p>
@@ -375,7 +377,7 @@ def render_form_page(key, lang):
     if key not in FORMS:
         inner = f'<p>{esc(u["downloadOnly"])}</p>{dl}'
     elif SITE["registrationOpen"]:
-        inner = f'<p>{esc(u["downloadNote"])}</p>{dl}<h2>{esc(u["onlineTitle"])}</h2>{form_html(key, lang)}'
+        inner = f'{form_html(key, lang)}<section class="paper"><h2 class="display-s">{esc(u["paperTitle"])}</h2><p>{esc(u["paperNote"])}</p>{dl}</section>'
     else:
         inner = f'<p class="notice">{esc(fill(u["regClosed"], year=SITE["pilgrimage"]["start"][:4]))}</p><p>{esc(u["onlineClosed"])}</p>{dl}'
     return page(key, lang, inner, lead=p["lead"])
@@ -388,7 +390,7 @@ def render_faq(lang):
 def render_gallery(lang):
     g = L[lang]["gallery"]
     items = "".join(f"""<li class="g-item" id="lurdy-{y}">
- <a class="g-photo" href="/media/{y}-{1600 if (STATIC / f'media/{y}-1600.webp').exists() else 800}.webp">{photo(y, fill(L[lang]['galleryTitle'], year=y), sizes='(min-width: 961px) 420px, 100vw')}</a>
+ <a class="g-photo" href="/media/{y}-{1600 if (STATIC / f'media/{y}-1600.webp').exists() else 800}.webp">{photo(y, fill(L[lang]['galleryTitle'], year=y), sizes='(min-width: 961px) 420px, calc(100vw - 32px)', eager=y == SITE['gallery'][0])}</a>
  <div><h2 class="display-s">{esc(fill(L[lang]['galleryTitle'], year=y))}</h2><p>{esc(g[y])}</p></div>
 </li>""" for y in SITE["gallery"])
     return page("fotogalerie", lang, f'<ol class="gallery">{items}</ol>', lead=g["lead"], image="/media/2019-1600.webp")

@@ -1,7 +1,20 @@
 {
  "langName": "Čeština",
  "locale": "cs_CZ",
- "months": ["ledna", "února", "března", "dubna", "května", "června", "července", "srpna", "září", "října", "listopadu", "prosince"],
+ "months": [
+  "ledna",
+  "února",
+  "března",
+  "dubna",
+  "května",
+  "června",
+  "července",
+  "srpna",
+  "září",
+  "října",
+  "listopadu",
+  "prosince"
+ ],
  "ui": {
   "skip": "Přejít na obsah",
   "menu": "Menu",
@@ -30,10 +43,22 @@
   "galleryLink": "Fotografie z let minulých",
   "groupsTitle": "Kdo s námi putuje",
   "groups": [
-   ["Nemocní v Accueil", "Především vozíčkáři a těžce nemocní. Bydlí v bezbariérovém poutním domě Accueil Notre-Dame naproti jeskyni zjevení a o každého pečuje jeden až tři členové týmu."],
-   ["Nemocní v hotelu", "Nemocní, kteří chodí sami. Bydlí s ostatními poutníky v hotelu nedaleko poutního areálu."],
-   ["Poutníci", "Zdraví poutníci, kteří chtějí putovat s námi. Bydlí v hotelu s plnou penzí."],
-   ["Tým", "Rytíři a dámy Řádu a dobrovolníci, kteří se po celou dobu starají o nemocné."]
+   [
+    "Nemocní v Accueil",
+    "Především vozíčkáři a těžce nemocní. Bydlí v bezbariérovém poutním domě Accueil Notre-Dame naproti jeskyni zjevení a o každého pečuje jeden až tři členové týmu."
+   ],
+   [
+    "Nemocní v hotelu",
+    "Nemocní, kteří chodí sami. Bydlí s ostatními poutníky v hotelu nedaleko poutního areálu."
+   ],
+   [
+    "Poutníci",
+    "Zdraví poutníci, kteří chtějí putovat s námi. Bydlí v hotelu s plnou penzí."
+   ],
+   [
+    "Tým",
+    "Rytíři a dámy Řádu a dobrovolníci, kteří se po celou dobu starají o nemocné."
+   ]
   ],
   "faqTitle": "Nejčastější dotazy",
   "faqAll": "Všechny dotazy a odpovědi",
@@ -72,44 +97,158 @@
   "back": "Zpět na přihlášku",
   "notFound": "Stránka nenalezena",
   "notFoundText": "Stránka, kterou hledáte, neexistuje nebo byla přesunuta.",
-  "status": {"new": "Nový obsah", "translation": "Překlad – čeká na kontrolu", "approval": "Čeká na schválení"}
+  "status": {
+   "new": "Nový obsah",
+   "translation": "Překlad – čeká na kontrolu",
+   "approval": "Čeká na schválení"
+  },
+  "paperTitle": "Dáváte přednost papírové přihlášce?",
+  "paperNote": "Přihlášku si můžete stáhnout, vyplnit a poslat e-mailem na lurdy@lurdy.eu nebo poštou."
  },
- "nav": ["ucast", "prihlasky", "dotazy", "fotogalerie"],
+ "nav": [
+  "ucast",
+  "prihlasky",
+  "dotazy",
+  "fotogalerie"
+ ],
  "pages": {
-  "home": {"url": "/", "title": "Pouť do Lurd", "description": "Řádová pouť Českého velkopřevorství Maltézského řádu s nemocnými do Lurd: termín, přihlášky, nejčastější dotazy a fotografie z let minulých."},
-  "ucast": {"url": "/zajemci-o-ucast/", "title": "Zájemci o účast", "description": "Jak se přihlásit na řádovou pouť do Lurd, jak zaplatit a jak s námi komunikovat.",
-   "body": "<p class=\"lead\">Pokud vás informace zaujaly a chtěli byste se pouti zúčastnit s námi, postupujte prosím takto:</p><ol class=\"steps\"><li><b>Pošlete přihlášku</b><span>Vyberte si přihlášku podle své skupiny na stránce <a href=\"{prihlasky}\">Přihlášky</a>.</span></li><li><b>Vyčkejte na vyrozumění</b><span>Dostanete zprávu o svém zařazení na pouť a s ní osobní variabilní symbol.</span></li><li><b>Uhraďte náklady na pouť</b><span>Na účet č. {account} (IBAN {iban}) s přiděleným variabilním symbolem.</span></li><li><b>Organizační pokyny</b><span>Včas dostanete další informace o odletu a průběhu pouti.</span></li></ol><p>Pokud se chcete pouti zúčastnit, pošlete vyplněnou přihlášku obratem. I tak se může stát, že kapacita už bude naplněna a vaši přihlášku nebudeme moci přijmout. Věřte prosím, že to neděláme ze zlé vůle a že děláme maximum, abychom vyhověli co největšímu počtu zájemců. Vyčkejte prosím, až vám pošleme zprávu nebo se vám sami ozveme.</p><h2>Organizační pokyny</h2><p>Na základě zkušeností z předchozích ročníků a vzhledem k rozsahu práce, kterou organizace pouti přináší, jsme museli přijmout tato opatření:</p><ul><li>přihlášky nezasíláme poštou, jsou ke stažení na tomto webu nebo je lze vyplnit online,</li><li>vyplněné přihlášky posílejte na e-mail <a href=\"mailto:{email}\">{email}</a> nebo poštou na adresu {post}; obálku viditelně označte nápisem „Lurdy“,</li><li>veškeré další informace vám pošleme e-mailem,</li><li>netelefonujte prosím do kanceláře Českého velkopřevorství ani Maltézské pomoci, žádná z nich na organizaci pouti nepracuje a podrobné informace neposkytne,</li><li>ke kontaktu používejte výhradně e-mail <a href=\"mailto:{email}\">{email}</a>.</li></ul><p>Chápeme, že to může mnohým z vás přinést nesnáze, ale bez těchto opatření by pro nás byla situace nezvladatelná. Požádejte prosím přátele nebo rodinu, aby vám s elektronickou komunikací pomohli.</p>"},
-  "prihlasky": {"url": "/prihlasky/", "title": "Přihlášky", "description": "Přihlášky na řádovou pouť do Lurd pro nemocné, poutníky a členy týmu.",
-   "body": "<p class=\"lead\">Pro přihlášení na pouť postupujte prosím takto:</p><ol class=\"steps\"><li><b>Zvolte svou skupinu</b><span>Nemocný ubytovaný v Accueil (především vozíčkáři a těžce nemocní), nemocný ubytovaný v hotelu (nemocní, kteří chodí), zdravý poutník ubytovaný v hotelu, nebo člen týmu.</span></li><li><b>Vyplňte přihlášku</b><span>Vyberte níže příslušnou přihlášku a vyplňte ji online, nebo si ji stáhněte a pošlete e-mailem či poštou.</span></li><li><b>Vyčkejte na odpověď</b><span>Co nejdříve vám pošleme podrobné informace o platbě, termínu odjezdu a dalším průběhu.</span></li></ol><h2>Souhlas se zpracováním osobních údajů</h2><p>Přihlášením na pouť souhlasíte, aby Maltézský nadační fond LOURDES za účelem pořádání pouti zpracoval vaše osobní údaje uvedené v přihlášce, včetně údajů o zdravotním stavu a zdravotní péči. Po skončení pouti mohou být osobní údaje zpracovávány jen pro statistické a archivní účely. Podrobnosti najdete v <a href=\"{privacy}\">zásadách ochrany osobních údajů</a>.</p><p>Podáním přihlášky prohlašujete, že jste si vědomi, že nepravdivě nebo neúplně uvedené údaje o zdravotním stavu mohou být příčinou komplikací nebo ohrožení života, a berete za to plnou odpovědnost.</p>"},
-  "nemocni": {"url": "/prihlasky/nemocni/", "title": "Přihláška – nemocní", "description": "Přihláška na pouť do Lurd pro nemocné ubytované v Accueil nebo v hotelu.", "lead": "Pro nemocné ubytované v bezbariérovém poutním domě Accueil i pro nemocné ubytované v hotelu."},
-  "poutnici": {"url": "/prihlasky/poutnici/", "title": "Přihláška – poutníci", "description": "Přihláška na pouť do Lurd pro zdravé poutníky ubytované v hotelu.", "lead": "Pro zdravé poutníky ubytované v hotelu, kteří chtějí putovat spolu s námi."},
-  "tym": {"url": "/prihlasky/tym/", "title": "Přihláška – tým", "description": "Přihláška na pouť do Lurd pro členy ošetřovatelského a pracovního týmu.", "lead": "Pro členy ošetřovatelského a pracovního týmu, kteří se během pouti starají o nemocné."},
-  "odeslano": {"url": "/prihlasky/odeslano/", "title": "Přihláška odeslána", "description": "Vaše přihláška na pouť do Lurd byla odeslána.", "body": "<p class=\"lead\">Děkujeme, vaše přihláška byla odeslána. V následujících dnech vás budeme kontaktovat s potvrzením vaší účasti na pouti.</p>"},
-  "dotazy": {"url": "/nejcastejsi-dotazy/", "title": "Nejčastější dotazy", "description": "Odpovědi na nejčastější dotazy k pouti do Lurd: zavazadla, počasí, cestování s vozíkem, ubytování, stravování a program."},
-  "fotogalerie": {"url": "/fotogalerie/", "title": "Fotogalerie", "description": "Fotografie a krátké zprávy z řádových poutí Českého velkopřevorství do Lurd od roku 2003."},
-  "soukromi": {"url": "/ochrana-osobnich-udaju/", "title": "Ochrana osobních údajů", "description": "Jak Maltézský nadační fond LOURDES zpracovává osobní údaje z přihlášek na pouť do Lurd a údaje o návštěvnících webu."}
+  "home": {
+   "url": "/",
+   "title": "Pouť do Lurd",
+   "description": "Řádová pouť Českého velkopřevorství Maltézského řádu s nemocnými do Lurd: termín, přihlášky, nejčastější dotazy a fotografie z let minulých."
+  },
+  "ucast": {
+   "url": "/zajemci-o-ucast/",
+   "title": "Zájemci o účast",
+   "description": "Jak se přihlásit na řádovou pouť do Lurd, jak zaplatit a jak s námi komunikovat.",
+   "body": "<p class=\"lead\">Pokud vás informace zaujaly a chtěli byste se pouti zúčastnit s námi, postupujte prosím takto:</p><ol class=\"steps\"><li><b>Pošlete přihlášku</b><span>Vyberte si přihlášku podle své skupiny na stránce <a href=\"{prihlasky}\">Přihlášky</a>.</span></li><li><b>Vyčkejte na vyrozumění</b><span>Dostanete zprávu o svém zařazení na pouť a s ní osobní variabilní symbol.</span></li><li><b>Uhraďte náklady na pouť</b><span>Na účet č. {account} (IBAN {iban}) s přiděleným variabilním symbolem.</span></li><li><b>Organizační pokyny</b><span>Včas dostanete další informace o odletu a průběhu pouti.</span></li></ol><p>Pokud se chcete pouti zúčastnit, pošlete vyplněnou přihlášku obratem. I tak se může stát, že kapacita už bude naplněna a vaši přihlášku nebudeme moci přijmout. Věřte prosím, že to neděláme ze zlé vůle a že děláme maximum, abychom vyhověli co největšímu počtu zájemců. Vyčkejte prosím, až vám pošleme zprávu nebo se vám sami ozveme.</p><h2>Organizační pokyny</h2><p>Na základě zkušeností z předchozích ročníků a vzhledem k rozsahu práce, kterou organizace pouti přináší, jsme museli přijmout tato opatření:</p><ul><li>přihlášky nezasíláme poštou, jsou ke stažení na tomto webu nebo je lze vyplnit online,</li><li>vyplněné přihlášky posílejte na e-mail <a href=\"mailto:{email}\">{email}</a> nebo poštou na adresu {post}; obálku viditelně označte nápisem „Lurdy“,</li><li>veškeré další informace vám pošleme e-mailem,</li><li>netelefonujte prosím do kanceláře Českého velkopřevorství ani Maltézské pomoci, žádná z nich na organizaci pouti nepracuje a podrobné informace neposkytne,</li><li>ke kontaktu používejte výhradně e-mail <a href=\"mailto:{email}\">{email}</a>.</li></ul><p>Chápeme, že to může mnohým z vás přinést nesnáze, ale bez těchto opatření by pro nás byla situace nezvladatelná. Požádejte prosím přátele nebo rodinu, aby vám s elektronickou komunikací pomohli.</p>"
+  },
+  "prihlasky": {
+   "url": "/prihlasky/",
+   "title": "Přihlášky",
+   "description": "Přihlášky na řádovou pouť do Lurd pro nemocné, poutníky a členy týmu.",
+   "body": "<p class=\"lead\">Pro přihlášení na pouť postupujte prosím takto:</p><ol class=\"steps\"><li><b>Zvolte svou skupinu</b><span>Nemocný ubytovaný v Accueil (především vozíčkáři a těžce nemocní), nemocný ubytovaný v hotelu (nemocní, kteří chodí), zdravý poutník ubytovaný v hotelu, nebo člen týmu.</span></li><li><b>Vyplňte přihlášku</b><span>Vyberte níže příslušnou přihlášku a vyplňte ji online, nebo si ji stáhněte a pošlete e-mailem či poštou.</span></li><li><b>Vyčkejte na odpověď</b><span>Co nejdříve vám pošleme podrobné informace o platbě, termínu odjezdu a dalším průběhu.</span></li></ol><h2>Souhlas se zpracováním osobních údajů</h2><p>Přihlášením na pouť souhlasíte, aby Maltézský nadační fond LOURDES za účelem pořádání pouti zpracoval vaše osobní údaje uvedené v přihlášce, včetně údajů o zdravotním stavu a zdravotní péči. Po skončení pouti mohou být osobní údaje zpracovávány jen pro statistické a archivní účely. Podrobnosti najdete v <a href=\"{privacy}\">zásadách ochrany osobních údajů</a>.</p><p>Podáním přihlášky prohlašujete, že jste si vědomi, že nepravdivě nebo neúplně uvedené údaje o zdravotním stavu mohou být příčinou komplikací nebo ohrožení života, a berete za to plnou odpovědnost.</p>"
+  },
+  "nemocni": {
+   "url": "/prihlasky/nemocni/",
+   "title": "Přihláška – nemocní",
+   "description": "Přihláška na pouť do Lurd pro nemocné ubytované v Accueil nebo v hotelu.",
+   "lead": "Pro nemocné ubytované v bezbariérovém poutním domě Accueil i pro nemocné ubytované v hotelu."
+  },
+  "poutnici": {
+   "url": "/prihlasky/poutnici/",
+   "title": "Přihláška – poutníci",
+   "description": "Přihláška na pouť do Lurd pro zdravé poutníky ubytované v hotelu.",
+   "lead": "Pro zdravé poutníky ubytované v hotelu, kteří chtějí putovat spolu s námi."
+  },
+  "tym": {
+   "url": "/prihlasky/tym/",
+   "title": "Přihláška – tým",
+   "description": "Přihláška na pouť do Lurd pro členy ošetřovatelského a pracovního týmu.",
+   "lead": "Pro členy ošetřovatelského a pracovního týmu, kteří se během pouti starají o nemocné."
+  },
+  "odeslano": {
+   "url": "/prihlasky/odeslano/",
+   "title": "Přihláška odeslána",
+   "description": "Vaše přihláška na pouť do Lurd byla odeslána.",
+   "body": "<p class=\"lead\">Děkujeme, vaše přihláška byla odeslána. V následujících dnech vás budeme kontaktovat s potvrzením vaší účasti na pouti.</p>"
+  },
+  "dotazy": {
+   "url": "/nejcastejsi-dotazy/",
+   "title": "Nejčastější dotazy",
+   "description": "Odpovědi na nejčastější dotazy k pouti do Lurd: zavazadla, počasí, cestování s vozíkem, ubytování, stravování a program."
+  },
+  "fotogalerie": {
+   "url": "/fotogalerie/",
+   "title": "Fotogalerie",
+   "description": "Fotografie a krátké zprávy z řádových poutí Českého velkopřevorství do Lurd od roku 2003."
+  },
+  "soukromi": {
+   "url": "/ochrana-osobnich-udaju/",
+   "title": "Ochrana osobních údajů",
+   "description": "Jak Maltézský nadační fond LOURDES zpracovává osobní údaje z přihlášek na pouť do Lurd a údaje o návštěvnících webu."
+  }
  },
  "faq": [
-  ["Proč jezdí členové Maltézského řádu do Lurd a starají se tam o nemocné?", "<p>Od svého založení v 11. století měl Řád jako jednu ze svých priorit, vedle obrany víry, péči o nemocné a trpící. Členové Řádu jim poskytovali potřebnou péči a pomoc, vždy na nejlepší úrovni, jaká byla v dané době dostupná. Maltézští rytíři byli od počátku také velkými ctiteli Panny Marie.</p><p>V Lurdech se tyto dvě roviny života členů Řádu spojují. Putujeme do Lurd, abychom zde uctili Pannu Marii, a zároveň pečujeme o nemocné a trpící, nejen fyzicky. I v Lurdech se podle tradice Řádu snažíme poskytovat nemocným, kterým maltézští rytíři po staletí říkají „naši páni nemocní“, tu nejlepší péči a pohodlí.</p><p>Pro všechny členy naší „velké maltézské rodiny“ je vždy milé setkat se s ostatními z jiných zemí. Členů a dobrovolníků Řádu se do Lurd každoročně sjede kolem 10 000 a je pro nás povzbudivé vědět, že patříme k velké rodině s tisíciletou tradicí.</p>"],
-  ["Proč mají členové týmu na uniformě označení „BOHEMIA“?", "<p>Naši pouť pořádá České velkopřevorství Maltézského řádu, francouzsky Grand Prieuré de Bohême. Bohemia je latinský název zemí Koruny české. České velkopřevorství je jedno z nejstarších na světě a trvá nepřetržitě od svého založení. Z úcty k této tradici nesou všichni členové naší výpravy, ať jsou jakékoli národnosti, na uniformě domovenku BOHEMIA.</p>"],
-  ["Jaká zavazadla vzít na cestu?", "<p>Své věci zabalte nejlépe do jednoho kufru a jednoho menšího příručního zavazadla. Příruční zavazadlo musí splňovat letištní bezpečnostní předpisy: nesmí obsahovat nůž, nůžky ani jiné ostré předměty, byť miniaturní, ani tekutiny. Ty se na letišti u detektoru bez milosti zabavují.</p><p>Nezapomeňte na všechny léky, které užíváte, v dostatečném množství.</p>"],
-  ["Na jaké počasí se připravit, co si obléct?", "<p>Připravte si oblečení na teplé i chladné počasí a na déšť, počasí v Lurdech je nevyzpytatelné. Doporučujeme více vrstev, které lze kombinovat nebo odložit (například vlněný svetr), a pokrývku hlavy proti slunci i dešti. Používáte-li vozík, hodí se i pláštěnka na vozík.</p>"],
-  ["Jak se cestuje letadlem s invalidním vozíkem?", "<p>Poutník na vozíku bude na letišti odbaven i s vozíkem a na něm dojede s pomocí svého asistenta z maltézského týmu až k letadlu. Do letadla mu pomohou specialisté z letištního personálu a vozík bude uložen do zavazadlového prostoru. Po přistání proběhne vše stejně v opačném pořadí.</p>"],
-  ["Proč není možné cestovat s elektrickým vozíkem?", "<p>Letecké společnosti si to z bezpečnostních důvodů nepřejí. I při individuálním povolení může kapitán letadla přepravu takového vozíku odmítnout. I v Lurdech by byl elektrický vozík s ohledem na místní provoz a organizaci spíše komplikací.</p>"],
-  ["Kdo se postará o naše zavazadla?", "<p>Po příchodu na letiště se přihlaste pověřeným osobám z organizačního týmu, budou viditelně označeny. Dostanete jmenovky na zavazadla, vozík a všechny další věci, které vezete s sebou. Vše je nutné označit těmito jmenovkami, i když už máte vlastní; jmenovky mají systém, který organizátorům pomáhá při manipulaci se zavazadly.</p><p>Dostanete také jmenovku na krk s vaším jménem, místem ubytování, označením naší výpravy a kontaktem na organizátora vaší skupiny. O zavazadla se od odbavení na letišti až do příjezdu do hotelu stará organizační tým.</p>"],
-  ["Je zajištěno stravování během cesty?", "<p>Během letu se na palubě podává běžné občerstvení. Diabetici si po předchozí domluvě vezmou potřebnou dávku inzulinu do letadla.</p>"],
-  ["Kde budeme ubytováni?", "<p>Ubytování je zajištěno v hotelu nebo v Accueil. Podrobný popis najdete v informacích na cestu. Jmenovky na zavazadlech mají různé barvy podle místa ubytování, proto je nezbytné, aby každé zavazadlo neslo jmenovku, kterou dostanete od organizátorů.</p>"],
-  ["Jak jsou vybaveny pokoje?", "<p>V Accueil jsou dvou-, tří- a šestilůžkové pokoje, zcela bezbariérové, s koupelnou a WC. K dispozici je veškeré ložní prádlo a potřebné ošetřovatelské vybavení. V hotelu jsou dvou- a třílůžkové pokoje s koupelnou a WC, s ložním prádlem a ručníky.</p>"],
-  ["Jak je zajištěno stravování na místě?", "<p>Každý se stravuje v místě svého ubytování (hotel nebo Accueil) formou plné penze. Francouzská snídaně, oběd a večeře o více chodech se obvykle servírují. Podle údajů v přihlášce zajistíme dietní stravu.</p>"],
-  ["Jak bude organizován program na místě?", "<p>Jsme všichni účastníky mezinárodní maltézské pouti, a proto se účastníme společného programu; podrobnosti najdete v brožurce, kterou dostanete na letišti. Na některá místa půjdeme všichni společně, jindy se rozdělíme do menších skupin. Podrobnosti se dozvíte na místě.</p>"],
-  ["Jak probíhá koupel v lázni?", "<p>Lázně napájené pramenem z jeskyně jsou dobře organizované. Vše řídí místní dobrovolníci a ve vodě pomáhají asistenti. Vlastní plavky nejsou potřeba; dostanete látku, kterou se při ponoření zakryjete. Vše probíhá klidně a důstojně a asistenti jsou velmi ohleduplní.</p>"],
-  ["Co si s sebou mají vzít kněží?", "<p>Kněží si ke koncelebraci vezmou český misál, albu a štolu. Vše ostatní ke slavení mše svaté je k dispozici na místě.</p>"],
-  ["Bude možná účast na mši svaté každý den?", "<p>Mše svatá je plánována na každý den. Změny jsou možné v den příjezdu a odjezdu, kdy vše závisí na průběhu dopravy a počasí.</p><p>Kdyby se vám něco zdálo zmatené, uvědomte si prosím, že všechny termíny bylo nutné v Lurdech nahlásit s ročním předstihem a lurdští organizátoři musí sladit požadavky všech výprav.</p>"],
-  ["Mohu si domů dovézt lurdskou vodu?", "<p>U skály jsou zvláštní kohoutky, ze kterých si poutníci mohou natočit libovolné množství vody do vlastních nádob. Láhve všech velikostí lze koupit na místě.</p>"],
-  ["Máme se na cestu pojistit?", "<p>České zdravotní pojištění zaručuje v Evropské unii nezbytnou zdravotní péči. Co se za nezbytnou péči považuje, se ale v každé zemi liší a mnohé je potřeba hradit. S cestovním pojištěním je cesta v každém případě jistější.</p>"],
-  ["Kde se dají koupit lurdské suvenýry?", "<p>V Lurdech je mnoho obchůdků se suvenýry všeho druhu. Jsou mimo areál svatyně, takže nijak neruší bohoslužby. Obchody jsou bezbariérové a i nemocní budou mít dost času nakoupit s pomocí svých asistentů.</p><p>Posvátné předměty vám mohou posvětit kněží, kteří naši pouť doprovázejí; na závěr pouti bude vše jistě požehnáno.</p>"]
+  [
+   "Proč jezdí členové Maltézského řádu do Lurd a starají se tam o nemocné?",
+   "<p>Od svého založení v 11. století měl Řád jako jednu ze svých priorit, vedle obrany víry, péči o nemocné a trpící. Členové Řádu jim poskytovali potřebnou péči a pomoc, vždy na nejlepší úrovni, jaká byla v dané době dostupná. Maltézští rytíři byli od počátku také velkými ctiteli Panny Marie.</p><p>V Lurdech se tyto dvě roviny života členů Řádu spojují. Putujeme do Lurd, abychom zde uctili Pannu Marii, a zároveň pečujeme o nemocné a trpící, nejen fyzicky. I v Lurdech se podle tradice Řádu snažíme poskytovat nemocným, kterým maltézští rytíři po staletí říkají „naši páni nemocní“, tu nejlepší péči a pohodlí.</p><p>Pro všechny členy naší „velké maltézské rodiny“ je vždy milé setkat se s ostatními z jiných zemí. Členů a dobrovolníků Řádu se do Lurd každoročně sjede kolem 10 000 a je pro nás povzbudivé vědět, že patříme k velké rodině s tisíciletou tradicí.</p>"
+  ],
+  [
+   "Proč mají členové týmu na uniformě označení „BOHEMIA“?",
+   "<p>Naši pouť pořádá České velkopřevorství Maltézského řádu, francouzsky Grand Prieuré de Bohême. Bohemia je latinský název zemí Koruny české. České velkopřevorství je jedno z nejstarších na světě a trvá nepřetržitě od svého založení. Z úcty k této tradici nesou všichni členové naší výpravy, ať jsou jakékoli národnosti, na uniformě domovenku BOHEMIA.</p>"
+  ],
+  [
+   "Jaká zavazadla vzít na cestu?",
+   "<p>Své věci zabalte nejlépe do jednoho kufru a jednoho menšího příručního zavazadla. Příruční zavazadlo musí splňovat letištní bezpečnostní předpisy: nesmí obsahovat nůž, nůžky ani jiné ostré předměty, byť miniaturní, ani tekutiny. Ty se na letišti u detektoru bez milosti zabavují.</p><p>Nezapomeňte na všechny léky, které užíváte, v dostatečném množství.</p>"
+  ],
+  [
+   "Na jaké počasí se připravit, co si obléct?",
+   "<p>Připravte si oblečení na teplé i chladné počasí a na déšť, počasí v Lurdech je nevyzpytatelné. Doporučujeme více vrstev, které lze kombinovat nebo odložit (například vlněný svetr), a pokrývku hlavy proti slunci i dešti. Používáte-li vozík, hodí se i pláštěnka na vozík.</p>"
+  ],
+  [
+   "Jak se cestuje letadlem s invalidním vozíkem?",
+   "<p>Poutník na vozíku bude na letišti odbaven i s vozíkem a na něm dojede s pomocí svého asistenta z maltézského týmu až k letadlu. Do letadla mu pomohou specialisté z letištního personálu a vozík bude uložen do zavazadlového prostoru. Po přistání proběhne vše stejně v opačném pořadí.</p>"
+  ],
+  [
+   "Proč není možné cestovat s elektrickým vozíkem?",
+   "<p>Letecké společnosti si to z bezpečnostních důvodů nepřejí. I při individuálním povolení může kapitán letadla přepravu takového vozíku odmítnout. I v Lurdech by byl elektrický vozík s ohledem na místní provoz a organizaci spíše komplikací.</p>"
+  ],
+  [
+   "Kdo se postará o naše zavazadla?",
+   "<p>Po příchodu na letiště se přihlaste pověřeným osobám z organizačního týmu, budou viditelně označeny. Dostanete jmenovky na zavazadla, vozík a všechny další věci, které vezete s sebou. Vše je nutné označit těmito jmenovkami, i když už máte vlastní; jmenovky mají systém, který organizátorům pomáhá při manipulaci se zavazadly.</p><p>Dostanete také jmenovku na krk s vaším jménem, místem ubytování, označením naší výpravy a kontaktem na organizátora vaší skupiny. O zavazadla se od odbavení na letišti až do příjezdu do hotelu stará organizační tým.</p>"
+  ],
+  [
+   "Je zajištěno stravování během cesty?",
+   "<p>Během letu se na palubě podává běžné občerstvení. Diabetici si po předchozí domluvě vezmou potřebnou dávku inzulinu do letadla.</p>"
+  ],
+  [
+   "Kde budeme ubytováni?",
+   "<p>Ubytování je zajištěno v hotelu nebo v Accueil. Podrobný popis najdete v informacích na cestu. Jmenovky na zavazadlech mají různé barvy podle místa ubytování, proto je nezbytné, aby každé zavazadlo neslo jmenovku, kterou dostanete od organizátorů.</p>"
+  ],
+  [
+   "Jak jsou vybaveny pokoje?",
+   "<p>V Accueil jsou dvou-, tří- a šestilůžkové pokoje, zcela bezbariérové, s koupelnou a WC. K dispozici je veškeré ložní prádlo a potřebné ošetřovatelské vybavení. V hotelu jsou dvou- a třílůžkové pokoje s koupelnou a WC, s ložním prádlem a ručníky.</p>"
+  ],
+  [
+   "Jak je zajištěno stravování na místě?",
+   "<p>Každý se stravuje v místě svého ubytování (hotel nebo Accueil) formou plné penze. Francouzská snídaně, oběd a večeře o více chodech se obvykle servírují. Podle údajů v přihlášce zajistíme dietní stravu.</p>"
+  ],
+  [
+   "Jak bude organizován program na místě?",
+   "<p>Jsme všichni účastníky mezinárodní maltézské pouti, a proto se účastníme společného programu; podrobnosti najdete v brožurce, kterou dostanete na letišti. Na některá místa půjdeme všichni společně, jindy se rozdělíme do menších skupin. Podrobnosti se dozvíte na místě.</p>"
+  ],
+  [
+   "Jak probíhá koupel v lázni?",
+   "<p>Lázně napájené pramenem z jeskyně jsou dobře organizované. Vše řídí místní dobrovolníci a ve vodě pomáhají asistenti. Vlastní plavky nejsou potřeba; dostanete látku, kterou se při ponoření zakryjete. Vše probíhá klidně a důstojně a asistenti jsou velmi ohleduplní.</p>"
+  ],
+  [
+   "Co si s sebou mají vzít kněží?",
+   "<p>Kněží si ke koncelebraci vezmou český misál, albu a štolu. Vše ostatní ke slavení mše svaté je k dispozici na místě.</p>"
+  ],
+  [
+   "Bude možná účast na mši svaté každý den?",
+   "<p>Mše svatá je plánována na každý den. Změny jsou možné v den příjezdu a odjezdu, kdy vše závisí na průběhu dopravy a počasí.</p><p>Kdyby se vám něco zdálo zmatené, uvědomte si prosím, že všechny termíny bylo nutné v Lurdech nahlásit s ročním předstihem a lurdští organizátoři musí sladit požadavky všech výprav.</p>"
+  ],
+  [
+   "Mohu si domů dovézt lurdskou vodu?",
+   "<p>U skály jsou zvláštní kohoutky, ze kterých si poutníci mohou natočit libovolné množství vody do vlastních nádob. Láhve všech velikostí lze koupit na místě.</p>"
+  ],
+  [
+   "Máme se na cestu pojistit?",
+   "<p>České zdravotní pojištění zaručuje v Evropské unii nezbytnou zdravotní péči. Co se za nezbytnou péči považuje, se ale v každé zemi liší a mnohé je potřeba hradit. S cestovním pojištěním je cesta v každém případě jistější.</p>"
+  ],
+  [
+   "Kde se dají koupit lurdské suvenýry?",
+   "<p>V Lurdech je mnoho obchůdků se suvenýry všeho druhu. Jsou mimo areál svatyně, takže nijak neruší bohoslužby. Obchody jsou bezbariérové a i nemocní budou mít dost času nakoupit s pomocí svých asistentů.</p><p>Posvátné předměty vám mohou posvětit kněží, kteří naši pouť doprovázejí; na závěr pouti bude vše jistě požehnáno.</p>"
+  ]
  ],
- "faqHome": [0, 2, 1, 3],
+ "faqHome": [
+  0,
+  2,
+  1,
+  3
+ ],
  "gallery": {
   "lead": "Fotografie a krátké zprávy z let minulých.",
   "2003": "Naše první samostatná pouť v novodobé historii Maltézské pomoci. Do Lurd putovalo 11 nemocných a 13 členů týmu. Výpravu doprovázeli řádoví kaplani P. Jiří Jeřábek a P. František Hofman. Pouť vedli, stejně jako po mnoho dalších let, manželé Bettina a Jiří Lobkowiczovi. Letěli jsme linkovým letem do Paříže, Paříží jsme projeli autobusem a rychlovlakem TGV dojeli až do Lurd.",
@@ -180,12 +319,18 @@
   "helpsick": "Chcete aktivně pomáhat nemocným?"
  },
  "opts": {
-  "tp": "TP", "ztp": "ZTP", "ztpp": "ZTP/P",
+  "tp": "TP",
+  "ztp": "ZTP",
+  "ztpp": "ZTP/P",
   "wheelchair": "mechanický vozík (elektrický nelze)",
   "assisted": "vozík a chůze s dopomocí",
-  "self": "plně soběstačný/á", "help": "s dopomocí", "dependent": "plně odkázaný/á na pomoc druhé osoby",
-  "yes": "ano", "no": "ne",
-  "diabetic": "diabetická", "nosalt": "neslaná"
+  "self": "plně soběstačný/á",
+  "help": "s dopomocí",
+  "dependent": "plně odkázaný/á na pomoc druhé osoby",
+  "yes": "ano",
+  "no": "ne",
+  "diabetic": "diabetická",
+  "nosalt": "neslaná"
  },
  "privacyBody": "<h2>Správce</h2><p>Správcem osobních údajů je {controller}, IČO {ico}, se sídlem {seat}, zapsaný v nadačním rejstříku vedeném Městským soudem v Praze pod sp. zn. N 751. Dotazy a žádosti týkající se osobních údajů posílejte na <a href=\"mailto:{email}\">{email}</a>.</p><h2>Přihlášky na pouť</h2><p>Údaje z přihlášky (jméno, datum narození, kontaktní údaje, údaje o dokladu totožnosti, kontakt na rodinného příslušníka a u nemocných na praktického lékaře) zpracováváme, abychom mohli pouť zorganizovat: zařadit vás na pouť, zajistit letenku a ubytování a domluvit platbu. Právním základem je plnění smlouvy o účasti na pouti (čl. 6 odst. 1 písm. b) GDPR).</p><p>Údaje o zdravotním stavu, lécích, dietě, alergiích a potřebné péči zpracováváme jen s vaším výslovným souhlasem (čl. 9 odst. 2 písm. a) GDPR), abychom vám na pouti mohli zajistit bezpečnou péči, vhodné ubytování a stravu. Souhlas můžete kdykoli odvolat e-mailem; odvolání nemá vliv na zpracování před ním, bez těchto údajů ale nemůžeme zajistit vaši bezpečnou účast.</p><p>Údaje vidí jen členové organizačního týmu pouti, kteří je potřebují, a v nezbytném rozsahu letecká společnost, ubytovací zařízení a lurdská svatyně. Po skončení pouti uchováváme údaje jen pro statistické a archivní účely; údaje o zdravotním stavu po skončení pouti vymažeme.</p><p>Online přihláška se odesílá šifrovaně a doručuje se e-mailem prostřednictvím služby Resend (Resend, Inc., USA), která pro nás e-maily rozesílá jako zpracovatel. Web přihlášku neukládá. Na e-mail uvedený v přihlášce pošleme jen potvrzení o jejím přijetí, bez údajů z přihlášky.</p><h2>Cookies a měření návštěvnosti</h2><p>Tento web nepoužívá cookies ani analytické a reklamní nástroje a nesleduje návštěvníky. Písma a obrázky se načítají přímo z tohoto webu.</p><h2>Provoz webu</h2><p>Web běží na serverech společnosti Vercel Inc. (USA). Při každé návštěvě se zpracovávají údaje nutné k doručení stránky a k ochraně webu před zneužitím (IP adresa, čas a adresa požadavku, údaje o prohlížeči). Právním základem je náš oprávněný zájem na bezpečném provozu webu (čl. 6 odst. 1 písm. f) GDPR). Předání do USA se řídí rámcem EU–USA pro ochranu osobních údajů (Data Privacy Framework) nebo standardními smluvními doložkami.</p><h2>Vaše práva</h2><p>Máte právo na přístup ke svým osobním údajům, na jejich opravu nebo výmaz, na omezení zpracování a na přenositelnost údajů, právo odvolat souhlas a právo vznést námitku proti zpracování založenému na oprávněném zájmu. Máte také právo podat stížnost u Úřadu pro ochranu osobních údajů, Pplk. Sochora 27, 170 00 Praha 7, <a href=\"https://uoou.gov.cz/\">uoou.gov.cz</a>.</p><p>Poslední aktualizace: 18. října 2026.</p>"
 }
