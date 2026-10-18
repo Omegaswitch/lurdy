@@ -6,4 +6,4 @@ q -c "update public.editions set status = 'draft' where status = 'active'" # the
 q -f "$here/../seed-dev.sql"
 q -f "$here/../seed-dev.sql"
 n=$(q -c "select count(*) from public.participants p join public.editions e on e.id = p.edition_id where e.title like 'Vývojový%'")
-[ "$n" = 5 ] || { echo "FAIL: $n dev participants"; exit 1; }
+[ "$n" = 6 ] || { echo "FAIL: $n dev participants"; exit 1; }

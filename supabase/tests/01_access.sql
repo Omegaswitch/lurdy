@@ -13,7 +13,8 @@ select tests.login('a7');
 select tests.eq(tests.n('select * from public.participants'), 0::bigint, 'outsider sees no participants');
 select tests.eq(tests.n('select * from public.editions'), 0::bigint, 'outsider sees no editions');
 select tests.eq(tests.n('select * from public.events'), 0::bigint, 'outsider sees no events');
-select tests.eq(tests.n('select * from public.places'), 0::bigint, 'outsider sees no places (none exist)');
+select tests.eq(tests.n('select * from public.places where edition_id is not null'), 0::bigint, 'outsider sees no edition places');
+select tests.ok(tests.n('select * from public.places where edition_id is null') > 0, 'shared sanctuary places are visible to any active account');
 select tests.ok(public.my_pilgrimage() is null, 'outsider has no pilgrimage');
 reset role;
 

@@ -44,10 +44,15 @@ export type MyPilgrimage = {
   carers: { name: string; phone: string | null; kind: Enums<'care_kind'> }[];
   in_care: { id: string; name: string; kind: Enums<'care_kind'>; starts_at: string | null; ends_at: string | null; room: string | null }[];
   duties: { title: string; starts_at: string; ends_at: string; location: string | null; note: string | null }[];
-  events: { id: string; starts_at: string; ends_at: string | null; title: string; location: string | null; description: string | null; updated_at: string; changed: boolean }[];
+  events: { id: string; starts_at: string; ends_at: string | null; title: string; location: string | null; place_id: string | null;
+    description: string | null; updated_at: string; changed: boolean }[];
+  places: Place[];
   contacts: { label: string; name: string | null; phone: string | null; is_emergency: boolean }[];
   announcements: { id: string; title: string; body: string | null; critical: boolean; published_at: string; acked: boolean }[];
 };
+
+export type Place = { id: string; name: string; kind: string | null; description: string | null; accessibility: string | null;
+  directions: string | null; lat: number | null; lng: number | null };
 
 export const isTeam = (roles: Role[]) => roles.length > 0;
 export const canScan = (roles: Role[]) => roles.some((r) => r === 'organizer' || r === 'medical' || r === 'staff');

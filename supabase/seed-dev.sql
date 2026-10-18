@@ -56,4 +56,10 @@ begin
   insert into public.contacts (edition_id, label, name, phone, is_emergency) values
     (ed, 'Vedoucí pouti', 'Vedoucí Fiktivní', '+420 000 000 010', true),
     (ed, 'Lékař', 'MUDr. Fiktivní', '+420 000 000 011', true);
+
+  -- link the programme to the shared sanctuary places (map pins)
+  update public.events ev set place_id = pl.id from public.places pl
+  where ev.edition_id = ed and pl.edition_id is null and (
+    (ev.location = 'Jeskyně' and pl.name = 'Jeskyně Massabielle') or (ev.location = 'Esplanade' and pl.name = 'Esplanade') or
+    (ev.location = 'Chapelle St. Joseph' and pl.name = 'Kaple sv. Josefa') or (ev.location = 'Accueil' and pl.name = 'Accueil Notre-Dame'));
 end $$;

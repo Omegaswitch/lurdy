@@ -59,6 +59,7 @@ select tests.throws($$select app.participant_card(tests.id('p4'))$$, 'internal c
 select tests.eq(public.my_pilgrimage() #>> '{legs,0,code}', 'C', 'participant app shows Bus C');
 select tests.ok(public.my_pilgrimage() #>> '{legs,0,boarded_at}' is not null, 'participant app shows boarded');
 select tests.eq(jsonb_array_length(public.my_pilgrimage() -> 'events'), 2, 'participant programme filtered by category');
+select tests.ok(jsonb_array_length(public.my_pilgrimage() -> 'places') >= 14, 'participant gets the map places');
 -- digital credential: own QR, replaced on each request
 insert into qr values ('d1', public.my_digital_credential());
 insert into qr values ('d2', public.my_digital_credential());
