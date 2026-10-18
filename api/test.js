@@ -31,7 +31,7 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth: "
   assert.equal((await call({ ...good, name: "x".repeat(201) })).status, 400, "length limit");
   assert.equal((await call({ ...good, email: "nope" })).status, 400, "email format");
   assert.equal((await call(good, { origin: "https://evil.example" })).status, 403, "foreign origin");
-  assert.equal((await call({ ...good, form: "tym" })).status, 403, "no online team form");
+  assert.equal((await call({ ...good, form: "nope" })).status, 403, "unknown form");
   assert.equal((await call({ ...good, web: "spam" })).status, 303, "honeypot pretends success");
   SITE.registrationOpen = false;
   assert.equal((await call(good)).status, 403, "closed registration");

@@ -18,7 +18,7 @@ node api/test.js              # checks the application function, with the email 
 | `content/site.json` | Facts: pilgrimage dates, **`registrationOpen`**, contact, organiser (IČO), bank account, gallery years, downloads |
 | `content/cs.json` | All Czech text: pages, FAQ, gallery, form labels, privacy notice |
 | `content/en.json` … `de.json` | The same keys, translated. A key missing from a language breaks the build, so add every key in all five files. |
-| `content/forms.json` | The fields of the online applications (sick, pilgrims). It is shared by the page generator and the email function. |
+| `content/forms.json` | The fields of the online applications (sick, pilgrims, team). It is shared by the page generator and the email function. |
 | `static/files/` | Downloadable applications (Word/RTF), poster and travel information |
 | `static/media/` | Photos, WebP at 800 and 1600 px |
 
