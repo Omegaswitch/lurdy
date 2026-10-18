@@ -10,15 +10,30 @@
 | Lost badge | found in the street | QR holds only a random token; scanning needs a staff account |
 | Leaked API key | publishable key in the app | that key grants nothing without a user JWT; RLS does the rest; service key never leaves the server |
 | Bulk exfiltration | export of the whole database | exports of medical data not offered; list exports are organiser-only and logged |
-| Account takeover | phished organiser password | MFA (TOTP) mandatory for organiser, medical and super admin |
+| Account takeover | someone learns an organiser's code | event code + MFA (TOTP) mandatory for organiser, medical and super admin |
 | Mistakes | wrong person moved | versioned edits, audit log with before/after, confirmation on destructive actions |
 
 ## 2. Authentication
-- Supabase Auth, e-mail + password (≥ 12 characters, leaked-password check on) or magic link for participants.
-- **Public sign-up disabled.** Accounts are created by invitation from the admin dashboard (`invite` Edge Function using the service key server-side). An invited account has `profiles.status = 'invited'` and no rights until an organiser links it to a participant and/or grants a role.
-- **MFA (TOTP)** for `super_admin`, `organizer`, `medical`. Enforced in the database: those grants only count when the JWT has `aal = aal2` (`app.has_role`). A privileged user without MFA can sign in but sees nothing privileged until enrolled.
-- **Step-up for medical records**: `medical_*` functions additionally require a TOTP verification within the last **10 minutes** (from the JWT `amr` claim). The app asks for the 6-digit code (or, on phones, biometric unlock of the app followed by the code when the window has expired).
-- Sessions: JWT expiry 15 min (configurable in Supabase), refresh tokens rotate; staff app locks after 5 min in background. Suspending a profile takes effect on the next request because every policy checks `profiles.status`.
+
+**Decision by the organisers (2026-10-18):** sign-in is by personal code, not e-mail and password.
+
+| Who | Signs in with | Extra step |
+|---|---|---|
+| Pilgrim, malade (no role) | 4-digit personal code (also their attendee number) | — |
+| Team member (any role) | 4-digit code **+ the 6-character event code** | — |
+| Organiser, medical, super admin | 4-digit code + event code | **authenticator app (TOTP)** — required by the brief for privileged and health-data access |
+
+How it works (`supabase/functions/code-login`, `public.code_login_check`):
+- Codes are random, unique within the edition, and never trivial (no 1111, 1234, 4321…). They are shown only in the admin and the invitation — **never printed on the badge**, which anyone near the person can read.
+- The event code has validity dates. Organisers can set one code for *before* the pilgrimage and another for *during* it. Team rights depend on the event code used at sign-in still being valid; when it expires, the team member must sign in again with the current one.
+- Throttling: 10 failed attempts per IP or 5 per code within 15 minutes block further attempts; the answer never says which part was wrong.
+- The Edge Function turns a positive check into an ordinary Supabase Auth session (one Auth user per participant, created on first sign-in, with a synthetic address that receives no mail). Everything after sign-in is standard Supabase Auth: JWT, refresh tokens, RLS.
+- Privileged rights (organiser, medical, super admin) only count when the session is `aal2`; the admin asks first-time organisers to enrol an authenticator app. Medical records additionally need a TOTP verification in the last 10 minutes.
+- Suspending a person (`set_account_status`) or removing their role takes effect on the next request.
+
+**Accepted residual risk (explained to the organisers):** a 4-digit code alone is weak — anyone who learns or guesses a pilgrim's code sees that pilgrim's own journey, room and programme (never other people, never medical data). Throttling makes guessing slow; codes are not printed; the data reachable this way is limited by RLS. Team access requires the event code in addition; health data requires MFA in addition. If this risk is judged too high later, a personal PIN can be added to the same flow without changing the database model.
+
+Sessions: JWT expiry 15 min (Supabase setting), refresh tokens rotate. The app clears its offline copy on sign-out.
 
 ## 3. Authorisation model
 Two independent axes:
@@ -93,7 +108,7 @@ Backups (Supabase daily, 7–30 days) age out on their own schedule; deletion fr
 
 ## 11. Platform hardening checklist (before real data)
 - [ ] Supabase Pro plan, PITR enabled, backups verified by a restore test
-- [ ] Sign-ups disabled; e-mail confirmations on; custom SMTP for invitations
+- [ ] Sign-ups disabled (accounts are created only by the code-login function)
 - [ ] MFA (TOTP) enabled in Auth settings
 - [ ] JWT expiry 900 s; leaked-password protection on
 - [ ] Security Advisor clean (RLS on all tables, `search_path` set on functions)

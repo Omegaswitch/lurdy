@@ -66,6 +66,15 @@ Admin and app-web as static sites on Vercel (already used for lurdy.eu), e.g. `a
 ## ADR-10 Brand — accepted
 Admin and app follow the Grand Magistry Entities theme already applied on lurdy.eu: red `#e31818`, greys `#f3f3f3/#c7c7c7`, text `#454545`, font Asap. Only the official shield asset is used, unaltered except for the approved web red; the acronym "SMOM" is never used (communications policy; checked automatically). Red is the brand colour, so it is **not** used for "error" states alone — errors always carry an icon and text.
 
+## ADR-11 Sign-in by personal code — accepted (organisers' decision)
+4-digit personal code for everyone; + 6-character event code (with validity dates) for anyone with a role; + TOTP for organiser/medical/super admin. Implemented as an Edge Function that checks the code in SQL (throttled, no oracle) and issues a normal Supabase session, so RLS and everything downstream is unchanged. Trade-offs and residual risk: [F §2](F-security-privacy.md#2-authentication).
+
+## ADR-12 Field app is big-button, edits happen on the web — accepted (organisers' decision)
+The phone app has no tab bars and no small menus: a home screen of full-width buttons (≥ 64 pt), large text with an in-app "larger text" switch, one task per screen. Data entry and corrections live in the admin web app; the phone app reads, scans and reports.
+
+## ADR-13 Map: Leaflet + OpenStreetMap as an Expo DOM component — accepted
+Street style only (no satellite). The map is a `'use dom'` component, so the same Leaflet code runs in a web view on iOS/Android and as plain DOM on the web. Places (with OSM positions) come from the cached `my_pilgrimage` payload, so pins work offline; tiles need connectivity. Live position is shown only after the person taps "my location", stays on the device, and stops when the screen closes. "Navigate" hands over to the phone's own maps app (walking). OSM's public tiles are fine for a pilgrimage group; for heavier use set `EXPO_PUBLIC_MAP_TILES` to a commercial OSM tile provider (tile usage policy).
+
 ## Open questions (recorded in STATUS)
 - Q1 Region Ireland vs Frankfurt.
 - Q2 Data controller and DPIA owner (the Foundation "Maltézský nadační fond LOURDES" runs the public site's forms).
