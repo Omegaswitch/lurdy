@@ -64,26 +64,28 @@ reset role;
 
 -- staff: all participants of own edition, nothing of the other edition, no writes
 select tests.login('a3');
-select tests.eq(tests.n('select * from public.participants'), 7::bigint, 'staff sees all participants of E1');
+select tests.eq(tests.n('select * from public.participants'), 9::bigint, 'staff sees all participants of E1');
 select tests.ok(not exists (select 1 from public.participants where id = tests.id('p9')), 'staff does not see E2');
 select tests.eq(tests.n('select * from public.emergency_contacts'), 1::bigint, 'staff sees emergency contacts');
 select tests.throws($$insert into public.leg_assignments (leg_id, participant_id) values (tests.id('b3'), tests.id('p7'))$$, 'staff cannot assign', '42501');
-select tests.throws($$insert into public.role_grants (user_id, edition_id, role) values (tests.id('a7'), tests.id('e1'), 'staff')$$, 'staff cannot grant roles', '42501');
+select tests.throws($$insert into public.role_grants (participant_id, role) values (tests.id('p7'), 'staff')$$, 'staff cannot grant roles', '42501');
+select tests.eq(tests.n('select * from public.staff_codes'), 0::bigint, 'staff cannot read event codes');
 reset role;
 
 -- organiser: requires MFA (aal2)
 select tests.login('a1', 'aal1');
-select tests.eq(tests.n('select * from public.participants'), 0::bigint, 'organiser without MFA sees nothing privileged');
+select tests.eq(tests.n('select * from public.participants'), 1::bigint, 'organiser without MFA sees only own record');
 select tests.throws($$insert into public.participants (edition_id, category, first_name, last_name) values (tests.id('e1'), 'pilgrim', 'A', 'B')$$, 'organiser without MFA cannot write', '42501');
 reset role;
 select tests.login('a1', 'aal2', 60);
-select tests.eq(tests.n('select * from public.participants'), 7::bigint, 'organiser with MFA sees E1');
+select tests.eq(tests.n('select * from public.participants'), 9::bigint, 'organiser with MFA sees E1');
 insert into public.participants (edition_id, category, first_name, last_name) values (tests.id('e1'), 'pilgrim', 'Nový', 'Účastník');
-select tests.eq(tests.n('select * from public.participants'), 8::bigint, 'organiser can create a participant');
+select tests.eq(tests.n('select * from public.participants'), 10::bigint, 'organiser can create a participant');
 select tests.throws($$insert into public.participants (edition_id, category, first_name, last_name) values (tests.id('e2'), 'pilgrim', 'A', 'B')$$, 'organiser cannot write another edition', '42501');
-insert into public.role_grants (user_id, edition_id, role) values (tests.id('a7'), tests.id('e1'), 'staff');
-select tests.throws($$insert into public.role_grants (user_id, edition_id, role) values (tests.id('a7'), tests.id('e1'), 'medical')$$, 'organiser cannot grant medical', '42501');
-select tests.throws($$insert into public.role_grants (user_id, edition_id, role) values (tests.id('a7'), tests.id('e1'), 'organizer')$$, 'organiser cannot grant organizer', '42501');
+insert into public.role_grants (participant_id, role) values (tests.id('p7'), 'staff');
+select tests.throws($$insert into public.role_grants (participant_id, role) values (tests.id('p7'), 'medical')$$, 'organiser cannot grant medical', '42501');
+select tests.throws($$insert into public.role_grants (participant_id, role) values (tests.id('p7'), 'organizer')$$, 'organiser cannot grant organizer', '42501');
+select tests.throws($$insert into public.role_grants (participant_id, role) values (tests.id('p9'), 'staff')$$, 'organiser cannot grant in another edition', '42501');
 select tests.throws($$insert into public.editions (year, title, starts_on, ends_on) values (2101, 'X', '2101-01-01', '2101-01-02')$$, 'organiser cannot create editions', '42501');
 select tests.eq(tests.n('select * from public.announcements'), 2::bigint, 'organiser sees unpublished announcements');
 reset role;

@@ -71,13 +71,9 @@ insert into public.editions (id, year, title, starts_on, ends_on, status, emerge
   (tests.id('e1'), 2099, 'Zkušební pouť', '2099-05-01', '2099-05-05', 'active', '+000 000 000'),
   (tests.id('e2'), 2100, 'Druhá zkušební pouť', '2100-05-01', '2100-05-05', 'draft', null);
 
-insert into public.role_grants (user_id, edition_id, role) values
-  (tests.id('a1'), tests.id('e1'), 'organizer'), (tests.id('a2'), tests.id('e1'), 'medical'),
-  (tests.id('a3'), tests.id('e1'), 'staff'), (tests.id('a4'), tests.id('e1'), 'assistant'),
-  (tests.id('a8'), tests.id('e2'), 'organizer');
-
 -- Participants: p1 staff(a3), p2 assistant(a4), p3 pilgrim(a5), p4 malade(a6), p5 malade (no account),
---               p6 pilgrim (no account, wheelchair), p7 pilgrim (no account); p9 pilgrim in E2.
+--               p6 pilgrim (no account, wheelchair), p7 pilgrim (no account), q1 organiser(a1), q2 medical(a2);
+--               E2: p9 pilgrim, q8 organiser(a8).
 insert into public.participants (id, edition_id, user_id, category, first_name, last_name, mobility, phone) values
   (tests.id('p1'), tests.id('e1'), tests.id('a3'), 'staff', 'Tomáš', 'Zkoušecí', 'walks', '+000 1'),
   (tests.id('p2'), tests.id('e1'), tests.id('a4'), 'assistant', 'Alena', 'Pomocná', 'walks', '+000 2'),
@@ -86,7 +82,21 @@ insert into public.participants (id, edition_id, user_id, category, first_name, 
   (tests.id('p5'), tests.id('e1'), null, 'malade', 'Jan', 'Fiktivní', 'assisted', null),
   (tests.id('p6'), tests.id('e1'), null, 'pilgrim', 'Eva', 'Smyšlená', 'wheelchair', null),
   (tests.id('p7'), tests.id('e1'), null, 'pilgrim', 'Karel', 'Ukázkový', 'walks', null),
-  (tests.id('p9'), tests.id('e2'), null, 'pilgrim', 'Olga', 'Jinoročná', 'walks', null);
+  (tests.id('p9'), tests.id('e2'), null, 'pilgrim', 'Olga', 'Jinoročná', 'walks', null),
+  (tests.id('q1'), tests.id('e1'), tests.id('a1'), 'staff', 'Ota', 'Organizační', 'walks', null),
+  (tests.id('q2'), tests.id('e1'), tests.id('a2'), 'staff', 'Lída', 'Lékařská', 'walks', null),
+  (tests.id('q8'), tests.id('e2'), tests.id('a8'), 'staff', 'Olaf', 'Druhoročný', 'walks', null);
+
+-- Roles belong to participants; team members also need a valid event code on their profile.
+insert into public.role_grants (participant_id, role) values
+  (tests.id('q1'), 'organizer'), (tests.id('q2'), 'medical'), (tests.id('p1'), 'staff'),
+  (tests.id('p2'), 'assistant'), (tests.id('q8'), 'organizer');
+insert into public.staff_codes (id, edition_id, code, label, valid_from, valid_until) values
+  (tests.id('c1'), tests.id('e1'), 'ABC123', 'během pouti', now() - interval '1 day', now() + interval '10 days'),
+  (tests.id('c0'), tests.id('e1'), 'OLD000', 'před poutí', now() - interval '30 days', now() - interval '1 day'),
+  (tests.id('c2'), tests.id('e2'), 'XYZ789', 'před poutí', now() - interval '1 day', now() + interval '10 days');
+update public.profiles set staff_code_id = tests.id('c1') where id in (tests.id('a1'), tests.id('a2'), tests.id('a3'), tests.id('a4'));
+update public.profiles set staff_code_id = tests.id('c2') where id = tests.id('a8');
 
 insert into public.emergency_contacts (participant_id, name, relation, phone) values
   (tests.id('p4'), 'Dcera Vzorová', 'dcera', '+000 99');
