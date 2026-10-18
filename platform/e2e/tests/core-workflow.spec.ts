@@ -72,43 +72,65 @@ test('print the badge (QR holds an opaque token only)', async () => {
   await expect(page.locator('.badge').filter({ hasText: surname })).toContainText('BUS A');
 });
 
-test('scan → Bus A; move to Bus C; same badge scans as Bus C; participant view shows Bus C', async () => {
-  const staff = await codeClient(DEV.staff, DEV.event);
-  const timings: number[] = [];
-  const scan = async () => {
-    const t0 = performance.now();
-    const { data, error } = await staff.rpc('scan_badge', { p_payload: qrPayload });
-    timings.push(performance.now() - t0);
-    expect(error).toBeNull();
-    return data as { result: string; participant: { last_name: string; legs: { code: string; kind: string }[] } };
-  };
-  const first = await scan();
-  expect(first.result).toBe('ok');
-  expect(first.participant.last_name).toBe(surname);
-  expect(first.participant.legs.map((l) => l.code)).toContain('A');
+test('scan → Bus A; move to Bus C; same badge scans as Bus C; participant app updates live', async ({ browser }) => {
+  const APP = 'http://localhost:8081';
+  // The participant opens the app with their own 4-digit code.
+  const pilgrim = await (await browser.newContext({ viewport: { width: 400, height: 860 } })).newPage();
+  await pilgrim.goto(APP);
+  await pilgrim.getByTestId('code').fill(accessCode);
+  await pilgrim.getByTestId('submit').click();
+  await expect(pilgrim.getByText('Dobrý den, Eliška')).toBeVisible({ timeout: 20_000 });
+  await pilgrim.getByTestId('go-journey').click();
+  await expect(pilgrim.getByText('Autobus A')).toBeVisible();
 
-  // move in the admin UI
+  // A team member opens the scanner with code + event code and checks the printed badge.
+  const staffPage = await (await browser.newContext({ viewport: { width: 400, height: 860 } })).newPage();
+  await staffPage.goto(APP);
+  await staffPage.getByTestId('code').fill(DEV.staff);
+  await staffPage.getByRole('switch', { name: 'Jsem člen týmu' }).click();
+  await staffPage.getByTestId('eventCode').fill(DEV.event);
+  await staffPage.getByTestId('submit').click();
+  await staffPage.getByTestId('go-scan').click({ timeout: 20_000 });
+  const scanInApp = async () => {
+    await staffPage.getByTestId('payload').fill(qrPayload);
+    await staffPage.getByTestId('submit-payload').click();
+    await expect(staffPage.getByTestId('scan-name')).toContainText(surname);
+  };
+  await scanInApp();
+  await expect(staffPage.getByTestId('scan-leg').filter({ hasText: 'Autobus' })).toHaveText(/Autobus A/);
+
+  // The organiser moves the participant to Bus C in the admin.
   await page.getByRole('link', { name: 'Doprava' }).click();
   await leg('A').click();
   const row = page.getByRole('row').filter({ hasText: surname });
   await row.getByRole('combobox').selectOption({ label: 'Autobus C' });
   await expect(page.getByRole('status')).toContainText('přesunut');
 
-  const second = await scan();
-  expect(second.participant.legs.map((l) => l.code)).toContain('C');
-  expect(second.participant.legs.map((l) => l.code)).not.toContain('A');
+  // The participant's open app shows Bus C without any reload (Realtime) …
+  await expect(pilgrim.getByText('Autobus C')).toBeVisible({ timeout: 15_000 });
+  await expect(pilgrim.getByText('Autobus A')).toHaveCount(0);
+  // … and scanning the same printed badge now shows Bus C.
+  await staffPage.getByTestId('scan-next').click();
+  await scanInApp();
+  await expect(staffPage.getByTestId('scan-leg').filter({ hasText: 'Autobus' })).toHaveText(/Autobus C/);
 
-  for (let i = 0; i < 8; i++) await scan();
+  // Scan latency measured on the API the scanner uses.
+  const staff = await codeClient(DEV.staff, DEV.event);
+  const timings: number[] = [];
+  for (let i = 0; i < 10; i++) {
+    const t0 = performance.now();
+    const { data, error } = await staff.rpc('scan_badge', { p_payload: qrPayload });
+    timings.push(performance.now() - t0);
+    expect(error).toBeNull();
+    expect((data as { participant: { legs: { code: string }[] } }).participant.legs.map((l) => l.code)).toContain('C');
+  }
   timings.sort((a, b) => a - b);
   const p50 = timings[Math.floor(timings.length / 2)]!;
   const p95 = timings[Math.ceil(timings.length * 0.95) - 1]!;
   console.log(`scan RPC round trip from CI: p50 ${p50.toFixed(0)} ms, p95 ${p95.toFixed(0)} ms (n=${timings.length})`);
   expect(p95).toBeLessThan(2000);
-
-  // the participant signs in with their code and sees Bus C
-  const me = await codeClient(accessCode);
-  const { data: mine } = await me.rpc('my_pilgrimage');
-  expect((mine as { legs: { code: string }[] }).legs.map((l) => l.code)).toEqual(['C']);
+  await pilgrim.context().close();
+  await staffPage.context().close();
 });
 
 test('clean up', async () => {

@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Pouť do Lurd",
+    "slug": "lurdy",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "eu.lurdy.app"
+    },
+    "android": {
+      "package": "eu.lurdy.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#FFFFFF",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "output": "single",
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-status-bar",
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Fotoaparát slouží jen ke skenování jmenovek účastníků pouti.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Poloha se zobrazí jen na mapě ve vašem telefonu, nikam se neodesílá."
+        }
+      ]
+    ],
+    "scheme": "lurdy"
+  }
+}
