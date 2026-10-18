@@ -3,7 +3,7 @@
 // → the participant's own view shows Bus C. Also: the scan latency is measured.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { adminLogin, codeClient, DEV } from './helpers';
+import { adminLogin, codeClient, DEV, organiserClient } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -20,6 +20,8 @@ test.beforeAll(async ({ browser }) => {
 
 test.afterAll(async () => {
   await page.close();
+  // whatever happened above, remove this test's participants (also leftovers of interrupted runs)
+  if (mfaSecret) await (await organiserClient(mfaSecret)).from('participants').delete().like('last_name', 'Testovací%').eq('first_name', 'Eliška');
 });
 
 const leg = (code: string) => page.locator('.timetable button').filter({ has: page.locator('.code', { hasText: new RegExp(`^${code}$`) }) });

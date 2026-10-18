@@ -8,7 +8,7 @@ export type BadgeConfig = {
   cropMarks: boolean;
   offsetXMm: number; // printer alignment correction
   offsetYMm: number;
-  showCategory: boolean; // Q3: off by default — the category "malade" is health data
+  showCategory: boolean; // Q3 decided by the organisers (2026-10-19): printed, large
   showBus: boolean;
   showFacility: boolean;
   showEmergencyPhone: boolean;
@@ -22,7 +22,7 @@ export const defaultBadgeConfig: BadgeConfig = {
   cropMarks: true,
   offsetXMm: 0,
   offsetYMm: 0,
-  showCategory: false,
+  showCategory: true,
   showBus: true,
   showFacility: true,
   showEmergencyPhone: true,

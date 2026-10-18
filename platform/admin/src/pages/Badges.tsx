@@ -107,7 +107,7 @@ export function Badges() {
           {flag('cropMarks', 'Ořezové značky')}{flag('showBus', 'Autobus')}{flag('showFacility', 'Ubytování')}{flag('showEmergencyPhone', 'Nouzový telefon')}
           {flag('showCategory', 'Kategorie')}
         </div>
-        {config.showCategory && <Notice kind="warn">Kategorie „Nemocný“ je zdravotní údaj. Tisknout ji na viditelnou jmenovku jen se souhlasem dotčených.</Notice>}
+        {config.showCategory && <Notice kind="info">Kategorie se tiskne velkým písmem. „Nemocný“ je zdravotní údaj – účastníci by o tom měli vědět z přihlášky.</Notice>}
         {configErrors.length > 0 ? <Notice kind="error">Jmenovka se na A4 nevejde nebo má nesmyslný rozměr.</Notice>
           : <p style={{ margin: 0, color: 'var(--muted)' }}>{layout.columns} × {layout.rows} = {layout.perSheet} jmenovek na list A4.</p>}
         <div><button className="btn" onClick={saveConfig} disabled={configErrors.length > 0}>{t('common.save')}</button></div>
@@ -175,14 +175,17 @@ function Badge({ item, config, at }: { item: Printed; config: Config; at: { xMm:
   return (
     <div className="badge" style={{ left: `${at.xMm}mm`, top: `${at.yMm}mm`, width: `${config.widthMm}mm`, height: `${config.heightMm}mm` }}>
       <div className="head"><img src="/img/shield.svg" alt="" /><span>{config.heading}</span></div>
-      <div className="name">
-        {r.preferred_name || [r.title, r.first_name].filter(Boolean).join(' ')} {r.last_name}
-        {config.showCategory && <small>{t(`category.${r.category}`)}</small>}
-      </div>
+      <div className="name">{r.preferred_name || [r.title, r.first_name].filter(Boolean).join(' ')} {r.last_name}</div>
+      {/* bus and attendee type are the largest elements: read at a glance at the airport and at the bus door */}
+      {((config.showBus && bus) || config.showCategory) && (
+        <div className="big">
+          {config.showBus && bus && <span className={`bus${bus.code.length > 2 ? ' long' : ''}`}><small>BUS</small>{bus.code}</span>}
+          {config.showCategory && <span className="cat">{t(`category.${r.category}`)}</span>}
+        </div>
+      )}
       <div className="qr" dangerouslySetInnerHTML={{ __html: item.svg }} />
       <div className="foot">
         {config.showFacility && facility && <div><strong>{facility.short_label ?? facility.name}</strong></div>}
-        {config.showBus && bus && <div>BUS <strong>{bus.code}</strong></div>}
         {config.showEmergencyPhone && edition.emergency_phone && <div>SOS {edition.emergency_phone}</div>}
       </div>
       {config.showFacility && facility?.colour && <div className="band" style={{ background: facility.colour }} />}

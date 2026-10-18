@@ -39,7 +39,7 @@ organiser signs in (code + event code + authenticator) → creates a participant
 |---|---|---|
 | Q1 | Supabase project is in **eu-west-1 (Ireland)**, brief preferred Frankfurt. Keep or recreate? | keep (EU region) |
 | Q2 | Who is the data controller and DPIA owner? | Foundation that runs the forms on lurdy.eu |
-| Q3 | Print the category "malade" on badges? | no — colour band = facility, as in 2026 |
+| Q3 | Print the category "malade" on badges? | **decided 2026-10-19: yes, large** (with the bus code) |
 | Q4 | Is `LurdyAPP` the future production or the staging project? | development/staging |
 | Q5 | 4-digit code alone for pilgrims — accepted residual risk (F §2). Add a personal PIN later? | code only (decided 2026-10-18) |
 
