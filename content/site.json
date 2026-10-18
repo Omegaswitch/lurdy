@@ -1,0 +1,24 @@
+{
+ "baseUrl": "https://www.lurdy.eu",
+ "languages": ["cs", "en", "fr", "it", "de"],
+ "registrationOpen": false,
+ "pilgrimage": {"number": 65, "start": "2026-04-30", "end": "2026-05-04"},
+ "last": {"number": 64, "start": "2025-05-01", "end": "2025-05-05", "image": "/media/2019"},
+ "contact": {"email": "lurdy@lurdy.eu", "post": ["Ursula Czerninová", "289 01 Dymokury 1"]},
+ "controller": {"name": "Maltézský nadační fond LOURDES", "ico": "28930649", "seat": "Velkopřevorské náměstí 485/4, 118 00 Praha 1", "register": "N 751, Městský soud v Praze"},
+ "account": {"number": "8539502/0800", "iban": "CZ82 0800 0000 0000 0853 9502"},
+ "gallery": ["2019", "2018", "2017", "2016", "2015", "2014", "2013", "2012", "2011", "2010", "2009", "2008", "2007", "2006", "2005", "2004", "2003"],
+ "files": {
+  "poster": "/files/lurdy-plakat.pdf",
+  "info": "/files/lurdy-podrobne-informace.pdf",
+  "nemocni": "/files/prihlaska-nemocni.rtf",
+  "poutnici": "/files/prihlaska-poutnici.doc",
+  "tym": "/files/prihlaska-tym.rtf"
+ },
+ "links": [
+  ["Maltézská pomoc", "https://www.maltezskapomoc.cz/"],
+  ["Maltézský řád – České velkopřevorství", "https://www.maltezskyrad.cz/"],
+  ["Sanctuaire Notre-Dame de Lourdes", "https://www.lourdes-france.org/"],
+  ["Facebook", "https://www.facebook.com/pages/Pou%C5%A5-%C4%8Cesk%C3%A9ho-velkop%C5%99evorstv%C3%AD-Suver%C3%A9nn%C3%ADho-%C5%99%C3%A1du-malt%C3%A9zsk%C3%BDch-ryt%C3%AD%C5%99%C5%AF-do-Lourdes/289330611429"]
+ ]
+}

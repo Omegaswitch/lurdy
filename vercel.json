@@ -1,0 +1,202 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "",
+  "buildCommand": "python3 build.py --production",
+  "outputDirectory": "dist",
+  "cleanUrls": false,
+  "trailingSlash": true,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "Speculation-Rules",
+          "value": "\"/speculation-rules.json\""
+        }
+      ]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/css/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/js/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/media/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/img/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=2592000"
+        }
+      ]
+    },
+    {
+      "source": "/speculation-rules.json",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/speculationrules+json"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/wp/nejcastejsi-dotazy/",
+      "destination": "/nejcastejsi-dotazy/",
+      "permanent": true
+    },
+    {
+      "source": "/wp/prihlasky/",
+      "destination": "/prihlasky/",
+      "permanent": true
+    },
+    {
+      "source": "/prihlaska-nemocni/",
+      "destination": "/prihlasky/nemocni/",
+      "permanent": true
+    },
+    {
+      "source": "/prihlaska-poutnici/",
+      "destination": "/prihlasky/poutnici/",
+      "permanent": true
+    },
+    {
+      "source": "/prihlaska-tym/",
+      "destination": "/prihlasky/tym/",
+      "permanent": true
+    },
+    {
+      "source": "/registrace-probehla-uspesne/",
+      "destination": "/prihlasky/odeslano/",
+      "permanent": true
+    },
+    {
+      "source": "/rd/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/feed/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/comments/feed/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/wp-content/uploads/2024/01/2024.pdf",
+      "destination": "/files/lurdy-plakat.pdf",
+      "permanent": true
+    },
+    {
+      "source": "/wp-content/uploads/2023/02/LURDY-2023-instrukce.pdf",
+      "destination": "/files/lurdy-podrobne-informace.pdf",
+      "permanent": true
+    },
+    {
+      "source": "/wp-content/uploads/2020/02/Lourdes_prihlaska_nemocny-2020.rtf",
+      "destination": "/files/prihlaska-nemocni.rtf",
+      "permanent": true
+    },
+    {
+      "source": "/wp-content/uploads/2020/02/Lourdes_prihlaska_tym-2020.rtf",
+      "destination": "/files/prihlaska-tym.rtf",
+      "permanent": true
+    },
+    {
+      "source": "/wp-content/(.*)",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/wp-admin/(.*)",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/wp-login.php",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/xmlrpc.php",
+      "destination": "/",
+      "permanent": true
+    }
+  ]
+}
