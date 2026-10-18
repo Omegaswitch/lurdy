@@ -3,7 +3,8 @@
 // and runs axe. Everything created here is removed again.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { adminLogin, codeClient, DEV, removeMfa } from './helpers';
+import { writeFileSync } from 'node:fs';
+import { adminLogin, codeClient, DEV, organiserClient } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
 let page: Page;
@@ -28,7 +29,11 @@ test.beforeAll(async ({ browser }) => {
 });
 test.afterAll(async () => {
   await page.close();
-  if (secret) await removeMfa(secret);
+  if (!secret) return;
+  // Whatever happened above: remove test participants and empty test rooms (also from earlier interrupted runs).
+  const org = await organiserClient(secret);
+  await org.from('participants').delete().like('last_name', 'Nemocná%').eq('first_name', 'Test');
+  await org.from('rooms').delete().like('number', 'T%').eq('capacity', 0);
 });
 
 test('edition: add an event code, then end it', async () => {
@@ -119,6 +124,29 @@ test('contacts and announcements reach the pilgrim', async () => {
   await page.getByRole('row').filter({ hasText: `Testovací kontakt ${tag}` }).getByRole('button', { name: 'Smazat' }).click();
   await page.getByRole('row').filter({ hasText: `Testovací oznámení ${tag}` }).getByRole('button', { name: 'Smazat' }).click();
   await expect(page.getByRole('row').filter({ hasText: `Testovací oznámení ${tag}` })).toHaveCount(0);
+});
+
+test('reports print with edition stamp; manifests one leg per page', async () => {
+  await go('Tisk');
+  const reports = ['Seznam účastníků (abecedně)', 'Seznam podle kategorií', 'Manifesty spojů (autobusy, lety)', 'Rozdělení pokojů',
+    'Péče – nemocní a asistenti', 'Program', 'Kontakty'];
+  for (const r of reports) {
+    await page.getByLabel('Sestava').selectOption({ label: r });
+    await expect(page.getByRole('article', { name: r })).toContainText('vytištěno');
+  }
+  await a11y();
+  await page.getByLabel('Sestava').selectOption({ label: 'Manifesty spojů (autobusy, lety)' });
+  const article = page.getByRole('article');
+  await expect(article).toContainText('Autobus C');
+  await expect(article).toContainText('Vzorová');
+  for (const word of ['diagnó', 'alergi', 'lék ']) await expect(article).not.toContainText(word);
+  const legs = await page.locator('.report-section').count();
+  await page.emulateMedia({ media: 'print' });
+  const pdf = await page.pdf({ format: 'A4', preferCSSPageSize: true });
+  await page.emulateMedia({ media: 'screen' });
+  const pages = (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) ?? []).length;
+  expect(pages).toBe(legs); // one page per leg in the dev data (all fit on one page)
+  if (process.env.SHOTS) writeFileSync(`${process.env.SHOTS}/manifests.pdf`, pdf);
 });
 
 test('clean up the test participant and room', async () => {

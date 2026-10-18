@@ -3,7 +3,7 @@
 // → the participant's own view shows Bus C. Also: the scan latency is measured.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { adminLogin, codeClient, DEV, removeMfa } from './helpers';
+import { adminLogin, codeClient, DEV } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
 
@@ -20,12 +20,11 @@ test.beforeAll(async ({ browser }) => {
 
 test.afterAll(async () => {
   await page.close();
-  if (mfaSecret) await removeMfa(mfaSecret);
 });
 
 const leg = (code: string) => page.locator('.timetable button').filter({ has: page.locator('.code', { hasText: new RegExp(`^${code}$`) }) });
 
-test('organiser signs in with code + event code, then enrols MFA', async () => {
+test('organiser signs in with code + event code + authenticator (enrols the first time)', async () => {
   mfaSecret = await adminLogin(page);
   expect(mfaSecret).toMatch(/^[A-Z2-7]{16,}$/);
 });

@@ -25,7 +25,7 @@ organiser signs in (code + event code + authenticator) → creates a participant
 | 4 | Accommodation (facilities, rooms, occupancy, house/move/remove, room responsible) in admin | ✅ | e2e + axe; capacity refused by the database |
 | 4 | Care assignments (primary/backup/temporary with period, gaps, carer load) in admin | ✅ | e2e + axe |
 | 4 | Teams & duties screens in admin | ⬜ | database and app view ready |
-| 5 | Manifests, room sheets, rosters, programme and contact prints | ⬜ | badge print done |
+| 5 | Prints: alphabetical, by category, leg manifests (one per page, boarding tick column), room sheets, care roster, programme, contacts — every page stamped with edition + time + page numbers | ✅ | e2e renders PDFs; duty roster waits for the duties screen |
 | 6 | Programme editor (audiences, map place, change marker), contacts, announcements (draft/publish, critical + acknowledgements) | ✅ | e2e verifies what the participant receives |
 | 6 | Places editor (map pins) in admin | ⬜ | 14 shared sanctuary places seeded |
 | 7 | Medical module (records, step-up, carer-shareable info, break-glass, access log, purge) | ⬜ | schema `medical` exists and is locked; helpers `is_medical`, `mfa_fresh` tested |
@@ -43,7 +43,7 @@ organiser signs in (code + event code + authenticator) → creates a participant
 | Q5 | 4-digit code alone for pilgrims — accepted residual risk (F §2). Add a personal PIN later? | code only (decided 2026-10-18) |
 
 ## Housekeeping on the development project
-- Two fictional test organisers ("Ota Testovací-organizátor", "…-2") carry orphaned authenticator factors from interrupted test runs. Harmless (fictional), but the factors can only be removed with a `DELETE` on `auth.mfa_factors`, which the Supabase tool asks you to confirm. Tests now use a third organiser and clean up after themselves.
+- Three fictional test organisers ("Ota Testovací-organizátor", "-2", and code 7700) carry orphaned authenticator factors from early test runs. Harmless (fictional), but the factors can only be removed with a `DELETE` on `auth.mfa_factors`, which the Supabase tool asks you to confirm. Tests now use organiser `2936`, which keeps one factor permanently; its secret is in `platform/e2e/.mfa-secrets.json` (git-ignored) or `E2E_ORGANISER_TOTP`.
 - `role_grants.user_id` is an unused, always-null column left by a non-destructive migration; drop it in a later migration when convenient.
 
 ## Blockers

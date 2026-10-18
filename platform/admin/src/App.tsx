@@ -11,6 +11,7 @@ import { Mfa } from './pages/Mfa';
 import { Overview } from './pages/Overview';
 import { Participants } from './pages/Participants';
 import { Programme } from './pages/Programme';
+import { Reports } from './pages/Reports';
 import { Transport } from './pages/Transport';
 import { useAuth, useReady } from './session';
 
@@ -23,6 +24,7 @@ const routes: { path: string; label: string; icon: IconName; page: () => React.R
   { path: 'program', label: 'Program', icon: 'calendar', page: Programme },
   { path: 'kontakty', label: 'Kontakty a oznámení', icon: 'phone', page: Communication },
   { path: 'jmenovky', label: t('admin.badges'), icon: 'badge', page: Badges },
+  { path: 'tisk', label: 'Tisk', icon: 'printer', page: Reports },
   { path: 'rocnik', label: t('admin.edition'), icon: 'flag', page: Edition },
 ];
 

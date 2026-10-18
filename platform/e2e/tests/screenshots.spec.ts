@@ -1,6 +1,6 @@
 // Visual review captures (SHOTS=dir npx playwright test screenshots). Skipped in normal runs.
 import { test } from '@playwright/test';
-import { adminLogin, removeMfa } from './helpers';
+import { adminLogin } from './helpers';
 
 test.skip(!process.env.SHOTS, 'set SHOTS=<dir> to capture');
 
@@ -10,12 +10,8 @@ test('admin screens', async ({ browser }) => {
   await page.addInitScript(() => { window.print = () => {}; });
   await page.goto('/');
   await page.screenshot({ path: `${dir}/admin-login.png` });
-  const secret = await adminLogin(page);
-  try {
-    await capture(page, dir);
-  } finally {
-    await removeMfa(secret);
-  }
+  await adminLogin(page);
+  await capture(page, dir);
 });
 
 async function capture(page: import('@playwright/test').Page, dir: string) {

@@ -7,7 +7,7 @@ export const SUPABASE_URL = process.env.SUPABASE_URL ?? 'https://vcfrcczyqpsbmew
 export const PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_6aqvmALLqpY4ijdE0vETzQ_q5fxMqWc';
 // Fictional dev seed (supabase/seed-dev.sql): the test organiser, a staff member, the event code. Codes are random
 // per database; override with E2E_ORGANISER_CODE / E2E_STAFF_CODE when running against another project.
-export const DEV = { organiser: process.env.E2E_ORGANISER_CODE ?? '7700', staff: process.env.E2E_STAFF_CODE ?? '0505', event: 'DEV123' };
+export const DEV = { organiser: process.env.E2E_ORGANISER_CODE ?? '2936', staff: process.env.E2E_STAFF_CODE ?? '0505', event: 'DEV123' };
 
 // RFC 6238 TOTP (SHA-1, 30 s, 6 digits) from a base32 secret, as an authenticator app computes it.
 export function totp(secret: string, at = Date.now()): string {
@@ -36,17 +36,17 @@ export async function codeClient(code: string, eventCode?: string) {
   return client;
 }
 
-// The TOTP secret of the test organiser is kept in a git-ignored file from the moment it is shown, so that a run
-// that dies half-way does not leave a factor nobody can use (the next run signs in with it and cleans up).
+// The test organiser keeps one enrolled authenticator factor. Its secret lives in a git-ignored file (or the
+// E2E_ORGANISER_TOTP variable in CI): the first run enrols and saves it, later runs reuse it. Never unenrol —
+// a factor whose secret is lost locks the account until someone deletes it in the database.
 const SECRETS = new URL('../.mfa-secrets.json', import.meta.url);
 const secrets = (): Record<string, string> => (existsSync(SECRETS) ? JSON.parse(readFileSync(SECRETS, 'utf8')) : {});
-const saveSecret = (code: string, secret: string | null) => {
-  const all = secrets();
-  if (secret) all[code] = secret; else delete all[code];
-  writeFileSync(SECRETS, JSON.stringify(all, null, 2));
-};
+const knownSecret = () => process.env.E2E_ORGANISER_TOTP ?? secrets()[DEV.organiser];
+const saveSecret = (code: string, secret: string) => writeFileSync(SECRETS, JSON.stringify({ ...secrets(), [code]: secret }, null, 2));
+// Supabase refuses a second TOTP verification for the same user within one 30-second step.
+const nextStep = () => new Promise((r) => setTimeout(r, 31_000 - (Date.now() % 30_000)));
 
-// Signs the test organiser into the admin, enrolling MFA if needed. Returns the TOTP secret.
+// Signs the test organiser into the admin, enrolling MFA the first time. Returns the TOTP secret.
 export async function adminLogin(page: Page): Promise<string> {
   await page.goto('/');
   await page.getByLabel('Váš čtyřmístný kód').fill(DEV.organiser);
@@ -54,29 +54,30 @@ export async function adminLogin(page: Page): Promise<string> {
   await page.getByRole('button', { name: 'Přihlásit' }).click();
   // first call may hit a cold Edge Function
   await page.getByRole('heading', { name: 'Ověření aplikací' }).waitFor({ timeout: 20_000 });
-  // A fresh enrolment shows its secret; an account that is already enrolled does not.
   const shown = page.locator('code');
-  const enrolling = await shown.waitFor({ timeout: secrets()[DEV.organiser] ? 5_000 : 20_000 }).then(() => true, () => false);
-  const secret = enrolling ? (await shown.textContent())!.trim() : secrets()[DEV.organiser]!;
+  const enrolling = await shown.waitFor({ timeout: knownSecret() ? 5_000 : 20_000 }).then(() => true, () => false);
+  const secret = enrolling ? (await shown.textContent())!.trim() : knownSecret();
+  if (!secret) throw new Error('The test organiser has an authenticator factor but its secret is unknown (set E2E_ORGANISER_TOTP).');
   if (enrolling) saveSecret(DEV.organiser, secret);
-  // Supabase refuses a second TOTP verification for the same user within one 30-second step, so retry once in the next.
   for (let attempt = 0; attempt < 2; attempt++) {
     await page.getByLabel('Šestimístné číslo z aplikace').fill(totp(secret));
     await page.getByRole('button', { name: 'Ověřit' }).click();
-    const ok = await page.getByRole('heading', { name: 'Přehled' }).waitFor({ timeout: 10_000 }).then(() => true, () => false);
-    if (ok) return secret;
-    await page.waitForTimeout(31_000 - (Date.now() % 30_000));
+    if (await page.getByRole('heading', { name: 'Přehled' }).waitFor({ timeout: 10_000 }).then(() => true, () => false)) return secret;
+    await nextStep();
   }
   throw new Error('MFA verification failed twice');
 }
 
-// Removes the organiser's MFA factor so the next run enrols afresh.
-export async function removeMfa(secret: string) {
+// The test organiser as an API client with MFA (aal2), e.g. to clean up test data whatever happened in the UI.
+export async function organiserClient(secret: string) {
   const org = await codeClient(DEV.organiser, DEV.event);
   const { data } = await org.auth.mfa.listFactors();
-  for (const f of data?.totp ?? []) {
-    await org.auth.mfa.challengeAndVerify({ factorId: f.id, code: totp(secret) });
-    await org.auth.mfa.unenroll({ factorId: f.id });
+  const factor = data?.totp.find((f) => f.status === 'verified');
+  if (!factor) throw new Error('test organiser has no verified factor');
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const { error } = await org.auth.mfa.challengeAndVerify({ factorId: factor.id, code: totp(secret) });
+    if (!error) return org;
+    await nextStep();
   }
-  saveSecret(DEV.organiser, null);
+  throw new Error('MFA verification failed twice');
 }

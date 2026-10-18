@@ -19,6 +19,6 @@ pnpm -r typecheck && pnpm -r test   # TypeScript + unit tests
 (cd e2e && npx playwright test)     # needs the dev project and its fictional seed
 ```
 
-Development sign-in (fictional seed, development project only): pilgrim `3672`; team member `0505` + event code `DEV123`; test organiser `7700` + `DEV123` + authenticator (the admin shows the QR on first sign-in).
+Development sign-in (fictional seed, development project only): pilgrim `3672`; team member `0505` + event code `DEV123`; test organiser `2936` + `DEV123` + authenticator (its TOTP secret is kept in `e2e/.mfa-secrets.json` after the first test run).
 
 Updating database types after a migration: regenerate `shared/src/database.types.ts` (Supabase CLI `supabase gen types typescript` or the Supabase MCP tool).
