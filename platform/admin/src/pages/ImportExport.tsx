@@ -1,4 +1,4 @@
-import { findDuplicates, readRows, t, toCsv, type Category, type ImportRow, type Tables } from '@lurdy/shared';
+import { aiReformatPrompt, findDuplicates, importTemplate, parseCsv, readTable, t, toCsv, type Category, type ImportRow, type Tables } from '@lurdy/shared';
 import { useMemo, useState } from 'react';
 import { friendlyError } from '../errors';
 import { Icon, Notice } from '../icons';
@@ -14,7 +14,9 @@ export function ImportPanel({ existing, onClose }: { existing: Existing[]; onClo
   const [fileName, setFileName] = useState('');
   const [parsed, setParsed] = useState<{ rows: ImportRow[]; missing: string[] } | null>(null);
   const [category, setCategory] = useState<Category>('pilgrim');
-  const [text, setText] = useState('');
+  const [table, setTable] = useState<unknown[][] | null>(null);
+  const [foundHeaders, setFoundHeaders] = useState<string[] | undefined>();
+  const [showPrompt, setShowPrompt] = useState(false);
   const [decisions, setDecisions] = useState<Record<number, Decision>>({});
   const [message, setMessage] = useState<{ kind: 'error' | 'ok' | 'warn'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
@@ -32,15 +34,28 @@ export function ImportPanel({ existing, onClose }: { existing: Existing[]; onClo
 
   async function load(file: File) {
     setFileName(file.name);
-    const content = await file.text();
-    setText(content);
-    read(content, category);
+    try {
+      let cells: unknown[][];
+      if (/\.xlsx$/i.test(file.name)) {
+        const { readSheet } = await import('read-excel-file/browser'); // loaded only when someone imports a sheet
+        cells = await readSheet(file);
+      } else {
+        cells = parseCsv(await file.text()); // CSV takes the same path as a sheet: parse once, keep the cells
+      }
+      setTable(cells);
+      read(cells, category);
+    } catch {
+      setParsed(null);
+      setMessage({ kind: 'error', text: 'Soubor nejde přečíst. Použijte Excel (.xlsx) nebo CSV v kódování UTF-8.' });
+    }
   }
-  function read(content: string, cat: Category) {
-    const r = readRows(content, cat);
+  function read(cells: unknown[][], cat: Category) {
+    const r = readTable(cells, cat);
     setParsed(r);
     setDecisions({});
-    setMessage(r.missing.length ? { kind: 'error', text: 'Soubor nemá sloupce Jméno a Příjmení. Zkontrolujte první řádek (záhlaví).' } : null);
+    setFoundHeaders((cells[0] ?? []).map((c) => String(c ?? '')).filter(Boolean));
+    if (r.missing.length) setShowPrompt(true);
+    setMessage(r.missing.length ? { kind: 'error', text: 'V souboru chybí sloupce Jméno a Příjmení, nebo se jmenují jinak. Upravte záhlaví podle šablony, nebo nechte tabulku přeformátovat umělou inteligencí (návod níže).' } : null);
   }
   const decision = (i: number, status: string): Decision => decisions[i] ?? (status === 'new' ? 'add' : 'skip');
   const toImport = preview.filter((p, i) => p.status !== 'error' && decision(i, p.status) === 'add');
@@ -57,18 +72,20 @@ export function ImportPanel({ existing, onClose }: { existing: Existing[]; onClo
   return (
     <section className="panel stack" style={{ padding: 20, marginBottom: 24 }} aria-label="Import účastníků">
       <header className="row" style={{ justifyContent: 'space-between' }}>
-        <h2>Import z CSV</h2>
+        <h2>Hromadný import účastníků</h2>
         <button className="btn quiet small" onClick={() => onClose(0)} aria-label={t('common.close')}><Icon name="x" width={18} /></button>
       </header>
-      <p style={{ margin: 0, color: 'var(--muted)' }}>
-        Soubor CSV z Excelu (uložit jako „CSV UTF-8“). Sloupce: Jméno, Příjmení, a volitelně Titul, Oslovení, Kategorie, Telefon, E-mail, Jazyk, Pohyblivost, Poznámka.
-        Zdravotní údaje do souboru nepatří.
-      </p>
+      <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.6 }}>
+        <li>Stáhněte šablonu, nebo použijte vlastní tabulku. <button className="btn small" onClick={downloadTemplate}><Icon name="download" width={14} /> Šablona (Excel)</button></li>
+        <li>Vlastní tabulku v jiném tvaru může přeformátovat Claude nebo jiná AI. <button className="btn small quiet" aria-expanded={showPrompt} aria-controls="ai-prompt" onClick={() => setShowPrompt((v) => !v)}>{showPrompt ? 'Skrýt návod pro AI' : 'Návod pro AI'}</button></li>
+        <li>Nahrajte soubor (.xlsx nebo .csv). Nic se neuloží, dokud neuvidíte náhled a nekliknete na Importovat.</li>
+      </ol>
+      {showPrompt && <AiPrompt found={parsed?.missing.length ? foundHeaders : undefined} />}
       <div className="row" style={{ alignItems: 'flex-end' }}>
         <div className="field"><label htmlFor="csv">Soubor</label>
-          <input id="csv" type="file" accept=".csv,text/csv" onChange={(e) => e.target.files?.[0] && load(e.target.files[0])} /></div>
+          <input id="csv" type="file" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={(e) => e.target.files?.[0] && load(e.target.files[0])} /></div>
         <div className="field"><label htmlFor="dcat">Kategorie, když ve sloupci chybí</label>
-          <select id="dcat" value={category} onChange={(e) => { const c = e.target.value as Category; setCategory(c); if (text) read(text, c); }}>
+          <select id="dcat" value={category} onChange={(e) => { const c = e.target.value as Category; setCategory(c); if (table) read(table, c); }}>
             {(['pilgrim', 'malade', 'assistant', 'staff'] as Category[]).map((c) => <option key={c} value={c}>{t(`category.${c}`)}</option>)}
           </select></div>
       </div>
@@ -117,6 +134,36 @@ export function ImportPanel({ existing, onClose }: { existing: Existing[]; onClo
       )}
     </section>
   );
+}
+
+// The prompt to paste into an AI with one's own sheet. The sheet goes to that AI provider, so the warning is explicit.
+function AiPrompt({ found }: { found?: string[] }) {
+  const prompt = aiReformatPrompt(found);
+  const [copied, setCopied] = useState(false);
+  return (
+    <div id="ai-prompt" className="stack" style={{ gap: 8 }}>
+      <Notice kind="warn">Tabulka se jmény a kontakty se tím odešle poskytovateli AI. Použijte jen službu, kterou Převorství schválilo pro osobní údaje, a nikdy do ní nevkládejte zdravotní údaje.</Notice>
+      <label htmlFor="ai-prompt-text">Zkopírujte tento text, vložte ho do AI a přiložte svou tabulku. Výsledné CSV uložte a nahrajte sem.</label>
+      <textarea id="ai-prompt-text" readOnly rows={10} value={prompt} style={{ fontFamily: 'inherit', width: '100%' }} />
+      <div><button className="btn small" onClick={async () => { await navigator.clipboard.writeText(prompt); setCopied(true); }}>
+        <Icon name={copied ? 'check' : 'copy'} width={14} /> {copied ? 'Zkopírováno' : 'Zkopírovat návod'}</button>
+        <span role="status" className="visually-hidden">{copied ? 'Návod zkopírován do schránky' : ''}</span></div>
+    </div>
+  );
+}
+
+// Empty template: one sheet to fill in, one sheet explaining every column.
+async function downloadTemplate() {
+  const { default: writeXlsxFile } = await import('write-excel-file/browser');
+  const head = importTemplate.map((c) => ({ value: c.header, fontWeight: 'bold' as const }));
+  await writeXlsxFile([
+    { sheet: 'Účastníci', data: [head], columns: importTemplate.map(() => ({ width: 22 })) },
+    { sheet: 'Návod', data: [
+      [{ value: 'Sloupec', fontWeight: 'bold' as const }, { value: 'Povinný', fontWeight: 'bold' as const }, { value: 'Co sem patří', fontWeight: 'bold' as const }],
+      ...importTemplate.map((c) => [{ value: c.header }, { value: c.required ? 'ano' : 'ne' }, { value: c.allowed }]),
+      [], [{ value: 'Zdravotní údaje do této tabulky nepatří. Zapisují se jen v zabezpečené zdravotní části.' }],
+    ], columns: [{ width: 16 }, { width: 10 }, { width: 70 }] },
+  ]).toFile('sablona-ucastnici.xlsx');
 }
 
 // Export of operational data (never health data). Contains sign-in codes for invitation mail-merge.

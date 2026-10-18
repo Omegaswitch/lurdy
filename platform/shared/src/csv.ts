@@ -73,8 +73,15 @@ export type ImportRow = {
   errors: string[];
 };
 
-export function readRows(text: string, defaultCategory: Category = 'pilgrim'): { rows: ImportRow[]; missing: ImportField[] } {
-  const [header, ...body] = parseCsv(text);
+export function readRows(text: string, defaultCategory: Category = 'pilgrim') {
+  return readTable(parseCsv(text), defaultCategory);
+}
+
+// Same as readRows, for a sheet already split into cells (an .xlsx read in the browser). Cells may be numbers or dates.
+export function readTable(table: unknown[][], defaultCategory: Category = 'pilgrim'): { rows: ImportRow[]; missing: ImportField[] } {
+  const cells = table.map((r) => r.map((c) => (c == null ? '' : c instanceof Date ? c.toISOString().slice(0, 10) : String(c))))
+    .filter((r) => r.some((x) => x.trim() !== ''));
+  const [header, ...body] = cells;
   if (!header) return { rows: [], missing: ['first_name', 'last_name'] };
   const map = mapHeaders(header);
   const missing = (['first_name', 'last_name'] as ImportField[]).filter((f) => map[f] === undefined);
@@ -103,6 +110,39 @@ export function readRows(text: string, defaultCategory: Category = 'pilgrim'): {
     };
   });
   return { rows, missing };
+}
+
+// The import template: these headers, in this order. Values in the 'allowed' column are what readRows understands.
+export const importTemplate: { header: string; required: boolean; allowed: string }[] = [
+  { header: 'Příjmení', required: true, allowed: 'text' },
+  { header: 'Jméno', required: true, allowed: 'text' },
+  { header: 'Titul', required: false, allowed: 'text, např. Ing., MUDr., P.' },
+  { header: 'Oslovení', required: false, allowed: 'jméno na jmenovce, je-li jiné' },
+  { header: 'Kategorie', required: false, allowed: 'poutník | nemocný | asistent | tým (prázdné = poutník)' },
+  { header: 'Telefon', required: false, allowed: 'mezinárodní tvar, např. +420 601 234 567' },
+  { header: 'E-mail', required: false, allowed: 'e-mailová adresa' },
+  { header: 'Jazyk', required: false, allowed: 'dvoupísmenný kód: cs, en, de, fr… (prázdné = cs)' },
+  { header: 'Pohyblivost', required: false, allowed: 'chodí | doprovod | vozík (prázdné = chodí)' },
+  { header: 'Poznámka', required: false, allowed: 'logistika, např. „jede s dcerou“ – nikdy zdravotní údaje' },
+];
+
+// A prompt anyone can paste into Claude or another AI together with their own sheet, to get it into the template.
+// `found` lists the headers of a file that could not be read, so the AI knows what it is mapping from.
+export function aiReformatPrompt(found?: string[]): string {
+  return [
+    'Přeformátuj přiloženou tabulku účastníků pouti do přesně tohoto tvaru a vrať ji jako CSV (oddělovač středník, kódování UTF-8, první řádek záhlaví).',
+    '',
+    'Sloupce v tomto pořadí:',
+    ...importTemplate.map((c) => `- ${c.header}${c.required ? ' (povinné)' : ''}: ${c.allowed}`),
+    '',
+    'Pravidla:',
+    '- Jeden řádek = jedna osoba. Nic nevymýšlej; co v tabulce není, nech prázdné.',
+    '- Je-li jméno v jednom sloupci, rozděl ho na Jméno a Příjmení; tituly přesuň do sloupce Titul.',
+    '- Kategorii a pohyblivost převeď jen na povolená slova výše; když si nejsi jistý, nech buňku prázdnou a napiš to pod tabulku.',
+    '- Zdravotní údaje (diagnózy, léky, alergie, postižení) do výsledku NEPATŘÍ – vynech je úplně.',
+    '- Pod CSV vypiš seznam řádků, které jsi nedokázal jednoznačně převést, a proč.',
+    ...(found?.length ? ['', `Záhlaví v původním souboru: ${found.join(' | ')}`] : []),
+  ].join('\n');
 }
 
 type Comparable = { first_name: string; last_name: string; phone: string | null; email: string | null };

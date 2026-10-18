@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { findDuplicates, mapHeaders, parseCsv, readRows, toCsv } from './csv';
+import { aiReformatPrompt, findDuplicates, importTemplate, mapHeaders, parseCsv, readRows, readTable, toCsv } from './csv';
 
 describe('parseCsv', () => {
   it('reads Czech Excel CSV (BOM, semicolons, quotes, CRLF)', () => {
@@ -53,5 +53,24 @@ describe('toCsv', () => {
     const csv = toCsv(['Jméno', 'Poznámka'], [['Anna', 'a; "b"'], ['Petr', null]]);
     expect(csv.startsWith('﻿')).toBe(true);
     expect(parseCsv(csv)).toEqual([['Jméno', 'Poznámka'], ['Anna', 'a; "b"'], ['Petr', '']]);
+  });
+});
+
+describe('template and spreadsheets', () => {
+  it('every template header is recognised', () => {
+    const map = mapHeaders(importTemplate.map((c) => c.header));
+    expect(Object.keys(map)).toHaveLength(importTemplate.length);
+  });
+  it('reads sheet cells that are numbers, dates or empty', () => {
+    const { rows, missing } = readTable([['Příjmení', 'Jméno', 'Telefon', 'Poznámka'], ['Nová', 'Eva', 601000000, new Date('2027-05-01')], [null, null, null, null]]);
+    expect(missing).toEqual([]);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.values).toMatchObject({ phone: '601000000', logistics_note: '2027-05-01' });
+  });
+  it('the AI prompt names every column, forbids health data and quotes the found headers', () => {
+    const p = aiReformatPrompt(['Name', 'Bus']);
+    for (const c of importTemplate) expect(p).toContain(c.header);
+    expect(p).toMatch(/Zdravotní údaje/);
+    expect(p).toContain('Name | Bus');
   });
 });

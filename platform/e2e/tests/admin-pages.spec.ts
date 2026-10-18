@@ -3,7 +3,9 @@
 // and runs axe. Everything created here is removed again.
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { readSheet } from 'read-excel-file/node';
+import writeXlsxFile from 'write-excel-file/node';
 import { adminLogin, codeClient, DEV, organiserClient } from './helpers';
 
 test.describe.configure({ mode: 'serial' });
@@ -158,7 +160,7 @@ test('CSV import flags exactly the planted duplicates and errors; export contain
   lines.push('Importovaný7;Test;nemocný;;', 'Importovaný8;Test;poutník;;'); // repeated within the file
   lines.push('Chybný;Řádek;kuchař;;'); // unknown category
   await go('Účastníci');
-  await page.getByRole('button', { name: 'Importovat CSV' }).click();
+  await page.getByRole('button', { name: 'Hromadný import (Excel, CSV)' }).click();
   await page.getByLabel('Soubor', { exact: true }).setInputFiles({ name: 'prihlasky.csv', mimeType: 'text/csv', buffer: Buffer.from('\uFEFF' + lines.join('\r\n'), 'utf8') });
   await expect(page.getByRole('status').filter({ hasText: 'řádků' })).toHaveText(/151 řádků · 145 nových · 5 možná již existuje · 1 s chybou/);
   await a11y();
@@ -174,6 +176,33 @@ test('CSV import flags exactly the planted duplicates and errors; export contain
   expect(text.startsWith('\uFEFFPříjmení;Jméno')).toBe(true);
   expect(text).toContain('Importovaný145;Test');
   expect(text.split('\r\n').filter((l) => l.startsWith('Importovaný')).length).toBe(145);
+});
+
+test('Excel template, AI prompt for an unknown layout, .xlsx preview (nothing imported)', async () => {
+  await go('Účastníci');
+  await page.getByRole('button', { name: 'Hromadný import (Excel, CSV)' }).click();
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Šablona (Excel)' }).click();
+  const template = await readSheet(readFileSync(await (await download).path()));
+  expect(template[0]).toEqual(['Příjmení', 'Jméno', 'Titul', 'Oslovení', 'Kategorie', 'Telefon', 'E-mail', 'Jazyk', 'Pohyblivost', 'Poznámka']);
+
+  // a sheet in someone's own layout: not readable, so the AI instructions open, quoting its headers
+  const own = await writeXlsxFile([[{ value: 'Celé jméno' }, { value: 'Autobus' }], [{ value: 'Ing. Jan Fiktivní' }, { value: 'A' }]]).toBuffer();
+  await page.getByLabel('Soubor', { exact: true }).setInputFiles({ name: 'vlastni.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: own });
+  await expect(page.getByText('V souboru chybí sloupce Jméno a Příjmení')).toBeVisible();
+  const prompt = page.getByLabel(/Zkopírujte tento text/);
+  await expect(prompt).toHaveValue(/Celé jméno \| Autobus/);
+  await expect(prompt).toHaveValue(/Zdravotní údaje/);
+  await a11y();
+
+  // the template filled in: two people, numbers as numbers
+  const filled = await writeXlsxFile([template[0]!.map((h) => ({ value: String(h) })),
+    [{ value: 'Fiktivní' }, { value: 'Jan' }, null, null, { value: 'poutník' }, { value: 420601000999 }, null, null, { value: 'vozík' }, null],
+    [{ value: 'Smyšlená' }, { value: 'Eva' }, null, null, { value: 'asistent' }, null, null, { value: 'en' }, null, null]]).toBuffer();
+  await page.getByLabel('Soubor', { exact: true }).setInputFiles({ name: 'sablona.xlsx', mimeType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', buffer: filled });
+  await expect(page.getByRole('status').filter({ hasText: 'řádků' })).toHaveText(/2 řádků · 2 nových · 0 možná již existuje · 0 s chybou/);
+  await expect(page.getByRole('button', { name: 'Importovat 2 osoby' })).toBeEnabled();
+  await page.getByRole('button', { name: 'Zrušit' }).click();
 });
 
 test('clean up the test participant and room', async () => {

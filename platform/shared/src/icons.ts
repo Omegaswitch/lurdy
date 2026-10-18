@@ -24,5 +24,7 @@ export const iconPaths = {
   navigation: 'M3 11 22 2l-9 19-2-8z',
   locate: 'M12 2v3M12 19v3M2 12h3M19 12h3M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
   text: 'M4 7V4h16v3M9 20h6M12 4v16',
+  download: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',
+  copy: 'M8 8h12v12H8zM4 16V4h12',
 } as const;
 export type IconName = keyof typeof iconPaths;

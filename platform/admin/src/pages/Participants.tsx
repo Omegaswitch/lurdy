@@ -55,7 +55,7 @@ export function Participants() {
           <p>{data ? `${data.length} osob` : t('common.loading')}</p>
         </div>
         <div className="row">
-          <button className="btn" onClick={() => setImporting(true)}>Importovat CSV</button>
+          <button className="btn" onClick={() => setImporting(true)}>Hromadný import (Excel, CSV)</button>
           <button className="btn" onClick={() => exportParticipants(edition.id, edition.year).then(
             () => setNotice({ kind: 'warn', text: 'Soubor obsahuje osobní údaje a přihlašovací kódy. Uložte ho jen na zabezpečené místo a po použití smažte.' }),
             (e) => setNotice({ kind: 'error', text: friendlyError(e) }))}>Exportovat CSV</button>
