@@ -1,11 +1,16 @@
 import { t } from '@lurdy/shared';
 import { useEffect, useState } from 'react';
 import { Icon, Notice, type IconName } from './icons';
+import { Accommodation } from './pages/Accommodation';
 import { Badges } from './pages/Badges';
+import { Care } from './pages/Care';
+import { Communication } from './pages/Communication';
+import { Edition } from './pages/Edition';
 import { Login } from './pages/Login';
 import { Mfa } from './pages/Mfa';
 import { Overview } from './pages/Overview';
 import { Participants } from './pages/Participants';
+import { Programme } from './pages/Programme';
 import { Transport } from './pages/Transport';
 import { useAuth, useReady } from './session';
 
@@ -13,7 +18,12 @@ const routes: { path: string; label: string; icon: IconName; page: () => React.R
   { path: '', label: t('admin.overview'), icon: 'home', page: Overview },
   { path: 'ucastnici', label: t('admin.participants'), icon: 'users', page: Participants },
   { path: 'doprava', label: t('admin.transport'), icon: 'bus', page: Transport },
+  { path: 'ubytovani', label: 'Ubytování', icon: 'bed', page: Accommodation },
+  { path: 'pece', label: 'Péče', icon: 'heart', page: Care },
+  { path: 'program', label: 'Program', icon: 'calendar', page: Programme },
+  { path: 'kontakty', label: 'Kontakty a oznámení', icon: 'phone', page: Communication },
   { path: 'jmenovky', label: t('admin.badges'), icon: 'badge', page: Badges },
+  { path: 'rocnik', label: t('admin.edition'), icon: 'flag', page: Edition },
 ];
 
 function useHashPath() {
