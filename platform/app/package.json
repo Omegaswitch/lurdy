@@ -29,6 +29,8 @@
   "devDependencies": {
     "@types/leaflet": "^1.9.22",
     "@types/react": "~19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "~58.0.4",
     "typescript": "~6.0.3"
   },
   "scripts": {
@@ -38,7 +40,8 @@
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
     "test": "echo \"app: covered by e2e (web) and device checklist\"",
-    "export:web": "expo export -p web"
+    "export:web": "expo export -p web",
+    "lint": "expo lint"
   },
   "private": true
 }

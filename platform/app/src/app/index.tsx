@@ -1,4 +1,5 @@
 import { Redirect, router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 import { Shield } from '../lib/brand';
 import { useStore } from '../lib/store';
@@ -8,12 +9,18 @@ import { Banner, BigButton, Card, fmtDay, fmtTime, Screen, T } from '../lib/ui';
 
 export default function Home() {
   const { ready, session, data, t, isStaff, refresh, scale, setScale, signOut } = useStore();
+  // "Next on the programme" moves on by itself
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(timer);
+  }, []);
   if (!ready) return <ActivityIndicator style={{ flex: 1 }} color={colors.red} />;
   if (!session) return <Redirect href="/login" />;
   if (!data) return <Screen title={t('app.name')}><ActivityIndicator size="large" color={colors.red} /></Screen>;
 
   const tz = data.edition.timezone;
-  const next = data.events.find((e) => new Date(e.ends_at ?? e.starts_at).getTime() >= Date.now());
+  const next = data.events.find((e) => new Date(e.ends_at ?? e.starts_at).getTime() >= now);
   const critical = data.announcements.filter((a) => a.critical && !a.acked);
   const name = data.me ? (data.me.preferred_name || data.me.first_name) : '';
 
