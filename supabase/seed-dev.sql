@@ -30,6 +30,9 @@ begin
     (ed, 'malade', 'Marie', 'Vzorová', 'wheelchair') returning id into p_mal;
 
   insert into public.role_grants (participant_id, role) values (p_org, 'organizer'), (p_staff, 'staff'), (p_assist, 'assistant');
+  -- a second organiser used only by the automated end-to-end tests (they enrol and remove MFA on it)
+  insert into public.participants (edition_id, category, first_name, last_name) values (ed, 'staff', 'Ota', 'Testovací-organizátor') returning id into p_org;
+  insert into public.role_grants (participant_id, role) values (p_org, 'organizer');
   insert into public.staff_codes (edition_id, code, label, valid_from, valid_until)
   values (ed, 'DEV123', 'vývoj', now() - interval '1 day', now() + interval '365 days');
 

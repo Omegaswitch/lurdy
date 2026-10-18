@@ -1,0 +1,14 @@
+{
+  "name": "@lurdy/e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.11.0",
+    "@playwright/test": "1.56.1",
+    "@supabase/supabase-js": "2.118.0",
+    "typescript": "5.9.3"
+  }
+}
