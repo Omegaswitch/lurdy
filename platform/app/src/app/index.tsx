@@ -72,6 +72,7 @@ export default function Home() {
 
       <View style={{ gap: space.m, marginTop: space.xl }}>
         <BigButton icon="text" label={scale > 1 ? 'Běžné písmo' : 'Větší písmo'} onPress={() => setScale(scale > 1 ? 1 : 1.3)} />
+        <BigButton icon="lock" label="Účet a soukromí" onPress={() => router.push('/account')} />
         <BigButton icon="logout" label={t('common.signOut')} onPress={signOut} />
       </View>
     </Screen>

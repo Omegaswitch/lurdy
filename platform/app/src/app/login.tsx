@@ -1,4 +1,4 @@
-import { Redirect } from 'expo-router';
+import { Link, Redirect } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { Shield } from '../lib/brand';
@@ -55,6 +55,7 @@ export default function Login() {
           <BigButton label={busy ? t('common.loading') : t('login.submit')} tone="primary" icon="arrow" onPress={submit}
             disabled={busy || code.length !== 4 || (team && eventCode.length !== 6)} testID="submit" />
         </View>
+        <Link href="/privacy" style={s.privacy}>Ochrana soukromí</Link>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -62,6 +63,7 @@ export default function Login() {
 
 const s = StyleSheet.create({
   wrap: { flexGrow: 1, justifyContent: 'center', padding: space.l },
+  privacy: { color: '#fff', fontFamily: fonts.semibold, fontSize: 20, textAlign: 'center', textDecorationLine: 'underline', padding: space.l, minHeight: 48 },
   card: { backgroundColor: colors.surface, borderRadius: 16, padding: space.xl, gap: space.xl, maxWidth: 520, width: '100%', alignSelf: 'center' },
   code: { fontFamily: fonts.bold, fontSize: 40, letterSpacing: 12, textAlign: 'center', borderWidth: 2, borderColor: colors.rule, borderRadius: 12, paddingVertical: space.m, color: colors.ink, backgroundColor: '#fff' },
   toggle: { flexDirection: 'row', alignItems: 'center', minHeight: 64, gap: space.m },

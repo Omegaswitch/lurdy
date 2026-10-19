@@ -97,7 +97,7 @@ export function Participants() {
                       </button>
                     </td>
                     <td><span className={`tag ${p.category}`}>{t(`category.${p.category}`)}</span>{p.mobility === 'wheelchair' && <> <span className="tag">{t('mobility.wheelchair')}</span></>}</td>
-                    <td className="mono">{p.access_code}</td>
+                    <td className="mono">{p.access_code}{p.account_deleted_at && <> <span className="tag">účet smazán</span></>}</td>
                     <td>{p.leg_assignments.map((a) => a.transport_legs?.code).filter(Boolean).join(', ') || <span style={{ color: 'var(--muted)' }}>—</span>}</td>
                     <td>{p.role_grants.map((g) => t(`role.${g.role}`)).join(', ')}</td>
                   </tr>
@@ -164,6 +164,14 @@ function Editor({ row, onClose, onSaved }: { row: Row | null; onClose: () => voi
     onSaved(row.id);
   }
 
+  async function restoreAccess() {
+    if (!row) return;
+    const { error } = await supabase.from('participants').update({ account_deleted_at: null }).eq('id', row.id);
+    if (error) return setMessage({ kind: 'error', text: friendlyError(error) });
+    setMessage({ kind: 'ok', text: 'Přístup obnoven. Osoba se může znovu přihlásit svým kódem.' });
+    onSaved(row.id);
+  }
+
   async function remove() {
     if (!row || !window.confirm(`Opravdu smazat ${fullName(row)}? Smažou se i přidělení k dopravě, ubytování a jmenovky.`)) return;
     const { error } = await supabase.from('participants').delete().eq('id', row.id);
@@ -184,6 +192,13 @@ function Editor({ row, onClose, onSaved }: { row: Row | null; onClose: () => voi
           <span className="mono" style={{ fontSize: '1.6rem' }}>{row.access_code}</span>
           <span className="help">Osobní – nepište ho na jmenovku ani do veřejných seznamů.</span>
         </div>
+      )}
+      {row?.account_deleted_at && (
+        <Notice kind="warn">
+          Účastník si {new Date(row.account_deleted_at).toLocaleDateString('cs-CZ')} smazal účet v aplikaci; s kódem se nepřihlásí.
+          Pokud chce smazat i údaje o účasti, použijte Smazat dole.{' '}
+          <button className="btn small" onClick={restoreAccess}>Obnovit přístup</button>
+        </Notice>
       )}
       <form className="stack" onSubmit={save} noValidate>
         <div className="grid2">

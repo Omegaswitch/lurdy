@@ -26,5 +26,7 @@ export const iconPaths = {
   text: 'M4 7V4h16v3M9 20h6M12 4v16',
   download: 'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3',
   copy: 'M8 8h12v12H8zM4 16V4h12',
+  trash: 'M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6',
+  lock: 'M5 11h14v10H5zM8 11V7a4 4 0 0 1 8 0v4',
 } as const;
 export type IconName = keyof typeof iconPaths;

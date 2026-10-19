@@ -2,7 +2,7 @@
 
 Legend: ✅ implemented and tested · 🟡 implemented, partly tested (see note) · 🧪 development data / simulated · ⏳ in progress · ⬜ not started · ⛔ blocked (needs organisers)
 
-Last updated: 2026-10-18.
+Last updated: 2026-10-19.
 
 ## What works today (development project, fictional data)
 The core loop runs end to end on the real backend and is covered by an automated test (`platform/e2e`, Playwright):
@@ -16,12 +16,14 @@ organiser signs in (code + event code + authenticator) → creates a participant
 | 1 | Sign-in by code (+ event code, + MFA for privileged) | ✅ | Edge Function `code-login`; throttling tested; live-tested |
 | 2 | QR credentials, `scan_badge`, `staff_action`, `my_pilgrimage` | ✅ | |
 | 2 | Admin: sign-in + MFA enrolment, participants (create/edit/delete, roles), transport (legs, assign, move, remove, capacity), badges (mm layout, A4, crop marks, PDF) | ✅ | e2e + axe (WCAG 2.2 AA rules) on overview and participant screens |
-| 2 | App: sign-in, home, journey, programme, accommodation, help, my code, scanner, my duty, report, map | 🟡 | tested in the **web build** (e2e + screenshots); **not yet run on a physical iPhone/Android** (needs EAS build) — camera scanning and GPS only exercised in the browser |
+| 2 | App: sign-in, home, journey, programme, accommodation, help, my code (full brightness + screen kept on), scanner, my duty, report, map, account & privacy | 🟡 | tested in the **web build** (e2e + screenshots); **not yet run on a physical iPhone/Android** (needs EAS build) — camera scanning and GPS only exercised in the browser |
 | 2 | Realtime updates (admin lists, participant app) | ✅ | proven by e2e |
 | 2 | Offline: participant app shows last copy with "as of" time | 🟡 | implemented; no automated offline test yet |
-| 2 | Lourdes map (OSM, places from the programme, navigate, my location) | 🟡 | 14 sanctuary places with OSM positions; works in web build; device check pending |
+| 2 | Lourdes map (OSM, places from the programme, navigate, my location) | 🟡 | 14 sanctuary places with OSM positions, 4 with credited Wikimedia Commons photos; works in web build; device check pending |
+| 2 | Same functions on the web (no app needed) | 🟡 | the app's web build is the same code: every screen works in a browser. Differences: a browser cannot raise screen brightness (the code screen says so and keeps the screen on); camera scanning depends on the browser — typing/pasting the code always works |
+| 2 | App-store requirements: in-app account deletion, public privacy notice (`/privacy`), privacy manifest, encryption flag, minimal permissions | ✅ | e2e deletes an account through the app; checklist [security/app-store-checklist.md](security/app-store-checklist.md); privacy text needs the controller's name (Q2) |
 | 3 | Edition settings + event codes (before/during, end now) in admin | ✅ | e2e + axe |
-| 3 | CSV import (preview, duplicate detection vs. database and within file, per-row decision) and CSV export | ✅ | e2e: 151-row file with 5 planted duplicates + 1 error flagged exactly; 18 unit tests |
+| 3 | Bulk import from Excel (.xlsx) or CSV: downloadable template, prompt to let any AI reformat an own sheet, preview, duplicate detection vs. database and within file, per-row decision; CSV export | ✅ | e2e: 151-row CSV with 5 planted duplicates + 1 error flagged exactly; template download, unknown layout → AI prompt with its headers, filled .xlsx previewed; 21 unit tests |
 | 3 | Edition create/duplicate/archive | ⬜ | |
 | 4 | Accommodation (facilities, rooms, occupancy, house/move/remove, room responsible) in admin | ✅ | e2e + axe; capacity refused by the database |
 | 4 | Care assignments (primary/backup/temporary with period, gaps, carer load) in admin | ✅ | e2e + axe |
@@ -41,6 +43,8 @@ organiser signs in (code + event code + authenticator) → creates a participant
 | Q2 | Who is the data controller and DPIA owner? | Foundation that runs the forms on lurdy.eu |
 | Q3 | Print the category "malade" on badges? | **decided 2026-10-19: yes, large** (with the bus code) |
 | Q4 | Is `LurdyAPP` the future production or the staging project? | development/staging |
+| Q6 | One-click "reformat with AI" inside the admin (sends the sheet to Anthropic's API from our server) instead of copy-paste? Needs an API key, a processor agreement and a DPIA note. | copy-paste prompt only: the organiser chooses an approved AI service themselves |
+| Q7 | Map photos are loaded from Wikimedia's servers. Copy them into our own storage before production? | load from Wikimedia (credited, CC BY-SA) |
 | Q5 | 4-digit code alone for pilgrims — accepted residual risk (F §2). Add a personal PIN later? | code only (decided 2026-10-18) |
 
 ## Housekeeping on the development project

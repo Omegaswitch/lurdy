@@ -142,7 +142,7 @@ function AiPrompt({ found }: { found?: string[] }) {
   const [copied, setCopied] = useState(false);
   return (
     <div id="ai-prompt" className="stack" style={{ gap: 8 }}>
-      <Notice kind="warn">Tabulka se jmény a kontakty se tím odešle poskytovateli AI. Použijte jen službu, kterou Převorství schválilo pro osobní údaje, a nikdy do ní nevkládejte zdravotní údaje.</Notice>
+      <Notice kind="warn">Tabulka se jmény a kontakty se tím odešle poskytovateli AI. Použijte jen službu, kterou Velkopřevorství schválilo pro osobní údaje, a nikdy do ní nevkládejte zdravotní údaje.</Notice>
       <label htmlFor="ai-prompt-text">Zkopírujte tento text, vložte ho do AI a přiložte svou tabulku. Výsledné CSV uložte a nahrajte sem.</label>
       <textarea id="ai-prompt-text" readOnly rows={10} value={prompt} style={{ fontFamily: 'inherit', width: '100%' }} />
       <div><button className="btn small" onClick={async () => { await navigator.clipboard.writeText(prompt); setCopied(true); }}>

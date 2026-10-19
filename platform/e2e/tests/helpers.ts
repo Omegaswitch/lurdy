@@ -41,7 +41,7 @@ export async function codeClient(code: string, eventCode?: string) {
 // a factor whose secret is lost locks the account until someone deletes it in the database.
 const SECRETS = new URL('../.mfa-secrets.json', import.meta.url);
 const secrets = (): Record<string, string> => (existsSync(SECRETS) ? JSON.parse(readFileSync(SECRETS, 'utf8')) : {});
-const knownSecret = () => process.env.E2E_ORGANISER_TOTP ?? secrets()[DEV.organiser];
+export const knownSecret = () => process.env.E2E_ORGANISER_TOTP ?? secrets()[DEV.organiser];
 const saveSecret = (code: string, secret: string) => writeFileSync(SECRETS, JSON.stringify({ ...secrets(), [code]: secret }, null, 2));
 // Supabase refuses a second TOTP verification for the same user within one 30-second step.
 const nextStep = () => new Promise((r) => setTimeout(r, 31_000 - (Date.now() % 30_000)));

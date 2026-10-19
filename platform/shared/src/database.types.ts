@@ -832,6 +832,7 @@ export type Database = {
       participants: {
         Row: {
           access_code: string | null
+          account_deleted_at: string | null
           category: Database["public"]["Enums"]["participant_category"]
           created_at: string
           edition_id: string
@@ -854,6 +855,7 @@ export type Database = {
         }
         Insert: {
           access_code?: string | null
+          account_deleted_at?: string | null
           category: Database["public"]["Enums"]["participant_category"]
           created_at?: string
           edition_id: string
@@ -876,6 +878,7 @@ export type Database = {
         }
         Update: {
           access_code?: string | null
+          account_deleted_at?: string | null
           category?: Database["public"]["Enums"]["participant_category"]
           created_at?: string
           edition_id?: string
@@ -1510,6 +1513,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      delete_my_account: { Args: never; Returns: undefined }
       code_login_check: {
         Args: { p_code: string; p_ip: string; p_staff_code: string }
         Returns: Json

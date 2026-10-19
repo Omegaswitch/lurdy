@@ -67,10 +67,12 @@ test('print the badge (QR holds an opaque token only)', async () => {
   qrPayload = (await (await issued).json()) as string;
   expect(qrPayload).toMatch(/^LRD1\.[0-9A-F]{32}$/);
   await expect(page.locator('.sheet .badge').filter({ hasText: surname })).toBeVisible();
-  // the printout carries the edition and a timestamp; the badge shows BUS A and no category
+  // the printout carries the edition and a timestamp; the badge shows the bus and the attendee type, both large
   await expect(page.locator('.print-meta').first()).toContainText('Vytištěno');
   await expect(page.locator('.print-meta').first()).toContainText('Vývojový ročník');
-  await expect(page.locator('.badge').filter({ hasText: surname })).toContainText('BUS A');
+  const badge = page.locator('.badge').filter({ hasText: surname });
+  await expect(badge.locator('.bus')).toHaveText(/^BUS\s*A$/);
+  await expect(badge.locator('.cat')).toHaveText(/poutník/i);
 });
 
 test('scan → Bus A; move to Bus C; same badge scans as Bus C; participant app updates live', async ({ browser }) => {

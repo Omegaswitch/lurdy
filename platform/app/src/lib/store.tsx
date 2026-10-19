@@ -14,6 +14,7 @@ type Store = {
   setScale: (s: number) => void;
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
+  deleteAccount: () => Promise<boolean>;
   t: (key: MessageKey) => string;
   isStaff: boolean;
 };
@@ -85,6 +86,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setData(null);
   }, [uid]);
 
+  // Deletes the sign-in account on the server (delete-account Edge Function), then forgets everything on this phone.
+  const deleteAccount = useCallback(async () => {
+    const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+    if (error) return false;
+    await supabase.auth.signOut({ scope: 'local' });
+    const keys = await AsyncStorage.getAllKeys();
+    await AsyncStorage.multiRemove(keys.filter((k) => k !== 'textScale'));
+    setData(null);
+    return true;
+  }, []);
+
   const setScale = useCallback((s: number) => {
     setScaleState(s);
     AsyncStorage.setItem('textScale', String(s));
@@ -92,9 +104,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const lang = data?.me?.language ?? 'cs';
   const value = useMemo<Store>(() => ({
-    ready, session, data: uid ? data : null, offline, scale, setScale, refresh, signOut,
+    ready, session, data: uid ? data : null, offline, scale, setScale, refresh, signOut, deleteAccount,
     t: (key) => translate(key, lang), isStaff: canScan(data?.roles ?? []),
-  }), [ready, session, uid, data, offline, scale, setScale, refresh, signOut, lang]);
+  }), [ready, session, uid, data, offline, scale, setScale, refresh, signOut, deleteAccount, lang]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

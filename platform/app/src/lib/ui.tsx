@@ -3,7 +3,7 @@
 import { iconPaths, type IconName } from '@lurdy/shared';
 import { Stack } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { useStore } from './store';
@@ -45,7 +45,9 @@ export function Screen({ title, children, scroll = true }: { title: string; chil
           </T>
         </View>
       )}
-      <Body style={{ flex: 1 }} contentContainerStyle={scroll ? s.content : undefined}>{children}</Body>
+      {/* on the web a scrolling area must be reachable by keyboard even when it holds only text (WCAG 2.1.1) */}
+      <Body style={{ flex: 1 }} contentContainerStyle={scroll ? s.content : undefined}
+        {...(scroll && Platform.OS === 'web' ? { focusable: true, accessibilityLabel: title } : {})}>{children}</Body>
     </SafeAreaView>
   );
 }
