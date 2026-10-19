@@ -1,5 +1,5 @@
 {
-  "0": "Badges.tsx",
+  "0": "Transport.tsx",
   "1": "ui.tsx",
   "2": "build.py",
   "3": "20261018211334_operations.sql",
@@ -64,5 +64,21 @@
   "62": "App Store and Google Play checklist",
   "63": "20261019073236_place_photos.sql",
   "64": "07_account_deletion.sql",
-  "65": "public.places"
+  "65": "public.places",
+  "66": "20261019130248_hardening.sql",
+  "67": "friendlyError",
+  "68": "Reports.tsx",
+  "69": "src/index.ts",
+  "70": "Notice",
+  "71": "t",
+  "72": "useReady",
+  "73": "Badges.tsx",
+  "74": "session.tsx",
+  "75": "08_hardening.sql",
+  "76": "20261019123937_zz_probe_column_privileges.sql",
+  "77": "THIRD-PARTY.md",
+  "78": "public/fonts/LICENSE.md",
+  "79": "public.zz_probe",
+  "80": "static/fonts/LICENSE.md",
+  "81": "20261019124158_zz_probe_column_privileges_2.sql"
 }
