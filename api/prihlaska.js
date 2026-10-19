@@ -20,6 +20,12 @@ function clean(def, body) {
       v = (Array.isArray(v) ? v : v ? [v] : []).map(String);
       if (v.some((x) => !f.o.includes(x))) return null;
       v = v.map((x) => CS.opts[x]).join(", ");
+    } else if (f.t === "date") {
+      // day, month and year arrive as three selects; checked to be a real calendar date
+      const [d, m, y] = ["d", "m", "y"].map((p) => Number(body[`${f.k}_${p}`]) || 0);
+      const dt = new Date(Date.UTC(y, m - 1, d));
+      if ((d || m || y) && !(y > 1900 && dt.getUTCDate() === d && dt.getUTCMonth() === m - 1)) return null;
+      v = d && m && y ? `${d}. ${m}. ${y}` : "";
     } else {
       v = typeof v === "string" ? v.trim() : "";
       if (v.length > (f.t === "area" ? 2000 : 200)) return null;

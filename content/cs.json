@@ -103,7 +103,10 @@
    "approval": "Čeká na schválení"
   },
   "paperTitle": "Dáváte přednost papírové přihlášce?",
-  "paperNote": "Přihlášku si můžete stáhnout, vyplnit a poslat e-mailem na lurdy@lurdy.eu nebo poštou."
+  "paperNote": "Přihlášku si můžete stáhnout, vyplnit a poslat e-mailem na lurdy@lurdy.eu nebo poštou.",
+  "day": "Den",
+  "month": "Měsíc",
+  "year": "Rok"
  },
  "nav": [
   "ucast",
@@ -332,5 +335,19 @@
   "diabetic": "diabetická",
   "nosalt": "neslaná"
  },
- "privacyBody": "<h2>Správce</h2><p>Správcem osobních údajů je {controller}, IČO {ico}, se sídlem {seat}, zapsaný v nadačním rejstříku vedeném Městským soudem v Praze pod sp. zn. N 751. Dotazy a žádosti týkající se osobních údajů posílejte na <a href=\"mailto:{email}\">{email}</a>.</p><h2>Přihlášky na pouť</h2><p>Údaje z přihlášky (jméno, datum narození, kontaktní údaje, údaje o dokladu totožnosti, kontakt na rodinného příslušníka a u nemocných na praktického lékaře) zpracováváme, abychom mohli pouť zorganizovat: zařadit vás na pouť, zajistit letenku a ubytování a domluvit platbu. Právním základem je plnění smlouvy o účasti na pouti (čl. 6 odst. 1 písm. b) GDPR).</p><p>Údaje o zdravotním stavu, lécích, dietě, alergiích a potřebné péči zpracováváme jen s vaším výslovným souhlasem (čl. 9 odst. 2 písm. a) GDPR), abychom vám na pouti mohli zajistit bezpečnou péči, vhodné ubytování a stravu. Souhlas můžete kdykoli odvolat e-mailem; odvolání nemá vliv na zpracování před ním, bez těchto údajů ale nemůžeme zajistit vaši bezpečnou účast.</p><p>Údaje vidí jen členové organizačního týmu pouti, kteří je potřebují, a v nezbytném rozsahu letecká společnost, ubytovací zařízení a lurdská svatyně. Po skončení pouti uchováváme údaje jen pro statistické a archivní účely; údaje o zdravotním stavu po skončení pouti vymažeme.</p><p>Online přihláška se odesílá šifrovaně a doručuje se e-mailem prostřednictvím služby Resend (Resend, Inc., USA), která pro nás e-maily rozesílá jako zpracovatel. Web přihlášku neukládá. Na e-mail uvedený v přihlášce pošleme jen potvrzení o jejím přijetí, bez údajů z přihlášky.</p><h2>Cookies a měření návštěvnosti</h2><p>Tento web nepoužívá cookies ani analytické a reklamní nástroje a nesleduje návštěvníky. Písma a obrázky se načítají přímo z tohoto webu.</p><h2>Provoz webu</h2><p>Web běží na serverech společnosti Vercel Inc. (USA). Při každé návštěvě se zpracovávají údaje nutné k doručení stránky a k ochraně webu před zneužitím (IP adresa, čas a adresa požadavku, údaje o prohlížeči). Právním základem je náš oprávněný zájem na bezpečném provozu webu (čl. 6 odst. 1 písm. f) GDPR). Předání do USA se řídí rámcem EU–USA pro ochranu osobních údajů (Data Privacy Framework) nebo standardními smluvními doložkami.</p><h2>Vaše práva</h2><p>Máte právo na přístup ke svým osobním údajům, na jejich opravu nebo výmaz, na omezení zpracování a na přenositelnost údajů, právo odvolat souhlas a právo vznést námitku proti zpracování založenému na oprávněném zájmu. Máte také právo podat stížnost u Úřadu pro ochranu osobních údajů, Pplk. Sochora 27, 170 00 Praha 7, <a href=\"https://uoou.gov.cz/\">uoou.gov.cz</a>.</p><p>Poslední aktualizace: 18. října 2026.</p>"
+ "privacyBody": "<h2>Správce</h2><p>Správcem osobních údajů je {controller}, IČO {ico}, se sídlem {seat}, zapsaný v nadačním rejstříku vedeném Městským soudem v Praze pod sp. zn. N 751. Dotazy a žádosti týkající se osobních údajů posílejte na <a href=\"mailto:{email}\">{email}</a>.</p><h2>Přihlášky na pouť</h2><p>Údaje z přihlášky (jméno, datum narození, kontaktní údaje, údaje o dokladu totožnosti, kontakt na rodinného příslušníka a u nemocných na praktického lékaře) zpracováváme, abychom mohli pouť zorganizovat: zařadit vás na pouť, zajistit letenku a ubytování a domluvit platbu. Právním základem je plnění smlouvy o účasti na pouti (čl. 6 odst. 1 písm. b) GDPR).</p><p>Údaje o zdravotním stavu, lécích, dietě, alergiích a potřebné péči zpracováváme jen s vaším výslovným souhlasem (čl. 9 odst. 2 písm. a) GDPR), abychom vám na pouti mohli zajistit bezpečnou péči, vhodné ubytování a stravu. Souhlas můžete kdykoli odvolat e-mailem; odvolání nemá vliv na zpracování před ním, bez těchto údajů ale nemůžeme zajistit vaši bezpečnou účast.</p><p>Údaje vidí jen členové organizačního týmu pouti, kteří je potřebují, a v nezbytném rozsahu letecká společnost, ubytovací zařízení a lurdská svatyně. Po skončení pouti uchováváme údaje jen pro statistické a archivní účely; údaje o zdravotním stavu po skončení pouti vymažeme.</p><p>Online přihláška se odesílá šifrovaně a doručuje se e-mailem prostřednictvím služby Resend (Resend, Inc., USA), která pro nás e-maily rozesílá jako zpracovatel. Web přihlášku neukládá. Na e-mail uvedený v přihlášce pošleme jen potvrzení o jejím přijetí, bez údajů z přihlášky.</p><h2>Cookies a měření návštěvnosti</h2><p>Tento web nepoužívá cookies ani analytické a reklamní nástroje a nesleduje návštěvníky. Písma a obrázky se načítají přímo z tohoto webu.</p><h2>Provoz webu</h2><p>Web běží na serverech společnosti Vercel Inc. (USA). Při každé návštěvě se zpracovávají údaje nutné k doručení stránky a k ochraně webu před zneužitím (IP adresa, čas a adresa požadavku, údaje o prohlížeči). Právním základem je náš oprávněný zájem na bezpečném provozu webu (čl. 6 odst. 1 písm. f) GDPR). Předání do USA se řídí rámcem EU–USA pro ochranu osobních údajů (Data Privacy Framework) nebo standardními smluvními doložkami.</p><h2>Vaše práva</h2><p>Máte právo na přístup ke svým osobním údajům, na jejich opravu nebo výmaz, na omezení zpracování a na přenositelnost údajů, právo odvolat souhlas a právo vznést námitku proti zpracování založenému na oprávněném zájmu. Máte také právo podat stížnost u Úřadu pro ochranu osobních údajů, Pplk. Sochora 27, 170 00 Praha 7, <a href=\"https://uoou.gov.cz/\">uoou.gov.cz</a>.</p><p>Poslední aktualizace: 18. října 2026.</p>",
+ "monthNames": [
+  "leden",
+  "únor",
+  "březen",
+  "duben",
+  "květen",
+  "červen",
+  "červenec",
+  "srpen",
+  "září",
+  "říjen",
+  "listopad",
+  "prosinec"
+ ]
 }

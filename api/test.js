@@ -14,8 +14,8 @@ function call(body, headers = {}) {
   });
 }
 
-const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth: "1950-01-01", email: "jan@example.com", address: "Praha", idnum: "123",
-  idvalid: "2030-01-01", mobile: "777", relname: "Eva", relmobile: "666", diet: "yes", dietkind: ["diabetic", "nosalt"], declaration: "yes", consent: "yes" };
+const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d: "1", birth_m: "1", birth_y: "1950", email: "jan@example.com", address: "Praha", idnum: "123",
+  idvalid_d: "31", idvalid_m: "12", idvalid_y: "2030", mobile: "777", relname: "Eva", relmobile: "666", diet: "yes", dietkind: ["diabetic", "nosalt"], declaration: "yes", consent: "yes" };
 
 (async () => {
   let r = await call(good, { origin: "https://www.lurdy.eu" });
@@ -23,6 +23,7 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth: "
   assert.equal(sent.length, 2, "application + receipt");
   assert.ok(sent[0].html.includes("Jan &lt;b&gt;Novák&lt;/b&gt;"), "applicant input is escaped");
   assert.ok(sent[0].text.includes("diabetická, neslaná"), "options in Czech for the organisers");
+  assert.ok(sent[0].text.includes("1. 1. 1950"), "date assembled");
   assert.ok(!sent[1].text.includes("1950"), "the receipt carries no application data");
 
   sent.length = 0;
@@ -30,6 +31,7 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth: "
   assert.equal((await call({ ...good, diet: "maybe" })).status, 400, "unknown option");
   assert.equal((await call({ ...good, name: "x".repeat(201) })).status, 400, "length limit");
   assert.equal((await call({ ...good, email: "nope" })).status, 400, "email format");
+  assert.equal((await call({ ...good, birth_d: "31", birth_m: "2" })).status, 400, "31 February is not a date");
   assert.equal((await call(good, { origin: "https://evil.example" })).status, 403, "foreign origin");
   assert.equal((await call({ ...good, form: "nope" })).status, 403, "unknown form");
   assert.equal((await call({ ...good, web: "spam" })).status, 303, "honeypot pretends success");

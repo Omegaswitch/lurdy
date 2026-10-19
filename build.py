@@ -271,6 +271,14 @@ def field_html(f, lang, form):
     hint_html = f'<span class="hint" id="{fid}-h">{esc(hint)}</span>' if hint else ""
     described = f' aria-describedby="{fid}-h"' if hint else ""
     r = " required" if req else ""
+    if typ == "date":  # three selects in the page language; a native date picker follows the browser's language instead
+        u, now = t["ui"], datetime.now().year
+        years = range(now, now - 106, -1) if k == "birth" else range(now, now + 16)
+        def sel(part, label, opts):
+            o = "".join(f'<option value="{v}">{esc(n)}</option>' for v, n in opts)
+            return f'<select name="{k}_{part}" aria-label="{esc(t["fields"][k])}: {esc(label)}"{r}><option value="">{esc(label)}</option>{o}</select>'
+        parts = sel("d", u["day"], [(i, i) for i in range(1, 32)]) + sel("m", u["month"], [(i, m) for i, m in enumerate(t["monthNames"], 1)]) + sel("y", u["year"], [(y, y) for y in years])
+        return f'<fieldset class="field choice date"><legend>{label}</legend><div class="date-parts">{parts}</div></fieldset>'
     if typ in ("radio", "check"):
         kind = "radio" if typ == "radio" else "checkbox"
         opts = "".join(f'<label><input type="{kind}" name="{k}" value="{o}"{r if kind == "radio" else ""}> {esc(t["opts"][o])}</label>' for o in f["o"])

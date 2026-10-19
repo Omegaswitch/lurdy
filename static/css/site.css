@@ -376,9 +376,10 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .apply fieldset>legend{grid-column:1/-1;font:500 1.45rem/1.2 var(--display);color:var(--ink-strong);padding:0;margin-bottom:var(--s4);width:100%;border-bottom:1px solid var(--rule);padding-bottom:var(--s2)}
 .apply fieldset:empty{display:none}
 .field{display:grid;gap:4px;align-content:start}
-.field--wide,.field.choice,.apply .consent,.apply fieldset>p{grid-column:1/-1}
+.field--wide,.field.choice:not(.date),.apply .consent,.apply fieldset>p{grid-column:1/-1}
 .field label,.field legend{font-weight:600;color:var(--ink-strong);font-size:.95rem}
 .field.choice{border:0;margin:0;padding:0;display:grid;gap:4px}
+.apply fieldset.choice{display:block;min-width:0}
 .apply fieldset.choice>legend{font:600 .95rem/1.4 var(--ui);border:0;margin:0 0 4px;padding:0}
 .hint{font-size:.85rem;color:var(--muted)}
 .apply input:not([type=checkbox]):not([type=radio]),.apply textarea{width:100%;min-height:46px;padding:10px 12px;border:1px solid #8a8a8a;border-radius:2px;font:inherit;font-size:1rem;color:var(--ink-strong);background:#fff}
@@ -387,6 +388,11 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .opts{display:flex;flex-wrap:wrap;gap:var(--s2) var(--s5);margin-top:var(--s1)}
 .opts label,.apply .consent{display:flex;gap:var(--s3);align-items:flex-start;font-weight:400;font-size:1rem;color:var(--ink);min-height:44px;align-items:center;cursor:pointer}
 .apply .consent{align-items:flex-start;min-height:0;padding-block:var(--s2)}
+.date-parts{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr) minmax(0,1fr);gap:var(--s2);margin-top:var(--s1)}
+.apply select{width:100%;min-height:46px;padding:10px 34px 10px 12px;border:1px solid #8a8a8a;border-radius:2px;font:inherit;font-size:1rem;color:var(--ink-strong);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23e31a18' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 12px center;appearance:none;cursor:pointer}
+.apply select:focus-visible{outline:2px solid var(--red);outline-offset:0;border-color:var(--red)}
+.apply select:invalid{color:var(--muted)}
+.apply option{color:var(--ink-strong)}
 .apply input[type=checkbox],.apply input[type=radio]{width:20px;height:20px;flex:none;margin:0;accent-color:var(--red)}
 .apply .consent input{margin-top:3px}
 .submit{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3) var(--s5);padding:var(--s5) var(--s6);background:var(--grey);border-top:3px solid var(--red)}
