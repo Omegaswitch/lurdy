@@ -10,7 +10,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 const MAX_BODY = 4.4 * 1024 * 1024; // Vercel refuses request bodies over 4.5 MB
 const MAX_FILES = 5;
 const MAGIC = [[[0x25, 0x50, 0x44, 0x46], "application/pdf"], [[0xff, 0xd8, 0xff], "image/jpeg"], [[0x89, 0x50, 0x4e, 0x47], "image/png"], [[0x52, 0x49, 0x46, 0x46], "image/webp"]];
-const EMAIL = /^[^\s@<>,;"]+@[^\s@<>,;"]+\.[^\s@<>,;"]+$/;
+const EMAIL = /^[^\s@<>,;"]+@[^\s@<>,;"]+$/;  // what the browser's type=email accepts
 
 function clean(def, body) {
   // returns [rows, applicantEmail] or null when anything is missing or out of range
@@ -30,7 +30,8 @@ function clean(def, body) {
       if ((d || m || y) && !(y > 1900 && dt.getUTCDate() === d && dt.getUTCMonth() === m - 1)) return null;
       v = d && m && y ? `${d}. ${m}. ${y}` : "";
     } else {
-      v = typeof v === "string" ? v.trim() : "";
+      v = typeof v === "string" ? v.replace(/\r\n?/g, "\n").trim() : "";  // browsers count a line break as 1, the post sends CRLF
+      if (f.t !== "area") v = v.replace(/[\x00-\x1f\x7f]+/g, " ");  // single lines stay single (the name goes into the subject)
       if (v.length > (f.t === "area" ? 2000 : 200)) return null;
       if (f.t === "radio" && v && !f.o.includes(v)) return null;
       if (f.t === "email" && v && !EMAIL.test(v)) return null;
@@ -53,12 +54,13 @@ async function send(mail) {
 
 function fail(res, lang, form, status) {
   const t = TEXT[lang] || CS;
-  const back = form && t.pages[form] ? t.pages[form].url : t.pages.prihlasky.url;
+  const back = form ? t.pages[form].url : t.pages.prihlasky.url;
+  const why = { 403: t.ui.onlineClosed, 413: t.ui.filesTooBig, 502: t.ui.errorServer }[status] || t.ui.errorText;
   res.statusCode = status;
   res.setHeader("Content-Type", "text/html; charset=utf-8");
   res.end(`<!doctype html><html lang="${lang}"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">` +
     `<title>${esc(t.ui.errorTitle)}</title><link rel="stylesheet" href="/css/site.css"><main class="wrap page page--simple"><h1 class="display">${esc(t.ui.errorTitle)}</h1>` +
-    `<p>${esc(t.ui.errorText)}</p><p><a class="link-strong" href="${back}">${esc(t.ui.back)}</a></p></main></html>`);
+    `<p>${esc(why)}</p><p><a class="link-strong" href="${back}">${esc(t.ui.back)}</a></p></main></html>`);
 }
 
 // urlencoded bodies are parsed by Vercel; multipart (with attachments) is read and parsed here
@@ -100,10 +102,12 @@ module.exports = async (req, res) => {
   if (req.method !== "POST") { res.statusCode = 405; res.setHeader("Allow", "POST"); return res.end(); }
   const [body, files] = await readBody(req).catch(() => [null, []]);
   if (!body) return fail(res, "cs", null, 413);
-  const lang = TEXT[body.lang] ? body.lang : "cs";
-  const form = FORMS[body.form] ? body.form : null;
+  const lang = Object.hasOwn(TEXT, body.lang) ? body.lang : "cs";  // own keys only: "constructor" is not a language
+  const form = Object.hasOwn(FORMS, body.form) ? body.form : null;
   const origin = req.headers.origin;
-  if (origin && new URL(origin).host !== req.headers.host) return fail(res, lang, form, 403);
+  let host = null;
+  try { host = new URL(origin).host; } catch (e) {}
+  if (origin && host !== req.headers.host) return fail(res, lang, form, 403);
   if (!SITE.registrationOpen || !form) return fail(res, lang, form, 403);
   const done = () => { res.statusCode = 303; res.setHeader("Location", TEXT[lang].pages.odeslano.url); res.end(); };
   if (body.web) return done();  // honeypot: bots fill every field; pretend it worked

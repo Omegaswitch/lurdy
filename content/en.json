@@ -117,7 +117,8 @@
   "removeFile": "Remove",
   "draftNote": "Your application is saved as you go, only in this browser, so you don’t lose it; it is deleted once sent. Attachments are not saved.",
   "draftClear": "Clear the form",
-  "chooseFiles": "Choose files"
+  "chooseFiles": "Choose files",
+  "errorServer": "The application could not be sent because of a technical problem. What you filled in is still saved in your browser; please try again shortly, or send the application by email to lurdy@lurdy.eu."
  },
  "nav": [
   "ucast",

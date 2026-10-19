@@ -55,6 +55,16 @@
 
   // ---- application form: attachments are shrunk on this device (photos on a canvas, large PDFs with
   // Ghostscript in a worker), then sent with a progress bar. Without JavaScript the form posts as usual.
+  var V = (document.currentScript && document.currentScript.src.split("?")[1]) || "";  // cache-busts the worker like this file
+  // drafts older than 30 days are deleted on any page, not only when their form is opened again
+  try {
+    Object.keys(localStorage).forEach(function (k) {
+      if (k.indexOf("draft:") !== 0) return;
+      var d = null;
+      try { d = JSON.parse(localStorage.getItem(k)); } catch (e) {}
+      if (!d || Date.now() - d.t > 30 * 864e5) localStorage.removeItem(k);
+    });
+  } catch (e) {}
   var LIMIT = 4 * 1024 * 1024, MAX_FILES = 5, PDF_SHRINK_FROM = 1024 * 1024;
   var TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
@@ -80,7 +90,7 @@
     if (file.size < PDF_SHRINK_FROM || !window.Worker) return Promise.resolve(file);
     return file.arrayBuffer().then(function (buf) {
       return new Promise(function (ok) {
-        var w = new Worker("/js/pdf-worker.js", { type: "module" });
+        var w = new Worker("/js/pdf-worker.js?" + V, { type: "module" });
         var done = function (out) { w.terminate(); ok(out && out.length && out.length < file.size ? new File([out], file.name, { type: "application/pdf" }) : file); };
         w.onmessage = function (e) { done(e.data); };
         w.onerror = function () { done(null); };
@@ -158,6 +168,12 @@
     var timer;
     f.addEventListener("input", function () { clearTimeout(timer); timer = setTimeout(save, 400); });
     f.addEventListener("change", save);
+    // Back from the thank-you page restores this page from memory, still filled in: empty it so it isn't sent twice
+    addEventListener("pageshow", function () {
+      var sent = null;
+      try { sent = sessionStorage.getItem("sent:" + KEY); sessionStorage.removeItem("sent:" + KEY); } catch (e) {}
+      if (sent) { f.reset(); chosen = []; render(); if (note) note.hidden = true; }
+    });
     var clear = f.querySelector("[data-clear]");
     if (clear) clear.addEventListener("click", function () {
       store(null); f.reset(); chosen = []; render(); say(""); note.hidden = true;
@@ -187,12 +203,17 @@
           if (ev.lengthComputable) { var p = Math.round(ev.loaded / ev.total * 100); progress(f.getAttribute("data-uploading").replace("{p}", p), p); }
         };
         x.onload = function () {
-          if (x.status < 400 && x.responseURL) { store(null); location.href = x.responseURL; return; }  // the server redirects to the thank-you page
+          if (x.status < 400 && x.responseURL) {
+            store(null);
+            try { sessionStorage.setItem("sent:" + KEY, "1"); } catch (e) {}
+            location.href = x.responseURL;
+            return;
+          }  // the server redirects to the thank-you page
           document.open(); document.write(x.responseText); document.close();  // the server's own error page
         };
         x.onerror = function () { say(f.getAttribute("data-error")); reset(); };
         x.send(data);
-      });
+      }).catch(function () { say(f.getAttribute("data-error")); reset(); });
     });
   });
   addEventListener("pageshow", function () {  // coming back from the thank-you page restores this page from cache, button and all

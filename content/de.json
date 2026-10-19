@@ -117,7 +117,8 @@
   "removeFile": "Entfernen",
   "draftNote": "Ihre Anmeldung wird laufend nur in diesem Browser gespeichert, damit sie nicht verloren geht; nach dem Senden wird sie gelöscht. Anhänge werden nicht gespeichert.",
   "draftClear": "Formular leeren",
-  "chooseFiles": "Dateien auswählen"
+  "chooseFiles": "Dateien auswählen",
+  "errorServer": "Die Anmeldung konnte wegen eines technischen Problems nicht gesendet werden. Ihre Eingaben bleiben in Ihrem Browser gespeichert; bitte versuchen Sie es gleich noch einmal oder senden Sie die Anmeldung per E-Mail an lurdy@lurdy.eu."
  },
  "nav": [
   "ucast",

@@ -117,7 +117,8 @@
   "removeFile": "Odebrat",
   "draftNote": "Rozpracovaná přihláška se průběžně ukládá jen v tomto prohlížeči, abyste o ni nepřišli; po odeslání se smaže. Přílohy se neukládají.",
   "draftClear": "Smazat vyplněné údaje",
-  "chooseFiles": "Vybrat soubory"
+  "chooseFiles": "Vybrat soubory",
+  "errorServer": "Přihlášku se kvůli technické chybě nepodařilo odeslat. Vyplněné údaje zůstaly uložené ve vašem prohlížeči; zkuste to prosím za chvíli znovu, nebo pošlete přihlášku e-mailem na lurdy@lurdy.eu."
  },
  "nav": [
   "ucast",

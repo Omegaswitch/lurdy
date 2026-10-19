@@ -153,7 +153,7 @@ def layout(*, lang, key, title, body, description="", image="/media/lurdy-1600.w
 <title>{esc(full_title)}</title>
 <meta name="description" content="{esc(plain(description or body, 160))}">
 {robots}
-<link rel="canonical" href="{canonical}">
+{f'<link rel="canonical" href="{canonical}">' if key else ''}
 {alt_links}
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="{esc(u['site'])}">
@@ -300,7 +300,7 @@ def field_html(f, lang, form):
 def form_html(form, lang):
     u = L[lang]["ui"]
     fields = "".join(field_html(f, lang, form) for f in FORMS[form])
-    return f"""<form class="apply" method="post" action="/api/prihlaska" accept-charset="utf-8" enctype="multipart/form-data"
+    return f"""<form class="apply" method="post" action="/api/prihlaska/" accept-charset="utf-8" enctype="multipart/form-data"
  data-preparing="{esc(u['preparing'])}" data-uploading="{esc(u['uploading'])}" data-too-big="{esc(u['filesTooBig'])}" data-type="{esc(u['filesType'])}" data-count="{esc(u['filesCount'])}" data-error="{esc(u['sendError'])}" data-remove="{esc(u['removeFile'])}" data-draft="{form}">
  <input type="hidden" name="form" value="{form}"><input type="hidden" name="lang" value="{lang}">
  <p class="small">{esc(u['required'])}</p>

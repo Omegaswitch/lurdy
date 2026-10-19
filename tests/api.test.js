@@ -1,11 +1,11 @@
-// node api/test.js — exercises api/prihlaska.js with the email service stubbed. Exits non-zero on failure.
+// node tests/api.test.js — exercises api/prihlaska.js with the email service stubbed. Exits non-zero on failure.
 const assert = require("assert");
 const SITE = require("../content/site.json");
 SITE.registrationOpen = true; // the cached module object is the one the handler sees
 const sent = [];
 global.fetch = async (url, o) => { sent.push(JSON.parse(o.body)); return { ok: true, text: async () => "" }; };
 process.env.RESEND_API_KEY = "test";
-const handler = require("./prihlaska.js");
+const handler = require("../api/prihlaska.js");
 
 const { Readable } = require("stream");
 async function multipart(fields, files) {
@@ -50,6 +50,14 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   assert.equal((await call(good, { origin: "https://evil.example" })).status, 403, "foreign origin");
   assert.equal((await call({ ...good, form: "nope" })).status, 403, "unknown form");
   assert.equal((await call({ ...good, web: "spam" })).status, 303, "honeypot pretends success");
+  sent.length = 0;
+  assert.equal((await call({ ...good, health: ("x".repeat(99) + "\n").repeat(20).replace(/\n/g, "\r\n") })).status, 303, "CRLF counts as one character");
+  assert.ok(!/[\r\n]/.test(sent[0].subject), "subject is one line");
+  assert.equal((await call({ ...good, name: "Jan\r\nBcc: x@y.z" })).status, 303);
+  assert.ok(!/[\r\n]/.test(sent[2].subject), "line breaks in the name never reach the subject");
+  for (const bad of [{ form: "constructor" }, { lang: "toString" }, { lang: "constructor", form: "__proto__" }])
+    assert.ok([303, 403].includes((await call({ ...good, ...bad })).status), `no crash on ${JSON.stringify(bad)}`);
+  assert.equal((await call(good, { origin: "null" })).status, 403, "Origin: null is refused, not a crash");
   sent.length = 0;
   r = await multipart(good, [["zpráva lékaře.pdf", Buffer.from("%PDF-1.4 test")], ["foto.jpg", Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2])]]);
   assert.equal(r.status, 303, "multipart with attachments");

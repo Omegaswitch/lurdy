@@ -117,7 +117,8 @@
   "removeFile": "Rimuovi",
   "draftNote": "Il modulo viene salvato man mano, solo in questo browser, perché non lo perdiate; dopo l’invio viene cancellato. Gli allegati non vengono salvati.",
   "draftClear": "Cancella il modulo",
-  "chooseFiles": "Scegli i file"
+  "chooseFiles": "Scegli i file",
+  "errorServer": "Non è stato possibile inviare il modulo a causa di un problema tecnico. I dati inseriti restano salvati nel vostro browser; riprovate tra poco oppure inviate il modulo via e-mail a lurdy@lurdy.eu."
  },
  "nav": [
   "ucast",

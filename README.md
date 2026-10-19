@@ -8,7 +8,7 @@ It is built with the same engine as maltezskyrad.cz: a static generator in plain
 python3 build.py              # preview build → dist/ (noindex, content-status labels)
 python3 build.py serve 8000   # preview on http://127.0.0.1:8000 (form posts go to the thank-you page)
 python3 check.py              # checks the build: links, one <h1> per page, titles, descriptions, brand files
-node api/test.js              # checks the application function, with the email service stubbed
+node tests/api.test.js              # checks the application function, with the email service stubbed
 ```
 
 ## Content
