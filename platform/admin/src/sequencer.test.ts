@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sequencer } from './live';
+import { sequencer } from './sequencer';
 
 describe('sequencer', () => {
   it('shows a fresh answer even while a later load is still running, then the later one', () => {
