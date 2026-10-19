@@ -393,10 +393,16 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .apply select:focus-visible{outline:2px solid var(--red);outline-offset:0;border-color:var(--red)}
 .apply select:invalid{color:var(--muted)}
 .apply option{color:var(--ink-strong)}
-.apply input[type=file]{min-height:0;padding:var(--s4);border:1px dashed #8a8a8a;background:var(--grey);cursor:pointer}
-.apply input[type=file]::file-selector-button{margin-right:var(--s4);min-height:40px;padding:0 var(--s5);border:1px solid var(--red);border-radius:2px;background:#fff;color:var(--red);font:600 .95rem var(--ui);cursor:pointer}
+.file-pick{position:relative;padding:var(--s4);border:1px dashed #8a8a8a;background:var(--grey);margin-top:var(--s1)}
+.file-pick label{cursor:pointer;color:var(--red)}
+.apply .file-input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.file-input:focus-visible+label{outline:2px solid var(--red);outline-offset:3px}
+.file-input:hover+label{background:var(--red);color:#fff}
 .file-list{list-style:none;margin:var(--s2) 0 0;padding:0;font-size:.9rem;color:var(--ink-strong)}
-.file-list li{padding:6px 0;border-bottom:1px solid var(--rule);overflow-wrap:anywhere}
+.file-list li{display:flex;justify-content:space-between;align-items:center;gap:var(--s4);padding:4px 0;border-bottom:1px solid var(--rule);overflow-wrap:anywhere}
+.link-btn{background:none;border:0;padding:0;min-height:44px;font:600 .9rem var(--ui);color:var(--red-text);text-decoration:underline;text-underline-offset:.18em;cursor:pointer;flex:none}
+.link-btn:hover{text-decoration-thickness:2px}
+.draft-note .link-btn{min-height:0}
 .file-list:empty{display:none}
 .progress{flex:1 1 100%;display:grid;gap:6px}
 .progress progress{width:100%;height:8px;appearance:none;border:0;border-radius:4px;background:#ddd;overflow:hidden;accent-color:var(--red)}

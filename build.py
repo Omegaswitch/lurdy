@@ -273,7 +273,8 @@ def field_html(f, lang, form):
     r = " required" if req else ""
     if typ == "file":  # shrunk in the browser by site.js before upload (images on a canvas, large PDFs with Ghostscript)
         return (f'<div class="field field--wide"><label for="{fid}">{label}</label>{hint_html}'
-                f'<input id="{fid}" name="{k}" type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf"{described}>'
+                f'<div class="file-pick"><input id="{fid}" class="file-input" name="{k}" type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf"{described}>'
+                f'<label for="{fid}"  class="btn btn--ghost">{esc(t["ui"]["chooseFiles"])}</label></div>'
                 f'<ul class="file-list" aria-live="polite"></ul></div>')
     if typ == "date":  # three selects in the page language; a native date picker follows the browser's language instead
         u, now = t["ui"], datetime.now().year
@@ -300,9 +301,10 @@ def form_html(form, lang):
     u = L[lang]["ui"]
     fields = "".join(field_html(f, lang, form) for f in FORMS[form])
     return f"""<form class="apply" method="post" action="/api/prihlaska" accept-charset="utf-8" enctype="multipart/form-data"
- data-preparing="{esc(u['preparing'])}" data-uploading="{esc(u['uploading'])}" data-too-big="{esc(u['filesTooBig'])}" data-type="{esc(u['filesType'])}" data-count="{esc(u['filesCount'])}" data-error="{esc(u['sendError'])}">
+ data-preparing="{esc(u['preparing'])}" data-uploading="{esc(u['uploading'])}" data-too-big="{esc(u['filesTooBig'])}" data-type="{esc(u['filesType'])}" data-count="{esc(u['filesCount'])}" data-error="{esc(u['sendError'])}" data-remove="{esc(u['removeFile'])}" data-draft="{form}">
  <input type="hidden" name="form" value="{form}"><input type="hidden" name="lang" value="{lang}">
  <p class="small">{esc(u['required'])}</p>
+ <p class="small draft-note" hidden>{esc(u['draftNote'])} <button class="link-btn" type="button" data-clear>{esc(u['draftClear'])}</button></p>
  <fieldset>{fields}</fieldset>
  <fieldset><legend>{esc(u['declarationTitle'])}</legend>
   <label class="consent"><input type="checkbox" name="declaration" value="yes" required> <span>{esc(u['declaration'])} <span aria-hidden="true">*</span></span></label>

@@ -102,16 +102,65 @@
     }
     function reset() { b.disabled = false; b.textContent = b.getAttribute("data-label") || b.textContent; bar.hidden = true; }
 
-    if (input && list) input.addEventListener("change", function () {
+    // chosen files live here, so each can be removed and more can be added in several goes
+    var chosen = [];
+    function check() {
       say("");
+      if (chosen.length > MAX_FILES) say(f.getAttribute("data-count"));
+      else if (chosen.some(function (x) { return TYPES.indexOf(x.type) < 0; })) say(f.getAttribute("data-type"));
+    }
+    function render() {
       list.innerHTML = "";
-      Array.prototype.forEach.call(input.files, function (file) {
+      chosen.forEach(function (file, i) {
         var li = document.createElement("li");
-        li.textContent = file.name + " · " + mb(file.size);
-        list.appendChild(li);
+        var name = document.createElement("span");
+        name.textContent = file.name + " · " + mb(file.size);
+        var rm = document.createElement("button");
+        rm.type = "button"; rm.className = "link-btn"; rm.textContent = f.getAttribute("data-remove");
+        rm.setAttribute("aria-label", f.getAttribute("data-remove") + ": " + file.name);
+        rm.addEventListener("click", function () { chosen.splice(i, 1); render(); check(); input.focus(); });
+        li.appendChild(name); li.appendChild(rm); list.appendChild(li);
       });
-      if (input.files.length > MAX_FILES) say(f.getAttribute("data-count"));
-      else if (Array.prototype.some.call(input.files, function (x) { return TYPES.indexOf(x.type) < 0; })) say(f.getAttribute("data-type"));
+    }
+    if (input && list) input.addEventListener("change", function () {
+      chosen = chosen.concat(Array.prototype.slice.call(input.files));
+      input.value = "";  // the list above is now the source of truth
+      render(); check();
+    });
+
+    // the unfinished application is kept in this browser until it is sent (not attachments, not the consents)
+    var KEY = "draft:" + f.getAttribute("data-draft"), DAYS30 = 30 * 864e5;
+    var SKIP = { form: 1, lang: 1, web: 1, files: 1, declaration: 1, consent: 1 };
+    var note = f.querySelector(".draft-note");
+    function store(v) { try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); } catch (e) {} }
+    function save() {
+      var v = { t: Date.now(), f: {} };
+      Array.prototype.forEach.call(f.elements, function (el) {
+        if (!el.name || SKIP[el.name] || el.type === "file") return;
+        if (el.type === "checkbox" || el.type === "radio") { if (el.checked) (v.f[el.name] = v.f[el.name] || []).push(el.value); }
+        else if (el.value) v.f[el.name] = el.value;
+      });
+      store(Object.keys(v.f).length ? v : null);
+      if (note) note.hidden = !Object.keys(v.f).length;
+    }
+    (function restore() {
+      var v = null;
+      try { v = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
+      if (!v || Date.now() - v.t > DAYS30) return store(null);
+      Array.prototype.forEach.call(f.elements, function (el) {
+        var x = v.f[el.name];
+        if (x == null || SKIP[el.name]) return;
+        if (el.type === "checkbox" || el.type === "radio") el.checked = x.indexOf(el.value) >= 0;
+        else if (el.type !== "file") el.value = x;
+      });
+      if (note) note.hidden = false;
+    })();
+    var timer;
+    f.addEventListener("input", function () { clearTimeout(timer); timer = setTimeout(save, 400); });
+    f.addEventListener("change", save);
+    var clear = f.querySelector("[data-clear]");
+    if (clear) clear.addEventListener("click", function () {
+      store(null); f.reset(); chosen = []; render(); say(""); note.hidden = true;
     });
 
     f.addEventListener("submit", function (e) {
@@ -119,7 +168,7 @@
       if (!input || !window.FormData || !window.XMLHttpRequest) return;  // plain post
       e.preventDefault();
       say("");
-      var files = Array.prototype.slice.call(input.files);
+      var files = chosen.slice();
       if (files.length > MAX_FILES) { say(f.getAttribute("data-count")); return reset(); }
       if (files.some(function (x) { return TYPES.indexOf(x.type) < 0; })) { say(f.getAttribute("data-type")); return reset(); }
       if (files.length) progress(f.getAttribute("data-preparing"), null);
@@ -138,7 +187,7 @@
           if (ev.lengthComputable) { var p = Math.round(ev.loaded / ev.total * 100); progress(f.getAttribute("data-uploading").replace("{p}", p), p); }
         };
         x.onload = function () {
-          if (x.status < 400 && x.responseURL) { location.href = x.responseURL; return; }  // the server redirects to the thank-you page
+          if (x.status < 400 && x.responseURL) { store(null); location.href = x.responseURL; return; }  // the server redirects to the thank-you page
           document.open(); document.write(x.responseText); document.close();  // the server's own error page
         };
         x.onerror = function () { say(f.getAttribute("data-error")); reset(); };
