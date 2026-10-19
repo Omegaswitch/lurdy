@@ -3,9 +3,11 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { friendlyError } from '../errors';
 import { fullName } from '../format';
 import { Icon, Notice } from '../icons';
-import { must, useLive } from '../live';
+import { affected, must, useLive } from '../live';
 import { useReady } from '../session';
 import { supabase } from '../supabase';
+
+type Affecting = { select: (cols: string) => PromiseLike<{ data: unknown[] | null; error: { message: string; code?: string } | null }> };
 
 type Occupant = { id: string; participant_id: string; bed: string | null; checked_in_at: string | null };
 type Room = Tables<'rooms'> & { room_assignments: Occupant[] };
@@ -92,8 +94,9 @@ function RoomDetail({ room, rooms, people, housed }: { room: Room & { facility: 
   const candidates = people
     .filter((p) => !housed.has(p.id) && fold(`${p.first_name} ${p.last_name}`).includes(fold(query.trim())))
     .slice(0, 8);
-  const run = async (op: PromiseLike<{ error: { message: string; code?: string } | null }>, ok: string) => {
-    const { error } = await op;
+  // every change asks for the affected row back: zero rows (rights lapsed, row gone) is an error, not "Uloženo"
+  const run = async (op: Affecting, ok: string) => {
+    const { error } = await affected(op.select('id'));
     setMessage(error ? { kind: 'error', text: friendlyError(error) } : { kind: 'ok', text: ok });
   };
 
@@ -179,14 +182,23 @@ function NewFacility({ onDone }: { onDone: () => void }) {
   const { edition } = useReady();
   const [f, setF] = useState({ name: '', short_label: '', kind: 'hotel' as Enums<'facility_kind'>, address: '', phone: '', colour: '#1f5fa8', lat: '', lng: '' });
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f, v: string) => setF((x) => ({ ...x, [k]: v }));
+  // "43,0991" is how a Czech keyboard writes it
+  const coord = (v: string) => (v.trim() ? parseFloat(v.trim().replace(',', '.')) : null);
   async function save(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
     if (!f.name.trim()) return setError('Vyplňte název.');
+    const lat = coord(f.lat), lng = coord(f.lng);
+    if ((lat !== null && !Number.isFinite(lat)) || (lng !== null && !Number.isFinite(lng))) return setError('Souřadnice musí být číslo, např. 43.0991.');
+    if ((lat === null) !== (lng === null)) return setError('Vyplňte obě souřadnice, nebo žádnou.');
+    setBusy(true);
     const { error: err } = await supabase.from('facilities').insert({
       edition_id: edition.id, name: f.name.trim(), short_label: f.short_label.trim() || null, kind: f.kind, address: f.address.trim() || null,
-      phone: f.phone.trim() || null, colour: f.colour, lat: f.lat ? Number(f.lat) : null, lng: f.lng ? Number(f.lng) : null,
+      phone: f.phone.trim() || null, colour: f.colour, lat, lng,
     });
+    setBusy(false);
     if (err) return setError(friendlyError(err));
     onDone();
   }
@@ -207,7 +219,7 @@ function NewFacility({ onDone }: { onDone: () => void }) {
         <div className="field"><label htmlFor="flng">Zem. délka</label><input id="flng" inputMode="decimal" value={f.lng} onChange={(e) => set('lng', e.target.value)} style={{ width: 120 }} placeholder="-0.0565" /></div>
       </div>
       <span className="help">Souřadnice umístí ubytování na mapu v aplikaci (najdete je na openstreetmap.org → pravým tlačítkem → Zobrazit adresu).</span>
-      <div className="row"><button className="btn primary" type="submit">{t('common.save')}</button><button className="btn" type="button" onClick={onDone}>{t('common.cancel')}</button></div>
+      <div className="row"><button className="btn primary" type="submit" disabled={busy} aria-busy={busy}>{t('common.save')}</button><button className="btn" type="button" onClick={onDone}>{t('common.cancel')}</button></div>
     </form>
   );
 }
@@ -216,13 +228,17 @@ function NewRoom({ facilityId, onDone }: { facilityId: string; onDone: (id: stri
   const { edition } = useReady();
   const [f, setF] = useState({ number: '', floor: '', zone: '', capacity: '2' });
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f, v: string) => setF((x) => ({ ...x, [k]: v }));
   async function save(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
     if (!f.number.trim()) return setError('Vyplňte číslo pokoje.');
+    setBusy(true);
     const { data, error: err } = await supabase.from('rooms').insert({
       edition_id: edition.id, facility_id: facilityId, number: f.number.trim(), floor: f.floor.trim() || null, zone: f.zone.trim() || null, capacity: Number(f.capacity) || 0,
     }).select('id').single();
+    setBusy(false);
     if (err) return setError(err.code === '23505' ? 'Pokoj s tímto číslem už v zařízení je.' : friendlyError(err));
     onDone(data.id);
   }
@@ -235,7 +251,7 @@ function NewRoom({ facilityId, onDone }: { facilityId: string; onDone: (id: stri
         <div className="field"><label htmlFor="rf">Patro</label><input id="rf" value={f.floor} onChange={(e) => set('floor', e.target.value)} style={{ width: 80 }} /></div>
         <div className="field"><label htmlFor="rz">Zóna / křídlo</label><input id="rz" value={f.zone} onChange={(e) => set('zone', e.target.value)} /></div>
         <div className="field"><label htmlFor="rc">Lůžek</label><input id="rc" type="number" min={0} value={f.capacity} onChange={(e) => set('capacity', e.target.value)} style={{ width: 80 }} /></div>
-        <button className="btn primary" type="submit">{t('common.save')}</button>
+        <button className="btn primary" type="submit" disabled={busy} aria-busy={busy}>{t('common.save')}</button>
         <button className="btn" type="button" onClick={() => onDone(null)}>{t('common.cancel')}</button>
       </div>
     </form>

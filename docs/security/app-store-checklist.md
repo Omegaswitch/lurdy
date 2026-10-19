@@ -8,7 +8,9 @@ What the stores require, and where the app stands. "Done" means in the code and 
 | Account deletion inside the app (Apple 5.1.1(v), Google Play account deletion policy) | Home → *Účet a soukromí* → *Smazat můj účet* (two steps). Edge Function `delete-account` + `public.delete_my_account`; e2e `account.spec.ts`. The registration stays with the organisers until they erase it; the admin shows "účet smazán" and can restore access. |
 | Privacy policy reachable in the app and at a public address | Screen `/privacy`, linked from the login screen and from *Účet a soukromí*; on the web build the same page is at `https://<app address>/privacy`. Text in `platform/app/src/lib/privacy.ts`. |
 | Purpose strings for every permission | `app.json`: camera (scanning badges only), location when in use (map only). Microphone, background location and overlay permissions are blocked on Android. |
-| iOS privacy manifest | `app.json` → `ios.privacyManifests`: no tracking, no tracking domains; collected: name and user ID, linked to the person, for app functionality only; UserDefaults reason CA92.1. Expo packages ship their own manifests. |
+| iOS privacy manifest | `app.json` → `ios.privacyManifests`: no tracking, no tracking domains; collected: name, user ID and "other user content" (the team's incident reports), linked to the person, for app functionality only; UserDefaults reason CA92.1. Expo packages ship their own manifests. |
+| Secrets on the device | the phone's badge code is kept in the keychain/keystore (`expo-secure-store`), Android cloud backup of app data is off (`android.allowBackup: false`); sign-out wipes the offline copy and the badge code. The Supabase session (refresh token) is still in plain app storage — see the audit report for the planned encrypted storage. |
+| Splash screen | `expo-splash-screen` plugin with the shield on red (`assets/splash-icon.png`). |
 | Encryption export compliance | `ios.config.usesNonExemptEncryption: false` (only standard HTTPS). |
 | No tracking, ads or third-party analytics | none in the app. |
 | Works without an account being created by the person | sign-in codes are issued by the organisers; no sign-up screen. |

@@ -26,7 +26,7 @@ export function Communication() {
           <p>Kontakty jsou v aplikaci pod „Pomoc a kontakty“. Oznámení se zobrazí na úvodní obrazovce.</p>
         </div>
       </div>
-      <div className="split" style={{ gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)' }}>
+      <div className="split even">
         <Contacts />
         <Announcements />
       </div>
@@ -42,13 +42,17 @@ function Contacts() {
   );
   const [f, setF] = useState({ label: '', name: '', phone: '', is_emergency: false, audiences: [] as Category[] });
   const [message, setMessage] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
   async function add(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
     if (!f.label.trim()) return setMessage({ kind: 'error', text: 'Vyplňte, kdo to je (např. Vedoucí pouti).' });
+    setBusy(true);
     const { error: err } = await supabase.from('contacts').insert({
       edition_id: edition.id, label: f.label.trim(), name: f.name.trim() || null, phone: f.phone.trim() || null,
       is_emergency: f.is_emergency, audiences: f.audiences, sort: (data?.length ?? 0) * 10,
     });
+    setBusy(false);
     setMessage(err ? { kind: 'error', text: friendlyError(err) } : { kind: 'ok', text: 'Kontakt přidán.' });
     if (!err) setF({ label: '', name: '', phone: '', is_emergency: false, audiences: [] });
     reload();
@@ -91,7 +95,7 @@ function Contacts() {
             </select></div>
         </div>
         <label className="checkbox"><input type="checkbox" checked={f.is_emergency} onChange={(e) => setF({ ...f, is_emergency: e.target.checked })} /> Nouzový kontakt (zobrazí se nahoře, červeně)</label>
-        <div><button className="btn primary" type="submit"><Icon name="plus" width={18} /> Přidat kontakt</button></div>
+        <div><button className="btn primary" type="submit" disabled={busy} aria-busy={busy}><Icon name="plus" width={18} /> Přidat kontakt</button></div>
       </form>
     </section>
   );
@@ -105,12 +109,16 @@ function Announcements() {
   );
   const [f, setF] = useState({ title: '', body: '', critical: false, audiences: [] as Category[] });
   const [message, setMessage] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
+  const [busy, setBusy] = useState(false);
   async function create(publish: boolean) {
+    if (busy) return; // a double click must not publish twice
     if (!f.title.trim()) return setMessage({ kind: 'error', text: 'Vyplňte nadpis.' });
+    setBusy(true);
     const { error: err } = await supabase.from('announcements').insert({
       edition_id: edition.id, title: f.title.trim(), body: f.body.trim() || null, critical: f.critical, audiences: f.audiences,
       published_at: publish ? new Date().toISOString() : null,
     });
+    setBusy(false);
     setMessage(err ? { kind: 'error', text: friendlyError(err) } : { kind: 'ok', text: publish ? 'Oznámení zveřejněno.' : 'Uloženo jako koncept.' });
     if (!err) setF({ title: '', body: '', critical: false, audiences: [] });
     reload();
@@ -143,8 +151,8 @@ function Announcements() {
           <label className="checkbox"><input type="checkbox" checked={f.critical} onChange={(e) => setF({ ...f, critical: e.target.checked })} /> Důležité – vyžádat potvrzení „Přečetl(a) jsem“</label>
         </div>
         <div className="row">
-          <button className="btn primary" type="button" onClick={() => create(true)}>Zveřejnit</button>
-          <button className="btn" type="button" onClick={() => create(false)}>Uložit jako koncept</button>
+          <button className="btn primary" type="button" onClick={() => create(true)} disabled={busy} aria-busy={busy}>Zveřejnit</button>
+          <button className="btn" type="button" onClick={() => create(false)} disabled={busy}>Uložit jako koncept</button>
         </div>
       </div>
       {data && data.length > 0 && (

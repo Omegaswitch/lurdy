@@ -32,6 +32,11 @@ Carers without a team role see *Moje služba* when someone is in their care.
 ### Medical (planned, Phase 7)
 *Zdravotní* button for the medical role, MFA step-up before each record.
 
+### Account and privacy (every signed-in person)
+- **Účet a soukromí** (from the home screen): opens the privacy notice, and *Smazat můj účet* in two steps (required by the app stores).
+- **Ochrana soukromí**: readable without signing in (linked from the sign-in screen; on the web at `/privacy`).
+- Every other screen needs a session; a deep link without one lands on the sign-in screen (`Stack.Protected`).
+
 ## Admin dashboard (`platform/admin`, desktop web)
 
 Left sidebar, grouped. The active edition is chosen at the top and shown on every screen and printout.

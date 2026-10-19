@@ -11,13 +11,14 @@ export const privacySections: { title: string; body: string[] }[] = [
     'Jméno, kategorii účastníka, přidělený autobus nebo let, ubytování, program a kontakty na tým. Tyto údaje zapisují organizátoři pouti; aplikace je jen zobrazuje.',
     'Váš čtyřmístný kód slouží k přihlášení. Členové týmu zadávají navíc kód akce.',
     'Zdravotní údaje aplikace na telefonu nezobrazuje a neposílá je v QR kódu ani v oznámeních.',
+    'Členové týmu mohou organizátorům nahlásit událost (např. zdržení autobusu); text hlášení se uloží u organizátorů.',
   ] },
   { title: 'Poloha a fotoaparát', body: [
     'Poloha se zapne, jen když na mapě stisknete „Zapnout moji polohu“. Zobrazí se jen ve vašem telefonu, nikam se neodesílá a neukládá.',
     'Fotoaparát používají jen členové týmu ke skenování jmenovek. Fotografie se neukládají.',
   ] },
   { title: 'Kde jsou údaje uložené', body: [
-    'Na serverech služby Supabase v Evropské unii (Irsko). Na telefonu zůstává kopie vašeho programu pro chvíle bez signálu; po odhlášení se smaže.',
+    'Na serverech služby Supabase v Evropské unii (Irsko). Na telefonu zůstává kopie vašeho programu pro chvíle bez signálu a váš QR kód v zabezpečeném úložišti telefonu; po odhlášení se obojí smaže.',
     'Mapové podklady načítá telefon ze serverů OpenStreetMap a fotografie míst z Wikimedia Commons. Tyto služby uvidí jen adresu vašeho připojení, ne vaše jméno.',
   ] },
   { title: 'Sledování a reklama', body: ['Aplikace nesleduje vaše chování, nepoužívá reklamu ani analytické nástroje třetích stran.'] },

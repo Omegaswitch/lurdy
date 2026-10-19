@@ -1529,7 +1529,17 @@ export type Database = {
         }
         Returns: string
       }
+      find_participants: {
+        Args: { p_edition: string; p_query: string }
+        Returns: { id: string; first_name: string; last_name: string; category: Database["public"]["Enums"]["participant_category"] }[]
+      }
       my_digital_credential: { Args: { p_edition?: string }; Returns: string }
+      my_digital_credential_valid: { Args: { p_edition?: string }; Returns: boolean }
+      participant_access_code: { Args: { p_participant: string }; Returns: string }
+      participant_access_codes: {
+        Args: { p_edition: string }
+        Returns: { participant_id: string; access_code: string }[]
+      }
       my_pilgrimage: { Args: { p_edition?: string }; Returns: Json }
       participant_card: { Args: { p_participant: string }; Returns: Json }
       revoke_credential: {

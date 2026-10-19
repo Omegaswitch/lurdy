@@ -29,7 +29,11 @@ Deno.serve(async (req) => {
   const code = typeof body.code === 'string' ? body.code.trim() : '';
   const eventCode = typeof body.eventCode === 'string' ? body.eventCode.trim().toUpperCase() : '';
   if (!/^\d{4}$/.test(code) || (eventCode && !/^[A-Z0-9]{6}$/.test(eventCode))) return reply(401, { error: 'invalid' });
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+  // The connecting address as the gateway saw it. Supabase's edge gateway rewrites X-Forwarded-For (verified: a forged
+  // header is not reflected into the log), and Cloudflare names the client in cf-connecting-ip; the last hop is the
+  // one a client cannot forge should a proxy ever append instead of replace.
+  const forwarded = req.headers.get('x-forwarded-for')?.split(',').map((s) => s.trim()).filter(Boolean) ?? [];
+  const ip = req.headers.get('cf-connecting-ip')?.trim() || forwarded[forwarded.length - 1] || 'unknown';
 
   const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: check, error: checkError } = await admin.rpc('code_login_check', {

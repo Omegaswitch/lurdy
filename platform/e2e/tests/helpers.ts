@@ -76,7 +76,12 @@ export async function organiserClient(secret: string) {
   if (!factor) throw new Error('test organiser has no verified factor');
   for (let attempt = 0; attempt < 2; attempt++) {
     const { error } = await org.auth.mfa.challengeAndVerify({ factorId: factor.id, code: totp(secret) });
-    if (!error) return org;
+    if (!error) {
+      // the tests create and delete people: refuse to run anywhere but the fictional development edition
+      const { data: editions } = await org.from('editions').select('title').eq('status', 'active');
+      if (!editions?.some((e) => e.title === 'Vývojový ročník (fiktivní data)')) throw new Error('not the development edition: refusing to run tests here');
+      return org;
+    }
     await nextStep();
   }
   throw new Error('MFA verification failed twice');

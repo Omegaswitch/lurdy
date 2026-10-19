@@ -5,7 +5,7 @@ import { Shield } from '../lib/brand';
 import { useStore } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { colors, space } from '../lib/theme';
-import { Banner, BigButton, Card, fmtDay, fmtTime, Screen, T } from '../lib/ui';
+import { Banner, BigButton, Card, fmtDay, fmtTime, NoData, Screen, T } from '../lib/ui';
 
 export default function Home() {
   const { ready, session, data, t, isStaff, refresh, scale, setScale, signOut } = useStore();
@@ -17,7 +17,7 @@ export default function Home() {
   }, []);
   if (!ready) return <ActivityIndicator style={{ flex: 1 }} color={colors.red} />;
   if (!session) return <Redirect href="/login" />;
-  if (!data) return <Screen title={t('app.name')}><ActivityIndicator size="large" color={colors.red} /></Screen>;
+  if (!data) return <NoData />;
 
   const tz = data.edition.timezone;
   const next = data.events.find((e) => new Date(e.ends_at ?? e.starts_at).getTime() >= now);

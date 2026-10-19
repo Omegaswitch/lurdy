@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { aiReformatPrompt, findDuplicates, importTemplate, mapHeaders, parseCsv, readRows, readTable, toCsv } from './csv';
+import { aiReformatPrompt, DuplicateIndex, findDuplicates, importTemplate, mapHeaders, parseCsv, readRows, readTable, toCsv } from './csv';
 
 describe('parseCsv', () => {
   it('reads Czech Excel CSV (BOM, semicolons, quotes, CRLF)', () => {
@@ -42,6 +42,18 @@ describe('findDuplicates', () => {
     expect(findDuplicates({ first_name: 'Jana', last_name: 'Jiná', phone: '00420601000000', email: null }, existing)[0]).toMatchObject({ reason: 'contact' });
     expect(findDuplicates({ first_name: 'P.', last_name: 'D.', phone: null, email: 'PETR@example.test' }, existing)[0]!.match.id).toBe(2);
     expect(findDuplicates({ first_name: 'Anna', last_name: 'Nováková', phone: '601000000', email: null }, existing)[0]!.reason).toBe('both');
+  });
+  it('the index gives the same answers as the pairwise check, and keeps sheet line numbers through blank rows', () => {
+    const idx = new DuplicateIndex(existing);
+    const probes = [
+      { first_name: 'anna', last_name: 'NOVAKOVA', phone: null, email: null },
+      { first_name: 'Jana', last_name: 'Jiná', phone: '00420601000000', email: null },
+      { first_name: 'Anna', last_name: 'Nováková', phone: '601000000', email: null },
+      { first_name: 'X', last_name: 'Y', phone: '000', email: null },
+    ];
+    for (const p of probes) expect(idx.find(p).map((d) => [d.match.id, d.reason])).toEqual(findDuplicates(p, existing).map((d) => [d.match.id, d.reason]));
+    const { rows } = readTable([['Jméno', 'Příjmení'], ['A', 'B'], [null, null], ['C', 'D']]);
+    expect(rows.map((r) => r.line)).toEqual([2, 4]);
   });
   it('does not match on short or missing phone numbers', () => {
     expect(findDuplicates({ first_name: 'X', last_name: 'Y', phone: '000', email: null }, [{ first_name: 'Z', last_name: 'W', phone: '000', email: null }])).toEqual([]);

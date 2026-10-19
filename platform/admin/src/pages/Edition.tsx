@@ -25,15 +25,23 @@ export function Edition() {
   const [message, setMessage] = useState<{ kind: 'error' | 'ok' | 'warn'; text: string } | null>(null);
   const set = (k: keyof typeof form, v: string) => setForm((f) => ({ ...f, [k]: v }));
 
+  const [busy, setBusy] = useState(false);
   async function save(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
+    if (!form.title.trim()) return setMessage({ kind: 'error', text: 'Vyplňte název ročníku.' });
+    const year = Number(form.year);
+    if (!Number.isInteger(year) || year < 2000 || year > 2200) return setMessage({ kind: 'error', text: 'Rok musí být čtyřmístný, např. 2027.' });
+    if (!form.starts_on || !form.ends_on) return setMessage({ kind: 'error', text: 'Vyplňte začátek i konec pouti.' });
     if (form.starts_on > form.ends_on) return setMessage({ kind: 'error', text: 'Konec pouti musí být po začátku.' });
+    setBusy(true);
     const { data, error } = await supabase.from('editions').update({
       title: form.title.trim(), year: Number(form.year), starts_on: form.starts_on, ends_on: form.ends_on,
       emergency_phone: form.emergency_phone.trim() || null, timezone: form.timezone,
     }).eq('id', edition.id).eq('version', edition.version).select('id');
+    setBusy(false);
     if (error) return setMessage({ kind: 'error', text: friendlyError(error) });
-    if (!data?.length) return setMessage({ kind: 'warn', text: t('common.conflict') });
+    if (!data?.length) { refresh(); return setMessage({ kind: 'warn', text: t('common.conflict') }); }
     setMessage({ kind: 'ok', text: 'Uloženo.' });
     refresh();
   }
@@ -46,7 +54,7 @@ export function Edition() {
           <p>Údaje ročníku a kódy pouti, kterými se přihlašuje tým.</p>
         </div>
       </div>
-      <div className="split" style={{ gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)' }}>
+      <div className="split even">
         <form className="panel stack" style={{ padding: 20 }} onSubmit={save} aria-label="Údaje ročníku">
           <h2>Údaje ročníku</h2>
           {message && <Notice kind={message.kind}>{message.text}</Notice>}
@@ -63,7 +71,7 @@ export function Edition() {
           <div className="field"><label htmlFor="ep">Nouzová linka pouti</label>
             <input id="ep" type="tel" value={form.emergency_phone} onChange={(e) => set('emergency_phone', e.target.value)} />
             <span className="help">Tiskne se na jmenovky a je v aplikaci pod Pomoc.</span></div>
-          <div><button className="btn primary" type="submit">{t('common.save')}</button></div>
+          <div><button className="btn primary" type="submit" disabled={busy} aria-busy={busy}>{t('common.save')}</button></div>
         </form>
         <EventCodes />
       </div>
@@ -72,7 +80,7 @@ export function Edition() {
 }
 
 function EventCodes() {
-  const { edition } = useReady();
+  const { edition, staffCodeId } = useReady();
   const { data, error, reload } = useLive(
     () => must(supabase.from('staff_codes').select('*').eq('edition_id', edition.id).order('valid_from')) as Promise<Code[]>,
     ['staff_codes'], edition.id, [edition.id],
@@ -83,6 +91,7 @@ function EventCodes() {
 
   async function add(e: FormEvent) {
     e.preventDefault();
+    if (!fromLocalInput(form.from, edition.timezone) || !fromLocalInput(form.until, edition.timezone)) return setMessage({ kind: 'error', text: 'Vyplňte začátek i konec platnosti.' });
     const { error: err } = await supabase.from('staff_codes').insert({
       edition_id: edition.id, code: form.code, label: form.label.trim() || null,
       valid_from: fromLocalInput(form.from, edition.timezone)!, valid_until: fromLocalInput(form.until, edition.timezone)!,
@@ -95,6 +104,9 @@ function EventCodes() {
 
   // Ending a code now (instead of deleting it) keeps the audit trail; team members signed in with it lose team rights.
   async function endNow(c: Code) {
+    if (c.id === staffCodeId) {
+      return setMessage({ kind: 'error', text: `Kódem ${c.code} jste přihlášeni vy. Nejdřív vytvořte nový kód a přihlaste se s ním, teprve potom tento ukončete.` });
+    }
     if (!window.confirm(`Ukončit platnost kódu ${c.code} hned teď? Kdo je s ním přihlášen, ztratí týmová oprávnění.`)) return;
     const { error: err } = await supabase.from('staff_codes').update({ valid_until: new Date().toISOString() }).eq('id', c.id);
     setMessage(err ? { kind: 'error', text: friendlyError(err) } : { kind: 'ok', text: `Kód ${c.code} už neplatí.` });

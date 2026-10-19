@@ -1,6 +1,6 @@
 import type { Role, Tables } from '@lurdy/shared';
 import type { Session } from '@supabase/supabase-js';
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { supabase } from './supabase';
 
 type Edition = Tables<'editions'>;
@@ -9,10 +9,19 @@ export type AuthState =
   | { status: 'signedOut' }
   | { status: 'needsMfa'; enrolled: boolean }
   | { status: 'noAccess' }
-  | { status: 'ready'; session: Session; edition: Edition; roles: Role[]; me: Tables<'participants'> | null; superAdmin: boolean };
+  | { status: 'codeExpired' } // the event code used at sign-in no longer counts: rights lapsed
+  | { status: 'error'; message: string }
+  | { status: 'ready'; session: Session; edition: Edition; roles: Role[]; me: Tables<'participants'> | null; superAdmin: boolean;
+      codeValidUntil: string | null; staffCodeId: string | null };
 
 type Ctx = { state: AuthState; refresh: () => Promise<void>; signOut: () => Promise<void> };
 const AuthContext = createContext<Ctx | null>(null);
+
+// access_code is withheld from the API (sign-in codes are credentials), so participant queries name their columns.
+export const participantColumns = 'id, edition_id, user_id, category, title, first_name, last_name, preferred_name, phone, email, language, mobility, logistics_note, staff_note, photo_path, account_deleted_at, version, created_at, updated_at, updated_by';
+
+// A shared organiser laptop must not stay signed in forever: no activity for this long signs out.
+const IDLE_MS = 30 * 60_000;
 
 // Admin is for organisers (and super admins). Their rights only count with MFA (aal2) — enforced by the database;
 // this only decides which screen to show.
@@ -20,27 +29,50 @@ async function resolve(): Promise<AuthState> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return { status: 'signedOut' };
   const uid = session.user.id;
-  const [{ data: profile }, { data: mine }, { data: aal }] = await Promise.all([
-    supabase.from('profiles').select('is_super_admin,status').eq('id', uid).maybeSingle(),
-    supabase.from('participants').select('*, role_grants(role)').eq('user_id', uid),
+  const [profile, mine, aal] = await Promise.all([
+    supabase.from('profiles').select('is_super_admin,status,staff_code_id').eq('id', uid).maybeSingle(),
+    supabase.from('participants').select(`${participantColumns}, role_grants(role)`).eq('user_id', uid),
     supabase.auth.mfa.getAuthenticatorAssuranceLevel(),
   ]);
-  const granted = (mine ?? []).flatMap((p) => (p.role_grants as { role: Role }[]).map((g) => g.role));
-  const superAdmin = !!profile?.is_super_admin;
+  const failed = profile.error ?? mine.error ?? aal.error;
+  if (failed) return { status: 'error', message: failed.message };
+  const granted = (mine.data ?? []).flatMap((p) => (p.role_grants as { role: Role }[]).map((g) => g.role));
+  const superAdmin = !!profile.data?.is_super_admin;
   const privileged = superAdmin || granted.includes('organizer') || granted.includes('medical');
   if (!privileged) return { status: 'noAccess' };
-  if (aal?.currentLevel !== 'aal2') return { status: 'needsMfa', enrolled: aal?.nextLevel === 'aal2' };
-  const { data: editions } = await supabase.from('editions').select('*').order('status').order('year', { ascending: false });
-  const edition = editions?.find((e) => e.status === 'active') ?? editions?.[0];
-  if (!edition) return { status: 'noAccess' };
-  const me = (mine ?? []).find((p) => p.edition_id === edition.id) ?? null;
+  if (aal.data?.currentLevel !== 'aal2') return { status: 'needsMfa', enrolled: aal.data?.nextLevel === 'aal2' };
+  const editions = await supabase.from('editions').select('*').order('status').order('year', { ascending: false });
+  if (editions.error) return { status: 'error', message: editions.error.message };
+  const edition = editions.data.find((e) => e.status === 'active') ?? editions.data[0];
+  // grants exist but no edition is visible: the event code has expired (super admins need no code)
+  if (!edition) return { status: superAdmin ? 'noAccess' : 'codeExpired' };
+  const me = (mine.data ?? []).find((p) => p.edition_id === edition.id) ?? null;
   const roles = (me?.role_grants as { role: Role }[] | undefined)?.map((g) => g.role) ?? [];
-  return { status: 'ready', session, edition, roles, me: me ? { ...me, role_grants: undefined } as unknown as Tables<'participants'> : null, superAdmin };
+  let codeValidUntil: string | null = null;
+  if (profile.data?.staff_code_id) {
+    const code = await supabase.from('staff_codes').select('valid_until').eq('id', profile.data.staff_code_id).maybeSingle();
+    codeValidUntil = code.data?.valid_until ?? null;
+  }
+  return { status: 'ready', session, edition, roles, me: me ? { ...me, role_grants: undefined } as unknown as Tables<'participants'> : null, superAdmin, codeValidUntil,
+    staffCodeId: profile.data?.staff_code_id ?? null };
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' });
-  const refresh = useCallback(async () => setState(await resolve()), []);
+  const lastActivity = useRef(Date.now());
+  const refresh = useCallback(async () => {
+    try {
+      setState(await resolve());
+    } catch (e) {
+      setState({ status: 'error', message: (e as Error).message });
+    }
+  }, []);
+  const signOut = useCallback(async () => {
+    const { error } = await supabase.auth.signOut();
+    // offline or already expired: the server could not be told, but this browser forgets the session anyway
+    if (error) await supabase.auth.signOut({ scope: 'local' }).catch(() => {});
+    setState({ status: 'signedOut' });
+  }, []);
   useEffect(() => {
     refresh();
     const { data } = supabase.auth.onAuthStateChange((event) => {
@@ -48,10 +80,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return () => data.subscription.unsubscribe();
   }, [refresh]);
-  const signOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    setState({ status: 'signedOut' });
-  }, []);
+  useEffect(() => {
+    const touch = () => { lastActivity.current = Date.now(); };
+    const events = ['mousemove', 'keydown', 'pointerdown', 'scroll', 'touchstart'] as const;
+    for (const e of events) window.addEventListener(e, touch, { passive: true });
+    const timer = setInterval(() => {
+      if (state.status === 'ready' && Date.now() - lastActivity.current > IDLE_MS) signOut();
+    }, 60_000);
+    return () => {
+      for (const e of events) window.removeEventListener(e, touch);
+      clearInterval(timer);
+    };
+  }, [state.status, signOut]);
   return <AuthContext.Provider value={{ state, refresh, signOut }}>{children}</AuthContext.Provider>;
 }
 

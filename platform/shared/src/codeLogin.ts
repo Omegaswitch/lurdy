@@ -18,5 +18,10 @@ export async function requestCodeLogin(
   if (res.status === 401) return 'invalid';
   if (res.status === 429) return 'throttled';
   if (!res.ok) return 'error';
-  return (await res.json()) as CodeLoginTokens;
+  try {
+    const tokens = (await res.json()) as Partial<CodeLoginTokens>;
+    return tokens.access_token && tokens.refresh_token ? (tokens as CodeLoginTokens) : 'error';
+  } catch {
+    return 'error'; // e.g. a hotel Wi-Fi portal answering 200 with a web page
+  }
 }

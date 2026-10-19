@@ -12,12 +12,12 @@
 
 ## Database
 1. Write migration → run `supabase/tests/run.sh` locally.
-2. Apply to staging (`supabase db push` with the CLI linked to the project, or the Supabase MCP `apply_migration`).
+2. Apply to staging (`supabase db push` with the CLI linked to the project, or the Supabase MCP `apply_migration`). Project settings the code depends on are in `supabase/config.toml` (sign-ups off, TOTP on, JWT 900 s, `verify_jwt` per Edge Function: `code-login` off, `delete-account` on); Edge Functions deploy with `supabase functions deploy code-login delete-account`.
 3. Run the SQL suite against staging; check Security Advisor.
 4. Apply to production in a quiet window; never edit an applied migration.
 
 ## Web (admin + app web)
-Static builds (`vite build`, `expo export -p web`) deployed to Vercel as two projects separate from the public site. Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (admin), `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (app). Only the publishable key ever goes to a client. Security headers as on lurdy.eu (CSP allowing `connect-src` to the Supabase URL incl. `wss:`).
+Static builds (`vite build`, `expo export -p web`) deployed to Vercel as two projects separate from the public site. The app's web project must rewrite every path to `index.html` (`web.output: single`), or `/privacy` — the address given to the app stores — answers 404. GitHub Actions (`.github/workflows/ci.yml`) runs typecheck, unit tests, lint, the admin build and the SQL suite on every push. Environment variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY` (admin), `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (app). Only the publishable key ever goes to a client. Security headers as on lurdy.eu (CSP allowing `connect-src` to the Supabase URL incl. `wss:`).
 
 ## Mobile
 EAS Build (Expo account owned by the Grand Priory). iOS needs an Apple Developer Program membership (organisation account requires a D-U-N-S number); Android a Google Play developer account. Pilot via TestFlight and Play internal testing; production release after the pilot. Over-the-air updates (EAS Update) for JS-only fixes during the pilgrimage, on a channel tested on staging first.

@@ -5,7 +5,7 @@ import { friendlyError } from '../errors';
 import { fmtStamp, fullName } from '../format';
 import { Icon, Notice } from '../icons';
 import { must, useLive } from '../live';
-import { useReady } from '../session';
+import { useAuth, useReady } from '../session';
 import { supabase } from '../supabase';
 
 type Row = Pick<Tables<'participants'>, 'id' | 'title' | 'first_name' | 'last_name' | 'preferred_name' | 'category'> & {
@@ -14,11 +14,21 @@ type Row = Pick<Tables<'participants'>, 'id' | 'title' | 'first_name' | 'last_na
   credentials: { id: string; kind: string; revoked_at: string | null }[];
 };
 type Printed = { row: Row; svg: string };
+type Batch = { items: Printed[]; at: string };
 type Config = BadgeConfig & { heading: string };
 const HEADING = 'PÈLERINAGE MALTE TCHÈQUE';
 
+// Printing issues a new QR per person and cancels their previous printed badge. The QR texts exist only in this
+// tab (and in its session storage, so a jammed printer or a closed preview does not lose them); they vanish
+// when the tab closes.
+const batchKey = (editionId: string) => `badges:lastPrint:${editionId}`;
+const readBatch = (editionId: string): Batch | null => {
+  try { return JSON.parse(sessionStorage.getItem(batchKey(editionId)) ?? 'null'); } catch { return null; }
+};
+
 export function Badges() {
   const { edition } = useReady();
+  const { refresh } = useAuth();
   const { data, error, reload } = useLive(
     () => must(supabase.from('participants')
       .select('id, title, first_name, last_name, preferred_name, category, room_assignments(rooms(facilities(short_label, name, colour))), leg_assignments(transport_legs(code, kind, direction)), credentials(id, kind, revoked_at)')
@@ -30,7 +40,9 @@ export function Badges() {
   const [config, setConfig] = useState<Config>(() => ({ ...defaultBadgeConfig, heading: HEADING, ...(edition.badge_config as Partial<Config>) }));
   const [filter, setFilter] = useState<'all' | 'unprinted' | Category>('unprinted');
   const [chosen, setChosen] = useState<Set<string>>(new Set());
-  const [printed, setPrinted] = useState<{ items: Printed[]; at: Date } | null>(null);
+  const [printed, setPrinted] = useState<Batch | null>(null);
+  const [lastBatch, setLastBatch] = useState<Batch | null>(() => readBatch(edition.id));
+  const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ kind: 'error' | 'ok' | 'warn'; text: string } | null>(null);
   const layout = useMemo(() => impose(config), [config]);
@@ -38,51 +50,70 @@ export function Badges() {
 
   const hasCard = (r: Row) => r.credentials.some((c) => c.kind === 'card' && !c.revoked_at);
   const rows = (data ?? []).filter((r) => filter === 'all' || (filter === 'unprinted' ? !hasCard(r) : r.category === filter));
+  // only people visible in the table can be printed: a selection made under another filter is dropped
+  const list = rows.filter((r) => chosen.has(r.id));
   const toggle = (id: string) => setChosen((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const changeFilter = (f: typeof filter) => { setFilter(f); setChosen(new Set()); setConfirming(false); };
 
-  // After the sheets are rendered, open the print dialog (Save as PDF works the same way).
+  // After the sheets are rendered, open the print dialog (Save as PDF works the same way). Safari ignores the named
+  // page `badges`, so the zero margin is also set globally while the preview is up.
   useEffect(() => {
-    if (printed) requestAnimationFrame(() => window.print());
+    if (!printed) return;
+    const style = document.createElement('style');
+    style.textContent = '@media print{@page{margin:0}}';
+    document.head.appendChild(style);
+    requestAnimationFrame(() => window.print());
+    return () => { style.remove(); };
   }, [printed]);
 
   async function saveConfig() {
     const { data: ok, error: err } = await supabase.from('editions').update({ badge_config: config }).eq('id', edition.id).eq('version', edition.version).select('id');
     setMessage(err ? { kind: 'error', text: friendlyError(err) } : !ok?.length ? { kind: 'warn', text: t('common.conflict') } : { kind: 'ok', text: 'Rozvržení uloženo pro tento ročník.' });
+    if (!err) await refresh(); // the edition's version moved on; the next save must use it
+  }
+
+  function requestPrint() {
+    if (!list.length) return;
+    if (list.some(hasCard)) setConfirming(true);
+    else print();
   }
 
   async function print() {
-    const list = (data ?? []).filter((r) => chosen.has(r.id));
+    setConfirming(false);
     if (!list.length) return;
-    if (list.some(hasCard) && !window.confirm(t('admin.printWarning'))) return;
     setBusy(true);
     setMessage(null);
     const items: Printed[] = [];
     try {
-      // New credential per badge; the QR text exists only in this page's memory until printed.
       for (const row of list) {
         const { data: payload, error: err } = await supabase.rpc('issue_credential', { p_participant: row.id });
         if (err || !payload) throw err ?? new Error('no payload');
-        items.push({ row, svg: await QRCode.toString(payload, { type: 'svg', margin: 0, errorCorrectionLevel: 'M' }) });
+        items.push({ row, svg: await QRCode.toString(payload, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' }) });
       }
-      setPrinted({ items, at: new Date() });
-      setChosen(new Set());
-      reload();
     } catch (e) {
-      setMessage({ kind: 'error', text: `${friendlyError(e as Error)} Vytištěno ${items.length} z ${list.length}.` });
-      if (items.length) setPrinted({ items, at: new Date() });
+      setMessage({ kind: 'error', text: `${friendlyError(e as Error)} Nové kódy dostalo ${items.length} z ${list.length} lidí; ti jsou v náhledu níže.` });
     } finally {
       setBusy(false);
+    }
+    if (items.length) {
+      const batch: Batch = { items, at: new Date().toISOString() };
+      try { sessionStorage.setItem(batchKey(edition.id), JSON.stringify(batch)); } catch { /* storage full or blocked: the preview still shows */ }
+      setLastBatch(batch);
+      setPrinted(batch);
+      setChosen(new Set());
+      reload();
     }
   }
 
   const num = (k: keyof BadgeConfig, label: string, step = 1) => (
     <div className="field"><label htmlFor={k}>{label}</label>
       <input id={k} type="number" step={step} value={config[k] as number} style={{ width: 90 }}
-        onChange={(e) => setConfig((c) => ({ ...c, [k]: Number(e.target.value) }))} /></div>
+        onChange={(e) => setConfig((c) => ({ ...c, [k]: e.target.value === '' ? c[k] : Number(e.target.value) }))} /></div>
   );
   const flag = (k: keyof BadgeConfig, label: string) => (
     <label className="checkbox"><input type="checkbox" checked={config[k] as boolean} onChange={(e) => setConfig((c) => ({ ...c, [k]: e.target.checked }))} /> {label}</label>
   );
+  const reprint = list.filter(hasCard);
 
   return (
     <>
@@ -116,17 +147,30 @@ export function Badges() {
       <section className="panel no-print" aria-label="Výběr">
         <div className="toolbar">
           <label className="visually-hidden" htmlFor="flt">Filtr</label>
-          <select id="flt" value={filter} onChange={(e) => setFilter(e.target.value as typeof filter)}>
+          <select id="flt" value={filter} onChange={(e) => changeFilter(e.target.value as typeof filter)}>
             <option value="unprinted">Bez platné jmenovky</option>
             <option value="all">Všichni</option>
             {(['pilgrim', 'malade', 'assistant', 'staff'] as Category[]).map((c) => <option key={c} value={c}>{t(`category.${c}`)}</option>)}
           </select>
           <button className="btn small" disabled={!rows.length} onClick={() => setChosen(new Set(rows.map((r) => r.id)))}>{t('admin.selectAll')} ({rows.length})</button>
-          <span style={{ marginLeft: 'auto' }}>{t('admin.selected')}: {chosen.size}</span>
-          <button className="btn primary" onClick={print} disabled={!chosen.size || busy || configErrors.length > 0} aria-busy={busy}>
+          <span style={{ marginLeft: 'auto' }}>{t('admin.selected')}: {list.length}</span>
+          <button className="btn primary" onClick={requestPrint} disabled={!list.length || busy || configErrors.length > 0} aria-busy={busy}>
             <Icon name="printer" width={18} /> {busy ? t('common.loading') : t('admin.printBadges')}
           </button>
         </div>
+        {confirming && (
+          <div style={{ padding: '0 16px 16px' }} role="alertdialog" aria-labelledby="reprint-title">
+            <Notice kind="warn">
+              <strong id="reprint-title">{t('admin.printWarning')}</strong>{' '}
+              Týká se: {reprint.slice(0, 8).map(fullName).join(', ')}{reprint.length > 8 ? ` a dalších ${reprint.length - 8}` : ''}.
+              Jmenovky, které už tito lidé mají, při skenování ukážou „Neplatná jmenovka“ – rozdejte jim nové.
+              <div className="row" style={{ marginTop: 10 }}>
+                <button className="btn primary" onClick={print}>Vytisknout a zneplatnit staré</button>
+                <button className="btn" onClick={() => setConfirming(false)}>{t('common.cancel')}</button>
+              </div>
+            </Notice>
+          </div>
+        )}
         {!data ? <div className="skeleton" style={{ margin: 16 }} /> : rows.length === 0 ? <p className="empty">Všichni v tomto výběru už mají platnou jmenovku.</p> : (
           <table>
             <thead><tr><th><span className="visually-hidden">Vybrat</span></th><th>Jméno</th><th>{t('admin.category')}</th><th>Ubytování</th><th>Jmenovka</th></tr></thead>
@@ -148,6 +192,13 @@ export function Badges() {
         )}
       </section>
 
+      {!printed && lastBatch && (
+        <p className="no-print" style={{ marginTop: 16 }}>
+          Poslední tisk ({fmtStamp(new Date(lastBatch.at))}, {lastBatch.items.length} jmenovek) lze otevřít znovu, dokud nezavřete tuto záložku – třeba když se tisk nepovedl.{' '}
+          <button className="btn small" onClick={() => setPrinted(lastBatch)}><Icon name="printer" width={16} /> Znovu otevřít poslední tisk</button>
+        </p>
+      )}
+
       {printed && (
         <div aria-label="Náhled tisku">
           <p className="no-print" style={{ marginTop: 24 }}>
@@ -158,7 +209,7 @@ export function Badges() {
             <div className="sheet" key={i}>
               {page.map((item, j) => <Badge key={item.row.id} item={item} config={config} at={layout.slots[j]!} />)}
               {config.cropMarks && page.map((_, j) => <CropMarks key={j} at={layout.slots[j]!} config={config} />)}
-              <div className="print-meta">{t('app.name')} {edition.year} · {edition.title} · {t('admin.printedAt')} {fmtStamp(printed.at)} · list {i + 1}/{pages.length}</div>
+              <div className="print-meta">{t('app.name')} {edition.year} · {edition.title} · {t('admin.printedAt')} {fmtStamp(new Date(printed.at))} · list {i + 1}/{pages.length}</div>
             </div>
           ))}
         </div>

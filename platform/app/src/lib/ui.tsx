@@ -3,7 +3,7 @@
 import { iconPaths, type IconName } from '@lurdy/shared';
 import { Stack } from 'expo-router';
 import type { ReactNode } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
+import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View, type TextStyle, type ViewStyle } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Svg, { Path } from 'react-native-svg';
 import { useStore } from './store';
@@ -121,3 +121,24 @@ const s = StyleSheet.create({
   card: { backgroundColor: colors.surface, borderRadius: 12, borderWidth: 1, borderColor: colors.line, padding: space.l, gap: space.m },
   banner: { flexDirection: 'row', gap: space.l, alignItems: 'flex-start', padding: space.l, borderRadius: 12, borderWidth: 2 },
 });
+
+// Shown instead of a blank page while the first data is on its way, or when there is none (offline on first start,
+// a pilgrimage that has not started yet). Never leaves the person without a way back.
+export function NoData() {
+  const { t, offline, noAccess, refresh, signOut } = useStore();
+  return (
+    <Screen title={t('app.name')}>
+      {noAccess ? (
+        <Banner kind="info" title="Zatím tu nic není">
+          <T>Váš ročník pouti ještě nebyl spuštěn, nebo k němu nemáte přístup. Zkuste to později, nebo se zeptejte organizátorů.</T>
+        </Banner>
+      ) : offline ? (
+        <Banner kind="warn" title="Jste bez připojení">
+          <T>Při prvním přihlášení je potřeba internet, aby se do telefonu stáhl váš program.</T>
+        </Banner>
+      ) : <ActivityIndicator size="large" color={colors.red} />}
+      <BigButton icon="arrow" label="Zkusit znovu" tone="primary" onPress={refresh} />
+      <BigButton icon="logout" label={t('common.signOut')} onPress={signOut} />
+    </Screen>
+  );
+}

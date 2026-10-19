@@ -1,10 +1,10 @@
 import { router } from 'expo-router';
 import { useStore } from '../lib/store';
-import { BigButton, Card, Empty, Field, Screen, T } from '../lib/ui';
+import { BigButton, Card, Empty, Field, Screen, T, NoData } from '../lib/ui';
 
 export default function Room() {
   const { data, t } = useStore();
-  if (!data) return null;
+  if (!data) return <NoData />;
   const a = data.accommodation;
   return (
     <Screen title={t('home.room')}>

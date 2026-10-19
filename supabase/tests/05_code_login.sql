@@ -41,7 +41,7 @@ update public.profiles set status = 'active' where id = tests.id('a5');
 update public.editions set status = 'archived' where id = tests.id('e2');
 select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p9')), null, '10.0.0.4') ->> 'ok', 'false', 'archived edition refused');
 
--- throttling: 5 failures for one code, or 10 from one IP, within 15 minutes
+-- throttling: 5 wrong guesses for one code, or 30 from one address, within 15 minutes
 do $$ begin
   for i in 1..5 loop perform public.code_login_check((select access_code from c where id = tests.id('p1')), 'WRONG' || i, '10.0.1.' || i); end loop;
 end $$;
@@ -50,9 +50,9 @@ do $$ begin
   -- codes that belong to nobody
   perform public.code_login_check(lpad(g::text, 4, '0'), null, '10.0.3.3')
   from generate_series(0, 9999) g
-  where not exists (select 1 from public.participants where access_code = lpad(g::text, 4, '0')) limit 10;
+  where not exists (select 1 from public.participants where access_code = lpad(g::text, 4, '0')) limit 30;
 end $$;
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p7')), null, '10.0.3.3') ->> 'reason', 'throttled', 'IP blocked after 10 failures');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p7')), null, '10.0.3.3') ->> 'reason', 'throttled', 'address blocked after 30 wrong guesses');
 select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p7')), null, '10.0.3.4') ->> 'ok', 'true', 'other IPs still work');
 
 -- linking a new auth user to a participant
@@ -64,12 +64,12 @@ select tests.throws($$select public.code_login_link(tests.id('p7'), tests.id('a7
 -- team rights lapse when the event code used at sign-in expires
 update public.profiles set staff_code_id = tests.id('c0') where id = tests.id('a3');
 select tests.login('a3');
-select tests.eq(tests.n('select * from public.participants'), 1::bigint, 'staff with expired event code sees only self');
+select tests.eq(tests.n('select id from public.participants'), 1::bigint, 'staff with expired event code sees only self');
 select tests.eq(public.scan_badge('LRD1.' || repeat('0', 32)) ->> 'result', 'not_authorized', 'and cannot scan');
 reset role;
 update public.profiles set staff_code_id = tests.id('c1') where id = tests.id('a3');
 select tests.login('a3');
-select tests.ok(tests.n('select * from public.participants') > 1, 'rights back after signing in with the current code');
+select tests.ok(tests.n('select id from public.participants') > 1, 'rights back after signing in with the current code');
 reset role;
 
 -- organisers suspend an account immediately; staff cannot

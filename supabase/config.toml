@@ -1,0 +1,19 @@
+# Hosted-project settings that the code depends on, so they are reviewable and reproducible
+# (`supabase link` + `supabase db push` / `supabase functions deploy`). Values mirror the development project.
+project_id = "lurdy"
+
+[auth]
+enable_signup = false          # accounts exist only through code sign-in (Edge Function code-login)
+enable_anonymous_sign_ins = false
+jwt_expiry = 900
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+# Both functions check the caller themselves: code-login has no user yet; delete-account verifies the bearer.
+[functions.code-login]
+verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = true

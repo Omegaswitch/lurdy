@@ -45,8 +45,8 @@ test('create a participant', async () => {
   await page.getByRole('button', { name: 'Uložit' }).click();
   const panel = page.getByRole('complementary');
   await expect(panel.getByRole('heading', { name: `Eliška ${surname}` })).toBeVisible();
+  await expect(panel.locator('.mono').first()).toHaveText(/^\d{4}$/); // fetched on request, never part of the list
   accessCode = (await panel.locator('.mono').first().textContent())!.trim();
-  expect(accessCode).toMatch(/^\d{4}$/);
   const a11y = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag22aa']).analyze();
   expect(a11y.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ") + " — " + n.failureSummary).join(" | ")}`)).toEqual([]);
 });

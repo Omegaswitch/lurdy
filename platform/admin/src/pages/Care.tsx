@@ -3,9 +3,11 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { friendlyError } from '../errors';
 import { fmtStamp, fromLocalInput, fullName } from '../format';
 import { Icon, Notice } from '../icons';
-import { must, useLive } from '../live';
+import { affected, must, useLive } from '../live';
 import { useReady } from '../session';
 import { supabase } from '../supabase';
+
+type Affecting = { select: (cols: string) => PromiseLike<{ data: unknown[] | null; error: { message: string; code?: string } | null }> };
 
 type Person = Pick<Tables<'participants'>, 'id' | 'first_name' | 'last_name' | 'title' | 'category' | 'mobility'> & {
   room_assignments: { rooms: { number: string; facilities: { short_label: string | null; name: string } | null } | null } | null;
@@ -45,8 +47,9 @@ export function Care() {
     return { byId, load, malades, carers: data.people.filter((p) => p.category !== 'malade'), now };
   }, [data]);
 
-  const run = async (op: PromiseLike<{ error: { message: string; code?: string } | null }>, ok: string) => {
-    const { error: err } = await op;
+  // every change asks for the affected row back: zero rows (rights lapsed, row gone) is an error, not "Uloženo"
+  const run = async (op: Affecting, ok: string) => {
+    const { error: err } = await affected(op.select('id'));
     setMessage(err ? { kind: 'error', text: friendlyError(err) } : { kind: 'ok', text: ok });
     reload();
   };
@@ -87,7 +90,7 @@ export function Care() {
                         const c = view.byId.get(a.carer_id);
                         const isActive = active(a, view.now);
                         return (
-                          <li key={a.id} className="row" style={{ gap: 6, opacity: isActive ? 1 : 0.6 }}>
+                          <li key={a.id} className="row" style={{ gap: 6 }}>
                             <span>{c ? fullName(c) : '—'}</span>
                             <span className="tag">{t(`care.${a.kind}`)}</span>
                             {(a.starts_at || a.ends_at) && <span style={{ fontSize: '.8rem', color: 'var(--muted)' }}>{a.starts_at ? fmtStamp(new Date(a.starts_at)) : '…'} – {a.ends_at ? fmtStamp(new Date(a.ends_at)) : '…'}{!isActive && ' (neplatí teď)'}</span>}
@@ -111,7 +114,7 @@ export function Care() {
 
 function AddCarer({ malade, carers, load, existing, onAdd }: {
   malade: Person; carers: Person[]; load: Map<string, number>; existing: Assignment[];
-  onAdd: (op: PromiseLike<{ error: { message: string; code?: string } | null }>, ok: string) => void;
+  onAdd: (op: Affecting, ok: string) => void;
 }) {
   const { edition } = useReady();
   const [carer, setCarer] = useState('');

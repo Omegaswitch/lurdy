@@ -39,9 +39,25 @@ function useHashPath() {
   return path;
 }
 
+// The event code the organiser signed in with runs out at a set time; from a day before, every screen says so.
+function CodeExpiryNotice({ until }: { until: string | null }) {
+  if (!until) return null;
+  const left = new Date(until).getTime() - Date.now();
+  if (left > 24 * 3600_000) return null;
+  const when = new Date(until).toLocaleString('cs-CZ', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return (
+    <div style={{ padding: '0 0 16px' }}>
+      <Notice kind="warn">
+        {left > 0 ? `Kód pouti, kterým jste přihlášeni, platí do ${when}. Potom se přihlaste znovu s novým kódem, jinak přestanou jít změny ukládat.`
+          : 'Kód pouti, kterým jste přihlášeni, už neplatí. Odhlaste se a přihlaste znovu s platným kódem.'}
+      </Notice>
+    </div>
+  );
+}
+
 function Shell() {
   const { signOut } = useAuth();
-  const { edition, me } = useReady();
+  const { edition, me, codeValidUntil } = useReady();
   const path = useHashPath();
   const route = routes.find((r) => r.path === path) ?? routes[0]!;
   const Page = route.page;
@@ -77,6 +93,7 @@ function Shell() {
         </ul>
       </nav>
       <main id="main" tabIndex={-1}>
+        <CodeExpiryNotice until={codeValidUntil} />
         <Page />
       </main>
     </div>
@@ -84,16 +101,21 @@ function Shell() {
 }
 
 export function App() {
-  const { state, signOut } = useAuth();
+  const { state, signOut, refresh } = useAuth();
   if (state.status === 'loading') return <div className="login" aria-busy="true" />;
   if (state.status === 'signedOut') return <Login />;
   if (state.status === 'needsMfa') return <Mfa enrolled={state.enrolled} />;
-  if (state.status === 'noAccess')
+  if (state.status === 'noAccess' || state.status === 'codeExpired' || state.status === 'error')
     return (
       <div className="login">
         <div className="card">
-          <Notice kind="warn">{t('admin.noAccess')}</Notice>
-          <button className="btn" onClick={signOut}>{t('common.signOut')}</button>
+          {state.status === 'noAccess' && <Notice kind="warn">{t('admin.noAccess')}</Notice>}
+          {state.status === 'codeExpired' && <Notice kind="warn">Kód pouti, kterým jste se přihlásili, už neplatí. Odhlaste se a přihlaste znovu s platným kódem.</Notice>}
+          {state.status === 'error' && <Notice kind="error">Administraci se nepodařilo načíst (bez připojení, nebo chyba serveru). Zkuste to znovu.</Notice>}
+          <div className="row">
+            {state.status === 'error' && <button className="btn primary" onClick={refresh}>Zkusit znovu</button>}
+            <button className="btn" onClick={signOut}>{t('common.signOut')}</button>
+          </div>
         </div>
       </div>
     );

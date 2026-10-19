@@ -1,4 +1,4 @@
-import { aiReformatPrompt, findDuplicates, importTemplate, parseCsv, readTable, t, toCsv, type Category, type ImportRow, type Tables } from '@lurdy/shared';
+import { aiReformatPrompt, DuplicateIndex, importTemplate, parseCsv, readTable, t, toCsv, type Category, type ImportRow, type Tables } from '@lurdy/shared';
 import { useMemo, useState } from 'react';
 import { friendlyError } from '../errors';
 import { Icon, Notice } from '../icons';
@@ -23,10 +23,12 @@ export function ImportPanel({ existing, onClose }: { existing: Existing[]; onClo
 
   const preview = useMemo(() => {
     if (!parsed) return [];
-    return parsed.rows.map((row, i) => {
-      // duplicates against the database and against earlier rows of the same file
-      const earlier = parsed.rows.slice(0, i).map((r) => ({ id: `line ${r.line}`, ...r.values }));
-      const dups = [...findDuplicates(row.values, existing), ...findDuplicates(row.values, earlier)];
+    // duplicates against the database and against earlier rows of the same file, each person folded once
+    const known = new DuplicateIndex<Existing>(existing);
+    const seen = new DuplicateIndex<Existing>();
+    return parsed.rows.map((row) => {
+      const dups = [...known.find(row.values), ...seen.find(row.values)];
+      seen.add({ id: `line ${row.line}`, ...row.values });
       const status: 'error' | 'duplicate' | 'new' = row.errors.length ? 'error' : dups.length ? 'duplicate' : 'new';
       return { row, dups, status };
     });
@@ -76,7 +78,7 @@ export function ImportPanel({ existing, onClose }: { existing: Existing[]; onClo
         <button className="btn quiet small" onClick={() => onClose(0)} aria-label={t('common.close')}><Icon name="x" width={18} /></button>
       </header>
       <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.6 }}>
-        <li>Stáhněte šablonu, nebo použijte vlastní tabulku. <button className="btn small" onClick={downloadTemplate}><Icon name="download" width={14} /> Šablona (Excel)</button></li>
+        <li>Stáhněte šablonu, nebo použijte vlastní tabulku. <button className="btn small" onClick={() => downloadTemplate().catch(() => setMessage({ kind: 'error', text: 'Šablonu se nepodařilo připravit (jste připojeni k internetu?).' }))}><Icon name="download" width={14} /> Šablona (Excel)</button></li>
         <li>Vlastní tabulku v jiném tvaru může přeformátovat Claude nebo jiná AI. <button className="btn small quiet" aria-expanded={showPrompt} aria-controls="ai-prompt" onClick={() => setShowPrompt((v) => !v)}>{showPrompt ? 'Skrýt návod pro AI' : 'Návod pro AI'}</button></li>
         <li>Nahrajte soubor (.xlsx nebo .csv). Nic se neuloží, dokud neuvidíte náhled a nekliknete na Importovat.</li>
       </ol>
@@ -145,7 +147,7 @@ function AiPrompt({ found }: { found?: string[] }) {
       <Notice kind="warn">Tabulka se jmény a kontakty se tím odešle poskytovateli AI. Použijte jen službu, kterou Velkopřevorství schválilo pro osobní údaje, a nikdy do ní nevkládejte zdravotní údaje.</Notice>
       <label htmlFor="ai-prompt-text">Zkopírujte tento text, vložte ho do AI a přiložte svou tabulku. Výsledné CSV uložte a nahrajte sem.</label>
       <textarea id="ai-prompt-text" readOnly rows={10} value={prompt} style={{ fontFamily: 'inherit', width: '100%' }} />
-      <div><button className="btn small" onClick={async () => { await navigator.clipboard.writeText(prompt); setCopied(true); }}>
+      <div><button className="btn small" onClick={async () => { try { await navigator.clipboard.writeText(prompt); setCopied(true); } catch { (document.getElementById('ai-prompt-text') as HTMLTextAreaElement | null)?.select(); } }}>
         <Icon name={copied ? 'check' : 'copy'} width={14} /> {copied ? 'Zkopírováno' : 'Zkopírovat návod'}</button>
         <span role="status" className="visually-hidden">{copied ? 'Návod zkopírován do schránky' : ''}</span></div>
     </div>
@@ -166,22 +168,29 @@ async function downloadTemplate() {
   ]).toFile('sablona-ucastnici.xlsx');
 }
 
-// Export of operational data (never health data). Contains sign-in codes for invitation mail-merge.
-export async function exportParticipants(editionId: string, year: number) {
+// Export of operational data (never health data). Sign-in codes only on request (invitation mail-merge):
+// they come from an organiser-only, audited RPC, never from the table.
+export async function exportParticipants(editionId: string, year: number, withCodes = false) {
   const { data, error } = await supabase.from('participants')
-    .select('last_name, first_name, title, preferred_name, category, phone, email, language, mobility, logistics_note, access_code, leg_assignments(transport_legs(code, direction)), room_assignments(rooms(number, facilities(short_label, name)))')
+    .select('id, last_name, first_name, title, preferred_name, category, phone, email, language, mobility, logistics_note, leg_assignments(transport_legs(code, direction)), room_assignments(rooms(number, facilities(short_label, name)))')
     .eq('edition_id', editionId).order('last_name').order('first_name');
   if (error) throw error;
+  const codes = new Map<string, string>();
+  if (withCodes) {
+    const { data: c, error: e } = await supabase.rpc('participant_access_codes', { p_edition: editionId });
+    if (e) throw e;
+    for (const row of c ?? []) codes.set(row.participant_id, row.access_code);
+  }
   const legs = (p: (typeof data)[number], dir: string) => p.leg_assignments.map((a) => a.transport_legs).filter((l) => l?.direction === dir).map((l) => l!.code).join(', ');
   const csv = toCsv(
-    ['Příjmení', 'Jméno', 'Titul', 'Oslovení', 'Kategorie', 'Telefon', 'E-mail', 'Jazyk', 'Pohyblivost', 'Poznámka', 'Kód', 'Tam', 'Zpět', 'Ubytování', 'Pokoj'],
+    ['Příjmení', 'Jméno', 'Titul', 'Oslovení', 'Kategorie', 'Telefon', 'E-mail', 'Jazyk', 'Pohyblivost', 'Poznámka', ...(withCodes ? ['Kód'] : []), 'Tam', 'Zpět', 'Ubytování', 'Pokoj'],
     data.map((p) => [p.last_name, p.first_name, p.title, p.preferred_name, t(`category.${p.category}`), p.phone, p.email, p.language,
-      t(`mobility.${p.mobility}`), p.logistics_note, p.access_code, legs(p, 'outbound'), legs(p, 'return'),
+      t(`mobility.${p.mobility}`), p.logistics_note, ...(withCodes ? [codes.get(p.id) ?? ''] : []), legs(p, 'outbound'), legs(p, 'return'),
       p.room_assignments?.rooms?.facilities?.short_label ?? p.room_assignments?.rooms?.facilities?.name ?? '', p.room_assignments?.rooms?.number ?? '']),
   );
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   a.download = `ucastnici-${year}.csv`;
   a.click();
-  URL.revokeObjectURL(a.href);
+  setTimeout(() => URL.revokeObjectURL(a.href), 10_000); // Firefox/Safari may still be reading the blob
 }

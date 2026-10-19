@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { useStore } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { colors, space } from '../lib/theme';
-import { Card, Empty, fmtDay, fmtTime, Icon, Screen, T } from '../lib/ui';
+import { Card, Empty, fmtDay, fmtTime, Icon, Screen, T, NoData } from '../lib/ui';
 
 type MyLeg = { id: string; code: string; kind: string; leg_assignments: { boarded_at: string | null; participants: { first_name: string; last_name: string } | null }[] };
 
@@ -22,7 +22,7 @@ export default function Duty() {
     return () => { supabase.removeChannel(ch); };
   }, [meId, isStaff]);
 
-  if (!data) return null;
+  if (!data) return <NoData />;
   const tz = data.edition.timezone;
   return (
     <Screen title={t('home.duty')}>

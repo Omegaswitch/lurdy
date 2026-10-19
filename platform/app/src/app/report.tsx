@@ -4,7 +4,7 @@ import { TextInput, View } from 'react-native';
 import { useStore } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { colors, fonts, space } from '../lib/theme';
-import { Banner, BigButton, Card, Screen, T } from '../lib/ui';
+import { Banner, BigButton, Card, Screen, T, NoData } from '../lib/ui';
 
 const kinds = [
   { kind: 'missing_person', label: 'Někdo chybí' },
@@ -20,7 +20,7 @@ export default function Report() {
   const [urgent, setUrgent] = useState(false);
   const [summary, setSummary] = useState('');
   const [state, setState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
-  if (!data) return null;
+  if (!data) return <NoData />;
 
   async function send() {
     setState('sending');

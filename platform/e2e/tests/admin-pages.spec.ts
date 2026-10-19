@@ -167,15 +167,34 @@ test('CSV import flags exactly the planted duplicates and errors; export contain
   await page.getByRole('button', { name: 'Importovat 145 osob' }).click();
   await expect(page.getByText('Importováno 145 osob.')).toBeVisible({ timeout: 20_000 });
   await page.getByLabel('Hledat').fill('Importovaný145');
-  await expect(page.getByRole('row').filter({ hasText: 'Importovaný145' }).locator('.mono')).toHaveText(/^\d{4}$/);
+  const row = page.getByRole('row').filter({ hasText: 'Importovaný145' });
+  await expect(row).toHaveCount(1);
+  await expect(row).not.toContainText(/\b\d{4}\b/); // the list never shows sign-in codes
+  await row.getByRole('button').first().click();
+  const panel = page.getByRole('complementary');
+  await expect(panel.locator('.mono').first()).toHaveText(/^\d{4}$/); // the editor fetches the one code on request
+  const code = (await panel.locator('.mono').first().textContent())!.trim();
+  await panel.getByRole('button', { name: 'Zavřít' }).click();
+  await page.getByLabel('Hledat').fill(code); // searching by code goes through the database
+  await expect(page.getByRole('row').filter({ hasText: 'Importovaný145' })).toHaveCount(1);
   await page.getByLabel('Hledat').fill('');
-  const download = page.waitForEvent('download');
+  // export: without codes by default, with codes only on request
   await page.getByRole('button', { name: 'Exportovat CSV' }).click();
-  const csv = (await (await download).createReadStream()).toArray().then((c) => Buffer.concat(c as Buffer[]).toString('utf8'));
-  const text = await csv;
+  let download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Stáhnout CSV' }).click();
+  const read = async (d: Promise<import('@playwright/test').Download>) => Buffer.concat((await (await (await d).createReadStream()).toArray()) as Buffer[]).toString('utf8');
+  let text = await read(download);
   expect(text.startsWith('\uFEFFPříjmení;Jméno')).toBe(true);
+  expect(text.split('\r\n')[0]).not.toContain('Kód');
   expect(text).toContain('Importovaný145;Test');
   expect(text.split('\r\n').filter((l) => l.startsWith('Importovaný')).length).toBe(145);
+  await page.getByRole('button', { name: 'Exportovat CSV' }).click();
+  await page.getByLabel('Včetně přihlašovacích kódů').check();
+  download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Stáhnout CSV' }).click();
+  text = await read(download);
+  expect(text.split('\r\n')[0]).toContain(';Kód;');
+  expect(text).toMatch(new RegExp(`Importovaný145;Test;[^\\r\\n]*;${code};`));
 });
 
 test('Excel template, AI prompt for an unknown layout, .xlsx preview (nothing imported)', async () => {

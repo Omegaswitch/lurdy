@@ -1,13 +1,13 @@
 import { Linking, View } from 'react-native';
 import { useStore } from '../lib/store';
 import { space } from '../lib/theme';
-import { BigButton, Card, Screen, T } from '../lib/ui';
+import { BigButton, Card, Screen, T, NoData } from '../lib/ui';
 
-const call = (phone: string) => Linking.openURL(`tel:${phone.replace(/[^\d+]/g, '')}`);
+const call = (phone: string) => Linking.openURL(`tel:${phone.replace(/[^\d+]/g, '')}`).catch(() => {}); // no phone app (tablet, desktop): the number is on screen
 
 export default function Help() {
   const { data, t } = useStore();
-  if (!data) return null;
+  if (!data) return <NoData />;
   return (
     <Screen title={t('home.help')}>
       <Card>

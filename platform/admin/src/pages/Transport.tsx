@@ -3,9 +3,11 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { friendlyError } from '../errors';
 import { fmtDay, fmtTime, fromLocalInput, fullName } from '../format';
 import { Icon, Notice } from '../icons';
-import { must, useLive } from '../live';
+import { affected, must, useLive } from '../live';
 import { useReady } from '../session';
 import { supabase } from '../supabase';
+
+type Affecting = { select: (cols: string) => PromiseLike<{ data: unknown[] | null; error: { message: string; code?: string } | null }> };
 
 type Assignment = { id: string; participant_id: string; boarded_at: string | null; arrived_at: string | null };
 type Leg = Tables<'transport_legs'> & { leg_assignments: Assignment[] };
@@ -104,8 +106,9 @@ function LegDetail({ leg, legs, people }: { leg: Leg; legs: Leg[]; people: Perso
     .filter((x): x is { a: Assignment; p: Person } => !!x.p)
     .sort((x, y) => x.p.last_name.localeCompare(y.p.last_name, 'cs'));
 
-  const run = async (op: PromiseLike<{ error: { message: string; code?: string } | null }>, ok: string) => {
-    const { error } = await op;
+  // every change asks for the affected row back: zero rows (rights lapsed, row gone) is an error, not "Uloženo"
+  const run = async (op: Affecting, ok: string) => {
+    const { error } = await affected(op.select('id'));
     setMessage(error ? { kind: 'error', text: friendlyError(error) } : { kind: 'ok', text: ok });
   };
 
@@ -178,16 +181,20 @@ function NewLeg({ facilities, onDone }: { facilities: { id: string; name: string
   const [f, setF] = useState({ kind: 'bus' as Enums<'leg_kind'>, direction: 'outbound' as Enums<'leg_direction'>, code: '', label: '', origin: '', destination: '',
     departs: '', capacity: '50', wheelchair: '0', facility: '' });
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f, v: string) => setF((x) => ({ ...x, [k]: v }));
 
   async function save(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
     if (!f.code.trim()) return setError('Vyplňte označení spoje (např. A nebo číslo letu).');
+    setBusy(true);
     const { data, error: err } = await supabase.from('transport_legs').insert({
       edition_id: edition.id, kind: f.kind, direction: f.direction, code: f.code.trim(), label: f.label.trim() || null,
       origin: f.origin.trim() || null, destination: f.destination.trim() || null, departs_at: fromLocalInput(f.departs, edition.timezone),
       capacity: f.capacity ? Number(f.capacity) : null, wheelchair_capacity: Number(f.wheelchair) || 0, facility_id: f.facility || null,
     }).select('id').single();
+    setBusy(false);
     if (err) return setError(friendlyError(err));
     onDone(data.id);
   }
@@ -211,7 +218,7 @@ function NewLeg({ facilities, onDone }: { facilities: { id: string; name: string
           <select id="fa" value={f.facility} onChange={(e) => set('facility', e.target.value)}><option value="">—</option>{facilities.map((x) => <option key={x.id} value={x.id}>{x.name}</option>)}</select></div>
       </div>
       <div className="row">
-        <button className="btn primary" type="submit">{t('common.save')}</button>
+        <button className="btn primary" type="submit" disabled={busy} aria-busy={busy}>{t('common.save')}</button>
         <button className="btn" type="button" onClick={() => onDone(null)}>{t('common.cancel')}</button>
       </div>
     </form>

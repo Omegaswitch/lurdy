@@ -79,14 +79,16 @@ export function readRows(text: string, defaultCategory: Category = 'pilgrim') {
 
 // Same as readRows, for a sheet already split into cells (an .xlsx read in the browser). Cells may be numbers or dates.
 export function readTable(table: unknown[][], defaultCategory: Category = 'pilgrim'): { rows: ImportRow[]; missing: ImportField[] } {
-  const cells = table.map((r) => r.map((c) => (c == null ? '' : c instanceof Date ? c.toISOString().slice(0, 10) : String(c))))
-    .filter((r) => r.some((x) => x.trim() !== ''));
-  const [header, ...body] = cells;
-  if (!header) return { rows: [], missing: ['first_name', 'last_name'] };
+  // line numbers are those of the sheet, so blank rows are dropped only after numbering
+  const cells = table.map((r, i) => ({ line: i + 1, r: r.map((c) => (c == null ? '' : c instanceof Date ? c.toISOString().slice(0, 10) : String(c))) }))
+    .filter(({ r }) => r.some((x) => x.trim() !== ''));
+  const [head, ...body] = cells;
+  if (!head) return { rows: [], missing: ['first_name', 'last_name'] };
+  const header = head.r;
   const map = mapHeaders(header);
   const missing = (['first_name', 'last_name'] as ImportField[]).filter((f) => map[f] === undefined);
   const get = (r: string[], f: ImportField) => (map[f] === undefined ? '' : (r[map[f]!] ?? '').trim());
-  const rows = body.map((r, i): ImportRow => {
+  const rows = body.map(({ r, line }): ImportRow => {
     const errors: string[] = [];
     const cat = get(r, 'category');
     const category = cat ? categoryWords[fold(cat)] : defaultCategory;
@@ -102,7 +104,7 @@ export function readTable(table: unknown[][], defaultCategory: Category = 'pilgr
     if (first.length > 100 || last.length > 100) errors.push('jméno je příliš dlouhé');
     const n = (s: string) => s || null;
     return {
-      line: i + 2,
+      line,
       values: { first_name: first, last_name: last, title: n(get(r, 'title')), preferred_name: n(get(r, 'preferred_name')),
         category: category ?? defaultCategory, phone: n(get(r, 'phone')), email: n(email), language: lang,
         mobility: mob ?? 'walks', logistics_note: n(get(r, 'logistics_note')) },
@@ -158,6 +160,32 @@ export function findDuplicates<T extends Comparable>(row: Comparable, existing: 
     const n = sameName(row, e), c = sameContact(row, e);
     return n || c ? [{ match: e, reason: n && c ? 'both' as const : n ? 'name' as const : 'contact' as const }] : [];
   });
+}
+
+// The same matching for a whole file: each person is folded once and looked up in maps, so a 2 000-row sheet
+// against 500 existing people stays instant (pairwise comparison would be millions of normalisations).
+export class DuplicateIndex<T extends Comparable> {
+  private byName = new Map<string, T[]>();
+  private byPhone = new Map<string, T[]>();
+  private byEmail = new Map<string, T[]>();
+  constructor(existing: T[] = []) {
+    for (const e of existing) this.add(e);
+  }
+  add(e: T) {
+    const push = (m: Map<string, T[]>, k: string) => { if (k) m.set(k, [...(m.get(k) ?? []), e]); };
+    push(this.byName, `${fold(e.first_name)}\u0000${fold(e.last_name)}`);
+    const d = digits(e.phone);
+    if (d.length >= 9) push(this.byPhone, d);
+    if (e.email) push(this.byEmail, fold(e.email));
+  }
+  find(row: Comparable): { match: T; reason: 'name' | 'contact' | 'both' }[] {
+    const names = new Set(this.byName.get(`${fold(row.first_name)}\u0000${fold(row.last_name)}`) ?? []);
+    const d = digits(row.phone);
+    const contacts = new Set([...(d.length >= 9 ? this.byPhone.get(d) ?? [] : []), ...(row.email ? this.byEmail.get(fold(row.email)) ?? [] : [])]);
+    return [...new Set([...names, ...contacts])].map((match) => ({
+      match, reason: names.has(match) && contacts.has(match) ? 'both' as const : names.has(match) ? 'name' as const : 'contact' as const,
+    }));
+  }
 }
 
 // CSV for Excel: BOM + ';' delimiter, every cell quoted when needed.

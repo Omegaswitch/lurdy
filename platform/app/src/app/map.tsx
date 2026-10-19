@@ -17,13 +17,14 @@ const metres = (a: { lat: number; lng: number }, b: { lat: number; lng: number }
 };
 
 // Hands over to the phone's own maps app for walking directions.
-function navigate(p: MapPlace, me: { lat: number; lng: number } | null) {
+function navigate(p: MapPlace) {
   const url = Platform.select({
     ios: `http://maps.apple.com/?daddr=${p.lat},${p.lng}&dirflg=w`,
     android: `geo:0,0?q=${p.lat},${p.lng}(${encodeURIComponent(p.name)})`,
-    default: `https://www.openstreetmap.org/directions?engine=fossgis_osrm_foot&route=${me ? `${me.lat},${me.lng}` : ''};${p.lat},${p.lng}`,
+    // on the web the position stays in the page: the maps site asks for the starting point itself
+    default: `https://www.openstreetmap.org/directions?engine=fossgis_osrm_foot&route=;${p.lat},${p.lng}`,
   });
-  Linking.openURL(url);
+  Linking.openURL(url).catch(() => {});
 }
 
 export default function MapScreen() {
@@ -85,7 +86,8 @@ export default function MapScreen() {
                   <View style={{ gap: 4 }}>
                     <Image source={{ uri: p.photo_url }} accessibilityLabel={`Fotografie: ${selected.name}`}
                       style={{ width: '100%', aspectRatio: 4 / 3, borderRadius: 12, backgroundColor: colors.line }} resizeMode="cover" />
-                    <T kind="label" accessibilityRole="link" onPress={() => p.photo_source && Linking.openURL(p.photo_source)}>
+                    <T kind="label" accessibilityRole={p.photo_source ? 'link' : undefined} style={{ minHeight: 44, paddingVertical: 8 }}
+                      onPress={p.photo_source ? () => Linking.openURL(p.photo_source!).catch(() => {}) : undefined}>
                       Foto: {p.photo_credit}, Wikimedia Commons
                     </T>
                   </View>
@@ -97,7 +99,7 @@ export default function MapScreen() {
             );
           })()}
           {me && <T kind="label">Vzdušnou čarou asi {metres(me, selected)} m</T>}
-          <BigButton icon="navigation" label="Navigovat" hint="Otevře mapy v telefonu (pěšky)" tone="primary" onPress={() => navigate(selected, me)} />
+          <BigButton icon="navigation" label="Navigovat" hint="Otevře mapy v telefonu (pěšky)" tone="primary" onPress={() => navigate(selected)} />
         </Card>
       )}
 

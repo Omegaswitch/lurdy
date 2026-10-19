@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useStore } from '../lib/store';
 import { colors, space, touch } from '../lib/theme';
-import { Card, Empty, fmtTime, Icon, Screen, T } from '../lib/ui';
+import { Card, Empty, fmtTime, Icon, Screen, T, NoData } from '../lib/ui';
 
 export default function Programme() {
   const { data, t } = useStore();
@@ -11,8 +11,9 @@ export default function Programme() {
   const dayOf = (iso: string) => new Intl.DateTimeFormat('cs-CZ', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'numeric' }).format(new Date(iso));
   const days = useMemo(() => [...new Set((data?.events ?? []).map((e) => dayOf(e.starts_at)))], [data]); // eslint-disable-line react-hooks/exhaustive-deps
   const today = dayOf(new Date().toISOString());
-  const [day, setDay] = useState(days.includes(today) ? today : days[0]);
-  if (!data) return null;
+  const [picked, setDay] = useState<string | null>(null);
+  const day = picked && days.includes(picked) ? picked : days.includes(today) ? today : days[0]; // data may arrive after mount
+  if (!data) return <NoData />;
   const events = data.events.filter((e) => dayOf(e.starts_at) === day);
   return (
     <Screen title={t('home.programme')}>

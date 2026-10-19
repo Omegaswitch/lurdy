@@ -83,20 +83,34 @@ function EventForm({ event, places, onDone }: { event: Event | null; places: Pla
     audiences: event?.audiences ?? ([] as Category[]),
   });
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  // the version this form was opened with; a conflict reloads the row and the person edits the fresh values
+  const [version, setVersion] = useState(event?.version ?? 0);
   const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((x) => ({ ...x, [k]: v }));
 
   async function save(e: FormEvent) {
     e.preventDefault();
+    if (busy) return;
     if (!f.title.trim() || !f.starts) return setError('Vyplňte čas a název.');
+    setBusy(true);
     const values = {
       starts_at: fromLocalInput(f.starts, tz)!, ends_at: fromLocalInput(f.ends, tz), title: f.title.trim(), location: f.location.trim() || null,
       place_id: f.place_id || null, description: f.description.trim() || null, audiences: f.audiences,
     };
     const { data, error: err } = event
-      ? await supabase.from('events').update(values).eq('id', event.id).eq('version', event.version).select('id')
+      ? await supabase.from('events').update(values).eq('id', event.id).eq('version', version).select('id')
       : await supabase.from('events').insert({ ...values, edition_id: edition.id }).select('id');
+    setBusy(false);
     if (err) return setError(err.message.includes('ends_at') ? 'Konec musí být po začátku.' : friendlyError(err));
-    if (event && !data?.length) return setError(t('common.conflict'));
+    if (event && !data?.length) {
+      const { data: fresh } = await supabase.from('events').select('*').eq('id', event.id).maybeSingle();
+      if (fresh) {
+        setVersion(fresh.version);
+        setF({ starts: toLocalInput(fresh.starts_at, tz), ends: fresh.ends_at ? toLocalInput(fresh.ends_at, tz) : '', title: fresh.title,
+          location: fresh.location ?? '', place_id: fresh.place_id ?? '', description: fresh.description ?? '', audiences: fresh.audiences });
+      }
+      return setError(t('common.conflict'));
+    }
     onDone();
   }
   async function remove() {
@@ -139,7 +153,7 @@ function EventForm({ event, places, onDone }: { event: Event | null; places: Pla
       </fieldset>
       <div className="field"><label htmlFor="pd">Poznámka pro účastníky</label><textarea id="pd" rows={2} value={f.description} onChange={(e) => set('description', e.target.value)} /></div>
       <div className="row">
-        <button className="btn primary" type="submit">{t('common.save')}</button>
+        <button className="btn primary" type="submit" disabled={busy} aria-busy={busy}>{t('common.save')}</button>
         <button className="btn" type="button" onClick={onDone}>{t('common.cancel')}</button>
         {event && <button className="btn quiet" type="button" style={{ marginLeft: 'auto' }} onClick={remove}>{t('common.delete')}</button>}
       </div>

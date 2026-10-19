@@ -1,11 +1,11 @@
 import { View } from 'react-native';
 import { useStore } from '../lib/store';
 import { colors, space } from '../lib/theme';
-import { Card, Empty, Field, fmtDay, fmtTime, Icon, Screen, T } from '../lib/ui';
+import { Card, Empty, Field, fmtDay, fmtTime, Icon, Screen, T, NoData } from '../lib/ui';
 
 export default function Journey() {
   const { data, t } = useStore();
-  if (!data) return null;
+  if (!data) return <NoData />;
   const tz = data.edition.timezone;
   return (
     <Screen title={t('home.journey')}>

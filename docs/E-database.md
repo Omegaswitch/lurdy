@@ -68,7 +68,12 @@ auth.users ─1:1─ profiles ─< role_grants >─ editions
 | `my_pilgrimage(edition?)` | any signed-in participant | one JSON with everything the participant app shows; cacheable offline |
 | `scan_badge(payload, action, leg?, client_scan_id?)` | staff of the edition | resolves QR → live operational record; records lookup/board/arrive |
 | `issue_credential(participant)` | organiser | revokes the previous credential, returns a new token **once** |
-| `revoke_credential(participant, reason)` | organiser | |
+| `revoke_credential(participant, reason)` | organiser | revokes every credential of the person (printed badge and phone code: a lost phone is reported the same way as a lost badge) |
+| `my_digital_credential(edition?)` / `my_digital_credential_valid(edition?)` | the participant | a new phone code (at most 10 a day) / whether the stored one is still the valid one |
+| `participant_access_code(participant)` | organiser | the one sign-in code, for the editor; the column itself is not readable through the API |
+| `participant_access_codes(edition)` | organiser | every code, for invitation mail-merge; each call writes an `EXPORT_CODES` audit row |
+| `find_participants(edition, query)` | staff | the scanner's manual search: name (accent-insensitive) or exact code; returns names only |
+| `delete_my_account()` | the participant | marks the registration, revokes the phone code; the Edge Function then deletes the Auth user |
 | `duplicate_edition(source, …)` | super admin / organiser of source | copies structure (facilities, rooms, legs, teams, duties, events, contact *labels*, guide pages, badge layout) — never people, assignments, contacts' names/phones or medical data; dates shifted |
 | `medical_record_get / medical_record_save` | medical role, MFA, fresh step-up | audited |
 | `care_info_get(participant)` | active carer | only fields medical staff marked shareable; audited |
@@ -79,4 +84,6 @@ auth.users ─1:1─ profiles ─< role_grants >─ editions
 - One SQL file per change in `supabase/migrations/`, timestamped, never edited after it is applied to a shared project.
 - Every migration is first run against a local Postgres with a Supabase-compatible `auth` shim and the SQL test suite (`supabase/tests/run.sh`), then applied to the hosted project.
 - Database types for TypeScript are generated from the hosted schema into `platform/shared/src/database.types.ts`.
+- Two rules enforced by the test suite: every new function ends with `revoke execute … from public, anon` (Supabase grants `anon` by default), and `participants` queries name their columns — `access_code` is withheld by a column privilege, which makes PostgREST refuse `select=*` on that table. A new participants column must be added to the grant in `20261019130248_hardening.sql`'s successor.
+- The migration history of the hosted project is the reference; two audit probe migrations (`zz_probe_*`) are kept locally so `supabase db push` sees the same history.
 - Seed data (`supabase/seed.sql`) is entirely fictional and is only for local and development databases.

@@ -24,14 +24,14 @@
 | Organiser, medical, super admin | 4-digit code + event code | **authenticator app (TOTP)** — required by the brief for privileged and health-data access |
 
 How it works (`supabase/functions/code-login`, `public.code_login_check`):
-- Codes are random, unique within the edition, and never trivial (no 1111, 1234, 4321…). They are shown only in the admin and the invitation — **never printed on the badge**, which anyone near the person can read.
+- Codes are random, unique within the edition, and never trivial (no 1111, 1234, 4321…). They are shown only in the admin and the invitation — **never printed on the badge**, which anyone near the person can read. Since the audit of 2026-10-19 the database enforces this: `participants.access_code` is not readable by any API role (column privilege), an organiser reads one code through `participant_access_code`, a bulk export through `participant_access_codes` (audited), and the team's scanner searches by code through `find_participants`, which returns names only. Audit and sign-in logs never contain a code.
 - The event code has validity dates. Organisers can set one code for *before* the pilgrimage and another for *during* it. Team rights depend on the event code used at sign-in still being valid; when it expires, the team member must sign in again with the current one.
-- Throttling: 10 failed attempts per IP or 5 per code within 15 minutes block further attempts; the answer never says which part was wrong.
+- Throttling: 5 wrong guesses for one code, or 30 from one address, within 15 minutes block further attempts; the answer never says which part was wrong. Only wrong guesses count — a throttled answer never extends a block, so a blocked address cannot lock other people's codes, and a hotel's shared address is not locked by its own mistypes. The address is the one the gateway saw (`cf-connecting-ip`, else the last `X-Forwarded-For` hop); a forged header was verified not to reach the log.
 - The Edge Function turns a positive check into an ordinary Supabase Auth session (one Auth user per participant, created on first sign-in, with a synthetic address that receives no mail). Everything after sign-in is standard Supabase Auth: JWT, refresh tokens, RLS.
 - Privileged rights (organiser, medical, super admin) only count when the session is `aal2`; the admin asks first-time organisers to enrol an authenticator app. Medical records additionally need a TOTP verification in the last 10 minutes.
 - Suspending a person (`set_account_status`) or removing their role takes effect on the next request.
 
-**Accepted residual risk (explained to the organisers):** a 4-digit code alone is weak — anyone who learns or guesses a pilgrim's code sees that pilgrim's own journey, room and programme (never other people, never medical data). Throttling makes guessing slow; codes are not printed; the data reachable this way is limited by RLS. Team access requires the event code in addition; health data requires MFA in addition. If this risk is judged too high later, a personal PIN can be added to the same flow without changing the database model.
+**Accepted residual risk (explained to the organisers):** a 4-digit code alone is weak — anyone who learns or guesses a pilgrim's code sees that pilgrim's own journey, room and programme (never other people, never medical data), can delete that account, and can obtain a digital badge in that name. Throttling makes guessing slow; codes are not printed; the data reachable this way is limited by RLS. Team access requires the event code in addition; health data requires MFA in addition. **Measured in the audit:** with 30 guesses per address per 15 minutes, one address can try about 120 codes an hour; with 500 participants among 10 000 codes that is an expected hijacked pilgrim account every hour or two per address, more with several addresses. This is tolerable for a pilot with fictional data and should be revisited before the first real edition (STATUS Q5): a personal PIN or a 6-digit code fits the same flow without changing the database model.
 
 Sessions: JWT expiry 15 min (Supabase setting), refresh tokens rotate. The app clears its offline copy on sign-out.
 
@@ -108,9 +108,11 @@ Backups (Supabase daily, 7–30 days) age out on their own schedule; deletion fr
 
 ## 11. Platform hardening checklist (before real data)
 - [ ] Supabase Pro plan, PITR enabled, backups verified by a restore test
-- [ ] Sign-ups disabled (accounts are created only by the code-login function)
-- [ ] MFA (TOTP) enabled in Auth settings
-- [ ] JWT expiry 900 s; leaked-password protection on
+- [x] Sign-ups disabled (accounts are created only by the code-login function) — `supabase/config.toml`, verified on the development project
+- [x] MFA (TOTP) enabled in Auth settings — `supabase/config.toml`
+- [x] JWT expiry 900 s. Leaked-password protection is off and irrelevant (nobody has a password); enable it anyway so the advisor stays clean
+- [x] No function executable by `anon`; `participants.access_code` withheld from the API (enforced by `supabase/tests/08_hardening.sql`)
+- [ ] Purge job for `audit.log` and `audit.login_attempts` once the retention period is approved (Q8); until then the logs keep names, phones and e-mails of deleted people
 - [ ] Security Advisor clean (RLS on all tables, `search_path` set on functions)
 - [ ] Network restrictions for direct DB connections
 - [ ] Service-role key only in Edge Function secrets

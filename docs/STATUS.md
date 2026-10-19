@@ -12,7 +12,7 @@ organiser signs in (code + event code + authenticator) → creates a participant
 | Phase | Item | State | Note |
 |---|---|---|---|
 | Plan | Planning documents A–J, roadmap | ✅ | `docs/` |
-| 1 | Schema, RLS, roles, MFA levels, audit, versioning, capacity | ✅ | 6 migrations; SQL suite `supabase/tests/run.sh` (access matrix, integrity, scan, code login, race, seed); hosted = local (fingerprints) |
+| 1 | Schema, RLS, roles, MFA levels, audit, versioning, capacity | ✅ | 11 migrations (two are audit probes); SQL suite `supabase/tests/run.sh` (access matrix, integrity, scan, code login, race, seed, account deletion, hardening); hosted = local (fingerprints checked 2026-10-19 after the audit) |
 | 1 | Sign-in by code (+ event code, + MFA for privileged) | ✅ | Edge Function `code-login`; throttling tested; live-tested |
 | 2 | QR credentials, `scan_badge`, `staff_action`, `my_pilgrimage` | ✅ | |
 | 2 | Admin: sign-in + MFA enrolment, participants (create/edit/delete, roles), transport (legs, assign, move, remove, capacity), badges (mm layout, A4, crop marks, PDF) | ✅ | e2e + axe (WCAG 2.2 AA rules) on overview and participant screens |
@@ -34,7 +34,8 @@ organiser signs in (code + event code + authenticator) → creates a participant
 | 7 | Medical module (records, step-up, carer-shareable info, break-glass, access log, purge) | ⬜ | schema `medical` exists and is locked; helpers `is_medical`, `mfa_fresh` tested |
 | 8 | Push notifications, incident workflow in admin, offline scanning queue | ⬜ | incident reporting from the app works (insert) |
 | 8 | App lock (biometric/PIN) for team phones | ⬜ | planned with the device builds |
-| 9 | Accessibility manual audit, security review, backups/restore drill, deployment | ⬜ | |
+| 9 | Security and quality audit of the whole platform | 🟡 | first full audit 2026-10-19: [docs/audits/2026-10-19-audit.md](audits/2026-10-19-audit.md) — 2 Critical + 6 High fixed the same day; what remains is listed there. Verdict: CONDITIONAL PASS for the pilot with fictional data, FAIL for real medical data until the medical module exists |
+| 9 | Accessibility manual audit (screen reader on a real phone), backups/restore drill, deployment | ⬜ | |
 
 ## Open questions for the organisers
 | # | Question | Default until answered |
@@ -45,9 +46,11 @@ organiser signs in (code + event code + authenticator) → creates a participant
 | Q4 | Is `LurdyAPP` the future production or the staging project? | development/staging |
 | Q6 | One-click "reformat with AI" inside the admin (sends the sheet to Anthropic's API from our server) instead of copy-paste? Needs an API key, a processor agreement and a DPIA note. | copy-paste prompt only: the organiser chooses an approved AI service themselves |
 | Q7 | Map photos are loaded from Wikimedia's servers. Copy them into our own storage before production? | load from Wikimedia (credited, CC BY-SA) |
-| Q5 | 4-digit code alone for pilgrims — accepted residual risk (F §2). Add a personal PIN later? | code only (decided 2026-10-18) |
+| Q5 | 4-digit code alone for pilgrims — accepted residual risk (F §2). The audit measured it: with the per-address limit, one address can try ~120 codes an hour, i.e. an expected hijacked pilgrim account every hour or two per address. Add a personal PIN, or a longer code, before the first real edition? | code only (decided 2026-10-18); **recommend revisiting** |
+| Q8 | Audit and sign-in logs keep names, phones and e-mails of deleted people until a purge job exists (F §9). Who approves the retention period, so the purge can be written? | 12 months after the edition ends |
 
 ## Housekeeping on the development project
+- `app.zz_probe` is a leftover of the audit's column-privilege probe (one row, no personal data). Dropping it is a `DROP TABLE`, which the Supabase tool asks you to confirm: `drop table app.zz_probe;`.
 - Three fictional test organisers ("Ota Testovací-organizátor", "-2", and code 7700) carry orphaned authenticator factors from early test runs. Harmless (fictional), but the factors can only be removed with a `DELETE` on `auth.mfa_factors`, which the Supabase tool asks you to confirm. Tests now use organiser `2936`, which keeps one factor permanently; its secret is in `platform/e2e/.mfa-secrets.json` (git-ignored) or `E2E_ORGANISER_TOTP`.
 - `role_grants.user_id` is an unused, always-null column left by a non-destructive migration; drop it in a later migration when convenient.
 

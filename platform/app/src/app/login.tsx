@@ -1,4 +1,4 @@
-import { Link, Redirect } from 'expo-router';
+import { Link, Redirect, Stack } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Switch, TextInput, View } from 'react-native';
 import { Shield } from '../lib/brand';
@@ -21,13 +21,18 @@ export default function Login() {
 
   async function submit() {
     setBusy(true);
-    const e = await signInWithCode(code, team ? eventCode : undefined);
-    setBusy(false);
-    setError(e);
+    try {
+      setError(await signInWithCode(code, team ? eventCode : undefined));
+    } catch {
+      setError('error');
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.red }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <Stack.Screen options={{ headerShown: false }} />
       <ScrollView contentContainerStyle={s.wrap} keyboardShouldPersistTaps="handled">
         <View style={s.card}>
           <View style={{ alignSelf: 'center' }}><Shield /></View>

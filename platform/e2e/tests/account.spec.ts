@@ -28,9 +28,11 @@ test('a participant deletes their account in the app', async ({ browser }) => {
   test.skip(!secret, 'needs the test organiser (run admin tests once)');
   const org = await organiserClient(secret!);
   const { data: edition } = await org.from('editions').select('id').eq('status', 'active').single();
-  const { data: p, error } = await org.from('participants')
-    .insert({ edition_id: edition!.id, category: 'pilgrim', first_name: 'Dana', last_name: surname }).select('id, access_code').single();
+  const { data: created, error } = await org.from('participants')
+    .insert({ edition_id: edition!.id, category: 'pilgrim', first_name: 'Dana', last_name: surname }).select('id').single();
   expect(error).toBeNull();
+  const { data: code } = await org.rpc('participant_access_code', { p_participant: created!.id });
+  const p = { id: created!.id, access_code: code! };
 
   const page = await (await browser.newContext({ viewport: { width: 400, height: 860 } })).newPage();
   await page.goto(APP);
