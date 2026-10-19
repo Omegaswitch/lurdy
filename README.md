@@ -33,6 +33,14 @@ While `registrationOpen` is false, the form pages show the closed notice plus th
 
 The function is a Vercel serverless function. It validates the submission against `content/forms.json`, sends it by email through [Resend](https://resend.com) to the organisers, and redirects to the thank-you page. Nothing is stored.
 
+Attachments: up to 5 photos or PDFs, 4 MB in total. `static/js/site.js` shrinks them on the visitor's device before upload, so nothing goes to any outside service:
+- photos are redrawn on a canvas at 2000 px as JPEG;
+- PDFs over 1 MB go through Ghostscript compiled to WebAssembly (`static/js/pdf-worker.js`, `static/js/vendor/ghostscript-1.1.0/`), loaded only when such a PDF is attached.
+
+The upload then runs with a progress bar. The server checks each file by its first bytes and attaches it to the email.
+
+Ghostscript is AGPL-licensed. Its licence and source links are in `static/js/vendor/ghostscript-1.1.0/`. The footer links to this repository's source, which keeps the site compliant. The CSP allows `'wasm-unsafe-eval'` for this; it lets WebAssembly compile, not JavaScript `eval`.
+
 The applicant gets only a receipt, with none of their data in it. A mistyped address therefore leaks no health data.
 
 Spam protection:

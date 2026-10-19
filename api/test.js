@@ -7,6 +7,21 @@ global.fetch = async (url, o) => { sent.push(JSON.parse(o.body)); return { ok: t
 process.env.RESEND_API_KEY = "test";
 const handler = require("./prihlaska.js");
 
+const { Readable } = require("stream");
+async function multipart(fields, files) {
+  const fd = new FormData();
+  for (const [k, v] of Object.entries(fields)) [].concat(v).forEach((x) => fd.append(k, x));
+  for (const [name, bytes] of files) fd.append("files", new Blob([bytes]), name);
+  const r = new Request("http://x/", { method: "POST", body: fd });
+  const req = Readable.from([Buffer.from(await r.arrayBuffer())]);
+  req.method = "POST";
+  req.headers = { host: "www.lurdy.eu", "content-type": r.headers.get("content-type") };
+  return new Promise((resolve) => {
+    const res = { headers: {}, statusCode: 200, setHeader(k, v) { this.headers[k] = v; }, end(b) { resolve({ status: this.statusCode, headers: this.headers }); } };
+    handler(req, res);
+  });
+}
+
 function call(body, headers = {}) {
   return new Promise((resolve) => {
     const res = { headers: {}, statusCode: 200, setHeader(k, v) { this.headers[k] = v; }, end(b) { resolve({ status: this.statusCode, headers: this.headers, body: b }); } };
@@ -35,6 +50,15 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   assert.equal((await call(good, { origin: "https://evil.example" })).status, 403, "foreign origin");
   assert.equal((await call({ ...good, form: "nope" })).status, 403, "unknown form");
   assert.equal((await call({ ...good, web: "spam" })).status, 303, "honeypot pretends success");
+  sent.length = 0;
+  r = await multipart(good, [["zpráva lékaře.pdf", Buffer.from("%PDF-1.4 test")], ["foto.jpg", Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2])]]);
+  assert.equal(r.status, 303, "multipart with attachments");
+  assert.deepEqual(sent[0].attachments.map((a) => a.filename), ["1-zprava_lekare.pdf", "2-foto.jpg"]);
+  assert.ok(sent[0].text.includes("diabetická, neslaná"), "repeated checkbox values survive multipart");
+  sent.length = 0;
+  assert.equal((await multipart(good, [["virus.pdf", Buffer.from("MZ\x90")]])).status, 400, "file checked by content, not name");
+  assert.equal((await multipart(good, Array(6).fill(["a.pdf", Buffer.from("%PDF")]))).status, 400, "at most 5 files");
+  assert.equal(sent.length, 0);
   SITE.registrationOpen = false;
   assert.equal((await call(good)).status, 403, "closed registration");
   assert.equal(sent.length, 0, "nothing sent for rejected submissions");

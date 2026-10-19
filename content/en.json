@@ -106,7 +106,14 @@
   "paperNote": "You can download the application (in Czech), fill it in and send it by email to lurdy@lurdy.eu or by post.",
   "day": "Day",
   "month": "Month",
-  "year": "Year"
+  "year": "Year",
+  "preparing": "Preparing attachments…",
+  "uploading": "Sending… {p} %",
+  "filesTooBig": "The attachments are still too large after shrinking (4 MB in total at most). Please send larger files by email to lurdy@lurdy.eu.",
+  "filesType": "Only photos (JPG, PNG, WebP) and PDFs can be attached.",
+  "filesCount": "You can attach up to 5 files.",
+  "sendError": "The application could not be sent. Please check your internet connection and try again.",
+  "source": "Source code"
  },
  "nav": [
   "ucast",
@@ -319,7 +326,10 @@
   "religious": "Religious name (priests and members of religious orders)",
   "religious_hint": "Please give your civil name in the first field to avoid problems with your plane ticket.",
   "spiritual": "Would you like to take an active part in the spiritual programme together with the priests?",
-  "helpsick": "Would you like to help the sick actively?"
+  "helpsick": "Would you like to help the sick actively?",
+  "attachments": "Attachments",
+  "files": "Attach files",
+  "files_hint": "For example a medical report. Photos or PDFs, up to 5 files and 4 MB in total. Files are made smaller automatically on your device before sending."
  },
  "opts": {
   "tp": "TP",

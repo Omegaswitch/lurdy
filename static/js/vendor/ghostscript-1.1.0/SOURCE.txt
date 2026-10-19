@@ -1,0 +1,7 @@
+Ghostscript (GhostPDL) compiled to WebAssembly: @okathira/ghostpdl-wasm 1.1.0
+Licence: GNU Affero General Public License v3 or later (see LICENSE in this folder).
+Corresponding source:
+  build scripts: https://github.com/okathira/ghostpdl-wasm (npm provenance links the exact commit)
+  Ghostscript:   https://github.com/ArtifexSoftware/ghostpdl
+Unmodified. Used only in the visitor's browser to shrink PDF attachments before they are sent.
+Source of this website: https://github.com/Omegaswitch/lurdy

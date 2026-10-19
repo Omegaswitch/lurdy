@@ -106,7 +106,14 @@
   "paperNote": "Přihlášku si můžete stáhnout, vyplnit a poslat e-mailem na lurdy@lurdy.eu nebo poštou.",
   "day": "Den",
   "month": "Měsíc",
-  "year": "Rok"
+  "year": "Rok",
+  "preparing": "Připravují se přílohy…",
+  "uploading": "Odesílá se… {p} %",
+  "filesTooBig": "Přílohy jsou i po zmenšení příliš velké (nejvýše 4 MB celkem). Větší soubory pošlete prosím e-mailem na lurdy@lurdy.eu.",
+  "filesType": "Přiložit lze jen fotografie (JPG, PNG, WebP) a PDF.",
+  "filesCount": "Přiložit lze nejvýše 5 souborů.",
+  "sendError": "Přihlášku se nepodařilo odeslat. Zkontrolujte připojení k internetu a zkuste to znovu.",
+  "source": "Zdrojový kód"
  },
  "nav": [
   "ucast",
@@ -319,7 +326,10 @@
   "religious": "Řádové jméno (kněží a řeholníci)",
   "religious_hint": "Do prvního pole uveďte prosím civilní jméno, předejdete tak potížím s letenkou.",
   "spiritual": "Chcete se spolu s kněžími aktivně podílet na duchovním programu?",
-  "helpsick": "Chcete aktivně pomáhat nemocným?"
+  "helpsick": "Chcete aktivně pomáhat nemocným?",
+  "attachments": "Přílohy",
+  "files": "Přiložit soubory",
+  "files_hint": "Např. lékařská zpráva. Fotografie nebo PDF, nejvýše 5 souborů a celkem 4 MB. Soubory se před odesláním automaticky zmenší přímo ve vašem zařízení."
  },
  "opts": {
   "tp": "TP",

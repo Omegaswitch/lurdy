@@ -202,7 +202,7 @@ def layout(*, lang, key, title, body, description="", image="/media/lurdy-1600.w
  <div class="f-red"><div class="wrap">
   <p>{esc(u['maltezskyrad'])}: <a href="https://www.maltezskyrad.cz/">www.maltezskyrad.cz</a></p>
   <p>{esc(u['orderShort'])}: <a href="https://www.orderofmalta.int/">www.orderofmalta.int</a></p>
-  <p><a href="{url_of('soukromi', lang)}">{esc(u['privacy'])}</a></p>
+  <p><a href="{url_of('soukromi', lang)}">{esc(u['privacy'])}</a> · <a href="https://github.com/Omegaswitch/lurdy">{esc(u['source'])}</a></p>
  </div></div>
 </footer>
 </body>
@@ -271,6 +271,10 @@ def field_html(f, lang, form):
     hint_html = f'<span class="hint" id="{fid}-h">{esc(hint)}</span>' if hint else ""
     described = f' aria-describedby="{fid}-h"' if hint else ""
     r = " required" if req else ""
+    if typ == "file":  # shrunk in the browser by site.js before upload (images on a canvas, large PDFs with Ghostscript)
+        return (f'<div class="field field--wide"><label for="{fid}">{label}</label>{hint_html}'
+                f'<input id="{fid}" name="{k}" type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf"{described}>'
+                f'<ul class="file-list" aria-live="polite"></ul></div>')
     if typ == "date":  # three selects in the page language; a native date picker follows the browser's language instead
         u, now = t["ui"], datetime.now().year
         years = range(now, now - 106, -1) if k == "birth" else range(now, now + 16)
@@ -295,7 +299,8 @@ def field_html(f, lang, form):
 def form_html(form, lang):
     u = L[lang]["ui"]
     fields = "".join(field_html(f, lang, form) for f in FORMS[form])
-    return f"""<form class="apply" method="post" action="/api/prihlaska" accept-charset="utf-8">
+    return f"""<form class="apply" method="post" action="/api/prihlaska" accept-charset="utf-8" enctype="multipart/form-data"
+ data-preparing="{esc(u['preparing'])}" data-uploading="{esc(u['uploading'])}" data-too-big="{esc(u['filesTooBig'])}" data-type="{esc(u['filesType'])}" data-count="{esc(u['filesCount'])}" data-error="{esc(u['sendError'])}">
  <input type="hidden" name="form" value="{form}"><input type="hidden" name="lang" value="{lang}">
  <p class="small">{esc(u['required'])}</p>
  <fieldset>{fields}</fieldset>
@@ -306,7 +311,9 @@ def form_html(form, lang):
  </fieldset>
  <div class="hp" aria-hidden="true"><label>Web <input name="web" tabindex="-1" autocomplete="off"></label></div>
  <div class="submit"><button class="btn btn--submit" type="submit" data-sending="{esc(u['sending'])}">{esc(u['submit'])}</button>
- <p class="small">{esc(u['copyNote'])}</p></div>
+ <p class="small">{esc(u['copyNote'])}</p>
+ <div class="progress" hidden><progress max="100"></progress><span role="status"></span></div>
+ <p class="form-error" role="alert" hidden></p></div>
 </form>"""
 
 
@@ -490,6 +497,9 @@ def serve(port=8000):
             super().end_headers()
 
         def do_POST(self):  # the form function runs only on Vercel; locally, pretend it succeeded
+            n = int(self.headers.get("Content-Length") or 0)
+            self.rfile.read(n)
+            print(f"POST {self.path}: {n} bytes", flush=True)
             self.send_response(303)
             self.send_header("Location", "/prihlasky/odeslano/")
             self.end_headers()

@@ -184,6 +184,13 @@
   {
    "k": "note",
    "t": "area"
+  },
+  {
+   "g": "attachments"
+  },
+  {
+   "k": "files",
+   "t": "file"
   }
  ],
  "poutnici": [
@@ -315,6 +322,13 @@
     "yes",
     "no"
    ]
+  },
+  {
+   "g": "attachments"
+  },
+  {
+   "k": "files",
+   "t": "file"
   }
  ],
  "tym": [
@@ -393,6 +407,13 @@
   {
    "k": "dietother",
    "t": "text"
+  },
+  {
+   "g": "attachments"
+  },
+  {
+   "k": "files",
+   "t": "file"
   }
  ]
 }

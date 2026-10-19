@@ -106,7 +106,14 @@
   "paperNote": "Vous pouvez télécharger le formulaire (en tchèque), le remplir et l’envoyer par e-mail à lurdy@lurdy.eu ou par courrier.",
   "day": "Jour",
   "month": "Mois",
-  "year": "Année"
+  "year": "Année",
+  "preparing": "Préparation des pièces jointes…",
+  "uploading": "Envoi… {p} %",
+  "filesTooBig": "Les pièces jointes restent trop volumineuses après réduction (4 Mo au total au maximum). Merci d’envoyer les fichiers plus lourds par e-mail à lurdy@lurdy.eu.",
+  "filesType": "Seules les photos (JPG, PNG, WebP) et les PDF peuvent être joints.",
+  "filesCount": "Vous pouvez joindre 5 fichiers au maximum.",
+  "sendError": "Le formulaire n’a pas pu être envoyé. Vérifiez votre connexion internet et réessayez.",
+  "source": "Code source"
  },
  "nav": [
   "ucast",
@@ -319,7 +326,10 @@
   "religious": "Nom en religion (prêtres, religieux et religieuses)",
   "religious_hint": "Veuillez indiquer votre nom civil dans le premier champ, afin d’éviter tout problème avec votre billet d’avion.",
   "spiritual": "Souhaitez-vous participer activement au programme spirituel avec les prêtres ?",
-  "helpsick": "Souhaitez-vous aider activement les malades ?"
+  "helpsick": "Souhaitez-vous aider activement les malades ?",
+  "attachments": "Pièces jointes",
+  "files": "Joindre des fichiers",
+  "files_hint": "Par exemple un rapport médical. Photos ou PDF, 5 fichiers et 4 Mo au total au maximum. Les fichiers sont automatiquement réduits sur votre appareil avant l’envoi."
  },
  "opts": {
   "tp": "TP",

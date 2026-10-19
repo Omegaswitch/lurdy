@@ -106,7 +106,14 @@
   "paperNote": "Sie können das Anmeldeformular (auf Tschechisch) herunterladen, ausfüllen und per E-Mail an lurdy@lurdy.eu oder per Post schicken.",
   "day": "Tag",
   "month": "Monat",
-  "year": "Jahr"
+  "year": "Jahr",
+  "preparing": "Anhänge werden vorbereitet…",
+  "uploading": "Wird gesendet… {p} %",
+  "filesTooBig": "Die Anhänge sind auch nach dem Verkleinern zu groß (insgesamt höchstens 4 MB). Bitte senden Sie größere Dateien per E-Mail an lurdy@lurdy.eu.",
+  "filesType": "Anhängen können Sie nur Fotos (JPG, PNG, WebP) und PDFs.",
+  "filesCount": "Sie können höchstens 5 Dateien anhängen.",
+  "sendError": "Die Anmeldung konnte nicht gesendet werden. Bitte prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+  "source": "Quellcode"
  },
  "nav": [
   "ucast",
@@ -319,7 +326,10 @@
   "religious": "Ordensname (Priester und Ordensleute)",
   "religious_hint": "Bitte geben Sie im ersten Feld Ihren bürgerlichen Namen an, damit es keine Probleme mit dem Flugticket gibt.",
   "spiritual": "Möchten Sie sich gemeinsam mit den Priestern aktiv am geistlichen Programm beteiligen?",
-  "helpsick": "Möchten Sie den Kranken aktiv helfen?"
+  "helpsick": "Möchten Sie den Kranken aktiv helfen?",
+  "attachments": "Anhänge",
+  "files": "Dateien anhängen",
+  "files_hint": "Zum Beispiel ein ärztlicher Bericht. Fotos oder PDFs, höchstens 5 Dateien und insgesamt 4 MB. Die Dateien werden vor dem Senden automatisch auf Ihrem Gerät verkleinert."
  },
  "opts": {
   "tp": "TP",

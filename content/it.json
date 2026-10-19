@@ -106,7 +106,14 @@
   "paperNote": "Potete scaricare il modulo (in ceco), compilarlo e inviarlo via e-mail a lurdy@lurdy.eu o per posta.",
   "day": "Giorno",
   "month": "Mese",
-  "year": "Anno"
+  "year": "Anno",
+  "preparing": "Preparazione degli allegati…",
+  "uploading": "Invio… {p} %",
+  "filesTooBig": "Gli allegati sono ancora troppo grandi dopo la riduzione (al massimo 4 MB in totale). Inviate i file più grandi via e-mail a lurdy@lurdy.eu.",
+  "filesType": "Si possono allegare solo foto (JPG, PNG, WebP) e PDF.",
+  "filesCount": "Si possono allegare al massimo 5 file.",
+  "sendError": "Non è stato possibile inviare il modulo. Controllate la connessione a internet e riprovate.",
+  "source": "Codice sorgente"
  },
  "nav": [
   "ucast",
@@ -319,7 +326,10 @@
   "religious": "Nome religioso (sacerdoti, religiosi e religiose)",
   "religious_hint": "Nel primo campo indicate il nome anagrafico, per evitare problemi con il biglietto aereo.",
   "spiritual": "Desiderate partecipare attivamente al programma spirituale insieme ai sacerdoti?",
-  "helpsick": "Desiderate aiutare attivamente i malati?"
+  "helpsick": "Desiderate aiutare attivamente i malati?",
+  "attachments": "Allegati",
+  "files": "Allega file",
+  "files_hint": "Ad esempio un referto medico. Foto o PDF, al massimo 5 file e 4 MB in totale. I file vengono ridotti automaticamente sul vostro dispositivo prima dell’invio."
  },
  "opts": {
   "tp": "TP",
