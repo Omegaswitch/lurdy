@@ -1,5 +1,7 @@
 # lurdy.eu
 
+> This repository also holds the **pilgrimage management platform** (admin web app, participant/staff app, Supabase backend): see [`docs/ROADMAP.md`](docs/ROADMAP.md), [`docs/STATUS.md`](docs/STATUS.md) and [`platform/README.md`](platform/README.md). The public website below is unchanged by it.
+
 The website for the pilgrimage with the sick to Lourdes, organised by the Czech Grand Priory of the Order of Malta.
 The site is in Czech, English, French, Italian and German.
 It is built with the same engine as maltezskyrad.cz: a static generator in plain Python (standard library only), the Grand Magistry frame, and Vercel hosting.

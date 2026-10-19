@@ -1,0 +1,9 @@
+{
+  "name": "lurdy-platform",
+  "private": true,
+  "scripts": {
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "packageManager": "pnpm@10.18.0"
+}

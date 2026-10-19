@@ -1,0 +1,15 @@
+{
+  "name": "@lurdy/shared",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p ."
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "vitest": "^5.0.5"
+  }
+}

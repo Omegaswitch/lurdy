@@ -1,0 +1,49 @@
+name: checks
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  platform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.18.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: platform/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: platform
+      - run: pnpm -r typecheck
+        working-directory: platform
+      - run: pnpm -r test
+        working-directory: platform
+      - run: npx expo lint
+        working-directory: platform/app
+      - run: pnpm --filter @lurdy/admin build
+        working-directory: platform
+      - run: pnpm audit --prod --audit-level high
+        working-directory: platform
+        continue-on-error: true # Expo build tooling carries known advisories (docs/STATUS.md); shipped bundles are unaffected
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y postgresql-16
+      - run: supabase/tests/run.sh
+
+  website:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node api/test.js
+      - run: python3 build.py --production

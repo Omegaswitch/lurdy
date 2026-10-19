@@ -1,0 +1,30 @@
+{
+  "name": "@lurdy/admin",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -p . && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@lurdy/shared": "workspace:*",
+    "@supabase/supabase-js": "2.118.0",
+    "qrcode": "1.5.4",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "read-excel-file": "9.3.10",
+    "write-excel-file": "4.1.1"
+  },
+  "devDependencies": {
+    "@types/qrcode": "1.5.6",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "typescript": "5.9.3",
+    "vite": "8.3.4",
+    "vitest": "^5.0.5"
+  }
+}
