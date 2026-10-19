@@ -20,6 +20,10 @@ async function capture(page: import('@playwright/test').Page, dir: string) {
   await page.getByRole('row').nth(2).click();
   await page.waitForTimeout(400);
   await page.screenshot({ path: `${dir}/admin-participants.png`, fullPage: true });
+  await page.getByRole('button', { name: 'Hromadný import (Excel, CSV)' }).click();
+  await page.getByRole('button', { name: 'Návod pro AI' }).click();
+  await page.screenshot({ path: `${dir}/admin-import.png`, fullPage: true });
+  await page.getByRole('region', { name: 'Import účastníků' }).getByRole('button', { name: 'Zavřít' }).click();
   await page.getByRole('link', { name: 'Doprava' }).click();
   await page.locator('.timetable button').nth(2).click();
   await page.waitForTimeout(400);
@@ -61,6 +65,7 @@ test('app screens', async ({ browser }) => {
   await p.locator('.pin').first().waitFor({ state: 'attached', timeout: 15_000 });
   await p.getByRole('button', { name: /Jeskyně Massabielle/ }).last().click();
   await p.getByRole('button', { name: /Zapnout moji polohu/ }).click();
+  await p.waitForFunction(() => [...document.querySelectorAll('img')].some((i) => i.src.includes('wikimedia') && i.naturalWidth > 0), null, { timeout: 15_000 }).catch(() => {}); // Wikimedia may rate-limit; the shot is still useful
   await p.waitForTimeout(2500);
   await p.screenshot({ path: `${dir}/app-map.png`, fullPage: true });
   await p.goBack();
@@ -71,6 +76,17 @@ test('app screens', async ({ browser }) => {
   await p.getByRole('button', { name: 'Pomoc a kontakty' }).click();
   await p.waitForTimeout(300);
   await p.screenshot({ path: `${dir}/app-help.png`, fullPage: true });
+  await p.goBack();
+  await p.getByRole('button', { name: 'Účet a soukromí' }).click();
+  await p.getByTestId('delete-account').click(); // first step only: shows the confirmation, deletes nothing
+  await p.getByText('Tento krok nejde vrátit zpět.').waitFor();
+  await p.waitForTimeout(500);
+  await p.screenshot({ path: `${dir}/app-account.png`, fullPage: true });
+  await p.getByRole('button', { name: 'Ne, ponechat' }).click();
+  await p.getByRole('button', { name: 'Ochrana soukromí' }).click();
+  await p.getByText('Poloha a fotoaparát').waitFor();
+  await p.waitForTimeout(500);
+  await p.screenshot({ path: `${dir}/app-privacy.png`, fullPage: true });
   await ctx.close();
 
   const s = await (await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 })).newPage();
