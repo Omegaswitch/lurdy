@@ -87,6 +87,11 @@ p{margin:0}
 /* the page beneath: the browser's own balanced cross-fade (no dip to white), slowed a little, no movement */
 ::view-transition-old(root),::view-transition-new(root){animation-duration:550ms;animation-timing-function:cubic-bezier(.4,0,.2,1)}
 /* within a section: the side menu stays put, the content slides in from the right */
+html:active-view-transition-type(lang) .site-header,html:active-view-transition-type(lang) .site-footer{view-transition-name:none}
+html:active-view-transition-type(lang)::view-transition-old(root){animation:lang-out 180ms cubic-bezier(.4,0,1,1) both}
+html:active-view-transition-type(lang)::view-transition-new(root){animation:lang-in 280ms cubic-bezier(.2,0,0,1) both}
+@keyframes lang-out{to{opacity:0}}
+@keyframes lang-in{from{opacity:0}}
 html:active-view-transition-type(slide) .side-nav{view-transition-name:side-nav}
 html:active-view-transition-type(slide) .page-main{view-transition-name:page-main}
 html:active-view-transition-type(slide)::view-transition-group(side-nav),html:active-view-transition-type(slide)::view-transition-new(side-nav),html:active-view-transition-type(slide)::view-transition-group(page-main){animation:none}

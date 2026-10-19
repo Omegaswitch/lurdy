@@ -131,7 +131,8 @@ def layout(*, lang, key, title, body, description="", image="/media/lurdy-1600.w
     alt_links = "".join(f'<link rel="alternate" hreflang="{l}" href="{SITE["baseUrl"]}{url_of(key, l)}">' for l in LANGS) + \
         f'<link rel="alternate" hreflang="x-default" href="{SITE["baseUrl"]}{url_of(key, "cs")}">' if key else ""
     hero = '<link rel="preload" as="image" href="/media/lurdy-800.webp" imagesrcset="/media/lurdy-480.webp 480w, /media/lurdy-800.webp 800w, /media/lurdy-1600.webp 1600w" imagesizes="100vw" fetchpriority="high">' if key == "home" else ""
-    preload = hero + "".join(f'<link rel="preload" href="/fonts/{f}.woff2" as="font" type="font/woff2" crossorigin>' for f in FONTS_PRELOAD) + \
+    lockups = "".join(f'<link rel="prefetch" href="/img/lockup/{l}.svg" as="image">' for l in LANGS if l != lang)
+    preload = hero + lockups + "".join(f'<link rel="preload" href="/fonts/{f}.woff2" as="font" type="font/woff2" crossorigin>' for f in FONTS_PRELOAD) + \
         '<link rel="preload" href="/img/banner/banner-photo.webp" as="image" fetchpriority="high">'
     ld = ""
     if key == "home":  # who we are, for search engines (data only, not executed)
