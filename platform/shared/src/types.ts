@@ -52,7 +52,8 @@ export type MyPilgrimage = {
 };
 
 export type Place = { id: string; name: string; kind: string | null; description: string | null; accessibility: string | null;
-  directions: string | null; lat: number | null; lng: number | null };
+  directions: string | null; lat: number | null; lng: number | null;
+  photo_url?: string | null; photo_credit?: string | null; photo_source?: string | null };
 
 export const isTeam = (roles: Role[]) => roles.length > 0;
 export const canScan = (roles: Role[]) => roles.some((r) => r === 'organizer' || r === 'medical' || r === 'staff');

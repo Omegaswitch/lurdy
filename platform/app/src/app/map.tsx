@@ -1,7 +1,7 @@
 import * as Location from 'expo-location';
 import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Linking, Platform, View } from 'react-native';
+import { Image, Linking, Platform, View } from 'react-native';
 import LourdesMap, { type MapPlace } from '../components/LourdesMap';
 import { useStore } from '../lib/store';
 import { colors, space } from '../lib/theme';
@@ -81,6 +81,15 @@ export default function MapScreen() {
             const p = data?.places.find((x) => x.id === selected.id);
             return (
               <>
+                {p?.photo_url ? (
+                  <View style={{ gap: 4 }}>
+                    <Image source={{ uri: p.photo_url }} accessibilityLabel={`Fotografie: ${selected.name}`}
+                      style={{ width: '100%', aspectRatio: 4 / 3, borderRadius: 12, backgroundColor: colors.line }} resizeMode="cover" />
+                    <T kind="label" accessibilityRole="link" onPress={() => p.photo_source && Linking.openURL(p.photo_source)}>
+                      Foto: {p.photo_credit}, Wikimedia Commons
+                    </T>
+                  </View>
+                ) : null}
                 {p?.description ? <T>{p.description}</T> : null}
                 {p?.accessibility ? <T><T kind="label">Bezbariérovost: </T>{p.accessibility}</T> : null}
                 {p?.directions ? <T>{p.directions}</T> : null}

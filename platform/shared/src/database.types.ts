@@ -924,6 +924,9 @@ export type Database = {
           kind: string | null
           lat: number | null
           lng: number | null
+          photo_credit: string | null
+          photo_source: string | null
+          photo_url: string | null
           name: string
           sort: number
           updated_at: string
@@ -940,6 +943,9 @@ export type Database = {
           kind?: string | null
           lat?: number | null
           lng?: number | null
+          photo_credit?: string | null
+          photo_source?: string | null
+          photo_url?: string | null
           name: string
           sort?: number
           updated_at?: string
@@ -956,6 +962,9 @@ export type Database = {
           kind?: string | null
           lat?: number | null
           lng?: number | null
+          photo_credit?: string | null
+          photo_source?: string | null
+          photo_url?: string | null
           name?: string
           sort?: number
           updated_at?: string
