@@ -3,12 +3,12 @@
 Adresa: web administrace (viz [J – nasazení](../J-deployment.md)). Pracujte na počítači.
 
 ## Přihlášení
-1. Čtyřmístný kód + kód pouti.
+1. Číslo účastníka + kód z pozvánky + kód pouti.
 2. Poprvé: naskenujte QR kód aplikací pro ověřování (Google Authenticator, Microsoft Authenticator…) a opište šestimístné číslo. Příště stačí opsat číslo.
 3. Bez tohoto ověření administrace nic neukáže – chrání to údaje všech účastníků.
 
 ## Účastníci
-- **Nový účastník** → jméno, příjmení, kategorie, pohyblivost, telefon → **Uložit**. Kód pro přihlášení se přidělí sám; je vidět v panelu vpravo. **Na jmenovku ho nepište.**
+- **Nový účastník** → jméno, příjmení, kategorie, pohyblivost, telefon → **Uložit**. Číslo účastníka a kód z pozvánky se přidělí samy; jsou vidět v panelu vpravo i jako QR kód pozvánky. **Na jmenovku je nepište.** Ztracená pozvánka: **Nový kód z pozvánky** – starý přestane platit okamžitě. Export CSV s kódy (zaškrtnout *Včetně přihlašovacích kódů*) obsahuje i odkaz pozvánky pro hromadnou korespondenci; každý takový export se zapíše do auditu.
 - Klepnutím na řádek otevřete úpravy. Když mezitím upravil stejného člověka někdo jiný, aplikace to řekne a načte aktuální verzi – nic se nepřepíše potichu.
 - **Role v aplikaci**: zaškrtnutím *Tým* nebo *Asistent* dáte člověku přístup k týmové části aplikace. Organizátora a zdravotníka přidává správce.
 
@@ -20,7 +20,7 @@ Adresa: web administrace (viz [J – nasazení](../J-deployment.md)). Pracujte n
 ## Jmenovky
 1. Nastavte rozměr (mm), okraje, mezery a posun pro tiskárnu; **Uložit**.
 2. Vyberte lidi (filtr *Bez platné jmenovky*) → **Vytisknout jmenovky** → v tiskovém dialogu tiskárna nebo *Uložit jako PDF*. Měřítko 100 %, bez okrajů.
-3. Každý tisk vytvoří **nové** QR kódy – dříve vytištěné jmenovky stejných lidí přestanou platit. Tak se řeší i ztracená jmenovka.
+3. Každý tisk vytvoří **nové** QR kódy, ale ty začnou platit až po potvrzení: pod seznamem se objeví blok *Vytištěno, čeká na potvrzení*. Když papír vyšel z tiskárny v pořádku, klepněte **Aktivovat – vytištěno v pořádku** (od té chvíle dosavadní jmenovky těchto lidí neplatí); když se tisk nepovedl, **Zahodit – tisk se nepovedl** a nic se nemění. Do potvrzení skener nové jmenovky hlásí „ještě není aktivní“. Tak se řeší i ztracená jmenovka.
 4. Na každém listu je ročník a čas tisku, aby bylo poznat, který papír je aktuální.
 
 ## Přehled

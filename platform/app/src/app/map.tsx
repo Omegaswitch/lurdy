@@ -39,9 +39,9 @@ export default function MapScreen() {
     const list: MapPlace[] = (data?.places ?? []).filter((p) => p.lat != null && p.lng != null && p.kind !== 'transport')
       .map((p) => ({ id: p.id, name: p.name, lat: p.lat!, lng: p.lng! }));
     const a = data?.accommodation;
-    if (a?.lat != null && a.lng != null) list.unshift({ id: 'home', name: `${a.facility} (vaše ubytování)`, lat: a.lat, lng: a.lng, home: true });
+    if (a?.lat != null && a.lng != null) list.unshift({ id: 'home', name: t('map.home').replace('{facility}', a.facility), lat: a.lat, lng: a.lng, home: true });
     return list;
-  }, [data]);
+  }, [data, t]);
 
   // Live position: only after the person asks, only while this screen is open, never sent anywhere.
   useEffect(() => {
@@ -71,9 +71,9 @@ export default function MapScreen() {
         <LourdesMap places={places} me={me} selectedId={selectedId} followMe={follow} tileUrl={TILES} onSelect={onSelect}
           dom={{ style: { flex: 1 }, scrollEnabled: false }} />
       </View>
-      <BigButton icon="locate" label={locating === 'on' ? 'Ukázat, kde jsem' : 'Zapnout moji polohu'}
-        hint="Poloha zůstane jen ve vašem telefonu" onPress={locate} disabled={locating === 'asking'} />
-      {locating === 'denied' && <Banner kind="info" title="Poloha je vypnutá"><T>Mapa funguje i bez ní. Polohu lze povolit v nastavení telefonu.</T></Banner>}
+      <BigButton icon="locate" label={locating === 'on' ? t('map.showMe') : t('map.enableLocation')}
+        hint={t('map.locationHint')} onPress={locate} disabled={locating === 'asking'} />
+      {locating === 'denied' && <Banner kind="info" title={t('map.locationOff')}><T>{t('map.locationOff.help')}</T></Banner>}
 
       {selected && (
         <Card>
@@ -93,23 +93,23 @@ export default function MapScreen() {
                   </View>
                 ) : null}
                 {p?.description ? <T>{p.description}</T> : null}
-                {p?.accessibility ? <T><T kind="label">Bezbariérovost: </T>{p.accessibility}</T> : null}
+                {p?.accessibility ? <T><T kind="label">{t('map.accessibility')}</T>{p.accessibility}</T> : null}
                 {p?.directions ? <T>{p.directions}</T> : null}
               </>
             );
           })()}
-          {me && <T kind="label">Vzdušnou čarou asi {metres(me, selected)} m</T>}
-          <BigButton icon="navigation" label="Navigovat" hint="Otevře mapy v telefonu (pěšky)" tone="primary" onPress={() => navigate(selected)} />
+          {me && <T kind="label">{t('map.distance').replace('{m}', String(metres(me, selected)))}</T>}
+          <BigButton icon="navigation" label={t('map.navigate')} hint={t('map.navigate.hint')} tone="primary" onPress={() => navigate(selected)} />
         </Card>
       )}
 
-      <T kind="title" accessibilityRole="header">Místa</T>
+      <T kind="title" accessibilityRole="header">{t('map.places')}</T>
       {places.map((p) => (
         <BigButton key={p.id} icon={p.home ? 'bed' : 'map'} label={p.name}
           hint={usedByProgramme.has(p.id) ? 'V programu pouti' : undefined}
           tone={p.id === selectedId ? 'primary' : 'plain'} onPress={() => setSelectedId(p.id)} />
       ))}
-      <T kind="label" style={{ marginTop: space.l }}>Mapové podklady © přispěvatelé OpenStreetMap.</T>
+      <T kind="label" style={{ marginTop: space.l }}>{t('map.credit')}</T>
     </Screen>
   );
 }

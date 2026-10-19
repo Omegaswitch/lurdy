@@ -1,7 +1,7 @@
 # Aplikace pro tým – skenování, nástupy, služba
 
 ## Přihlášení
-1. Napište svůj čtyřmístný kód.
+1. Naskenujte QR kód ze své pozvánky (nebo napište své číslo účastníka a kód z pozvánky).
 2. Zapněte **Jsem člen týmu** a napište **kód pouti** (6 znaků, dostanete ho od vedení).
 3. Kód pouti se mění (jeden platí před poutí, druhý během pouti). Když přestane platit, aplikace vás nechá přihlásit znovu s novým.
 
@@ -11,10 +11,12 @@
 3. Namiřte telefon na QR kód na jmenovce. Výsledek zaplní obrazovku:
    - **V pořádku** – zelená, fajfka.
    - **Jiný autobus!** – oranžová; pod tím je napsáno, kam člověk patří.
-   - **Neplatná jmenovka** – jmenovka byla nahlášena jako ztracená. Člověka identifikujte a pošlete ho k organizátorům.
+   - **Jmenovka ještě není aktivní** – oranžová; jmenovka byla právě vytištěna a organizátor tisk ještě nepotvrdil. Platí dosavadní jmenovka; nový papír zatím nepoužívejte.
+   - **Neplatná jmenovka** – jmenovka byla nahlášena jako ztracená nebo nahrazena novou. Člověka identifikujte a pošlete ho k organizátorům.
+   - **Zaznamenáno bez signálu** – telefon je bez připojení; záznam čeká ve frontě a odešle se sám, jakmile bude signál (nebo klepněte na **Odeslat teď**). Stejný záznam se nikdy nezapíše dvakrát.
 4. **Další** a skenujete dalšího.
 
-Když QR kód nejde načíst: napište jméno nebo čtyřmístný kód do pole **Najít podle jména nebo kódu** a klepněte na člověka.
+Když QR kód nejde načíst: napište jméno nebo čtyřmístné číslo účastníka do pole **Najít podle jména nebo kódu** a klepněte na člověka.
 
 Jmenovka ukazuje vždy **aktuální** údaje, i když je na ní vytištěný starší autobus.
 

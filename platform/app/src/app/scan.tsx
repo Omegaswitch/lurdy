@@ -1,7 +1,10 @@
 import { normaliseBadgePayload, type ParticipantCard, type ScanAction, type ScanResult, type Tables } from '@lurdy/shared';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Linking, Pressable, TextInput, View } from 'react-native';
+import { AppState, Linking, Pressable, TextInput, View } from 'react-native';
+import { enqueue, flushQueue, readQueue } from '../lib/scanQueue';
 import { useStore } from '../lib/store';
 import { supabase } from '../lib/supabase';
 import { colors, fonts, space, touch } from '../lib/theme';
@@ -27,8 +30,28 @@ export default function Scan() {
   const [search, setSearch] = useState('');
   const [matches, setMatches] = useState<Person[]>([]);
   const [legsFailed, setLegsFailed] = useState(false);
-  // a request that got no answer (no signal at the bus door): the same idempotency key is reused when retried
-  const [failed, setFailed] = useState<(() => Promise<void>) | null>(null);
+  // scans made without signal wait in a queue and go out when the phone is back online
+  const [queued, setQueued] = useState(0);
+  const [lastSent, setLastSent] = useState<number | null>(null);
+  const flushing = useRef(false);
+  const flush = useCallback(async () => {
+    if (flushing.current) return;
+    flushing.current = true;
+    try {
+      const { sent, left } = await flushQueue();
+      setQueued(left);
+      if (sent) setLastSent(sent);
+    } finally {
+      flushing.current = false;
+    }
+  }, []);
+  useFocusEffect(useCallback(() => {
+    readQueue().then((q) => setQueued(q.length));
+    flush();
+    const sub = AppState.addEventListener('change', (s) => s === 'active' && flush());
+    const timer = setInterval(flush, 30_000);
+    return () => { sub.remove(); clearInterval(timer); };
+  }, [flush]));
   const [permission, requestPermission] = useCameraPermissions();
   const last = useRef<{ payload: string; at: number } | null>(null);
   const editionId = data?.edition.id;
@@ -36,11 +59,21 @@ export default function Scan() {
 
   useEffect(() => {
     if (!editionId) return;
+    const key = `legs:v1:${editionId}`;
+    const sorted = (l: Leg[]) => [...l].sort((a, b) => Number(b.responsible_id === meId) - Number(a.responsible_id === meId));
     supabase.from('transport_legs').select('id, code, kind, direction, departs_at, responsible_id').eq('edition_id', editionId)
       .order('departs_at', { nullsFirst: false }).order('code')
-      .then(({ data: l, error }) => {
-        setLegsFailed(!!error);
-        setLegs(((l ?? []) as Leg[]).sort((a, b) => Number(b.responsible_id === meId) - Number(a.responsible_id === meId)));
+      .then(async ({ data: l, error }) => {
+        if (error) {
+          // offline: the legs seen last time are good enough to pick a bus
+          const cached = await AsyncStorage.getItem(key);
+          setLegsFailed(!cached);
+          setLegs(cached ? sorted(JSON.parse(cached)) : []);
+          return;
+        }
+        setLegsFailed(false);
+        setLegs(sorted((l ?? []) as Leg[]));
+        AsyncStorage.setItem(key, JSON.stringify(l ?? []));
       });
   }, [editionId, meId]);
 
@@ -73,34 +106,37 @@ export default function Scan() {
     if (!clean) return setResult({ result: 'invalid' });
     const leg = needsLeg && legId ? legId : undefined;
     const id = scanId();
-    const go = async () => {
-      setBusy(true);
-      setFailed(null);
-      const { data: r, error } = await supabase.rpc('scan_badge', { p_payload: clean, p_action: action, p_leg: leg, p_client_scan_id: id });
-      setBusy(false);
-      if (error) return setFailed(() => go);
-      setResult(r as unknown as ScanResult);
-    };
-    await go();
+    setBusy(true);
+    const { data: r, error } = await supabase.rpc('scan_badge', { p_payload: clean, p_action: action, p_leg: leg, p_client_scan_id: id });
+    setBusy(false);
+    if (error) {
+      // no answer: the scan waits in the queue; the server will record it once, whenever it arrives
+      await enqueue({ id, at: new Date().toISOString(), action, legId: leg, payload: clean });
+      setQueued((await readQueue()).length);
+      return setResult({ result: 'queued' });
+    }
+    setResult(r as unknown as ScanResult);
   }, [action, busy, legId, needsLeg]);
 
   async function manual(pid: string) {
     const leg = needsLeg && legId ? legId : undefined;
     const id = scanId();
-    const go = async () => {
-      setBusy(true);
-      setFailed(null);
-      const { data: r, error } = await supabase.rpc('staff_action', { p_participant: pid, p_action: action, p_leg: leg, p_client_scan_id: id });
-      setBusy(false);
-      if (error) return setFailed(() => go);
-      setSearch('');
-      setResult(r as unknown as ScanResult);
-    };
-    await go();
+    setBusy(true);
+    const { data: r, error } = await supabase.rpc('staff_action', { p_participant: pid, p_action: action, p_leg: leg, p_client_scan_id: id });
+    setBusy(false);
+    setSearch('');
+    if (error) {
+      await enqueue({ id, at: new Date().toISOString(), action, legId: leg, participantId: pid });
+      setQueued((await readQueue()).length);
+      return setResult({ result: 'queued' });
+    }
+    setResult(r as unknown as ScanResult);
   }
 
   if (!data) return <NoData />;
-  if (result) return <ResultView result={result} legId={needsLeg ? legId : null} legs={legs} onNext={() => setResult(null)} />;
+  // closing a result ends the camera's repeat window: scanning the same badge again on purpose (e.g. right after
+  // the organiser activated it) must go through
+  if (result) return <ResultView result={result} legId={needsLeg ? legId : null} legs={legs} onNext={() => { last.current = null; setResult(null); }} />;
 
   return (
     <Screen title={t('scan.title')}>
@@ -110,16 +146,17 @@ export default function Scan() {
           <Chip key={a} label={t(`scan.${a}`)} selected={a === action} onPress={() => setAction(a)} />
         ))}
       </View>
-      {failed && (
-        <Banner kind="warn" title="Bez odpovědi">
-          <T>Server neodpověděl (slabý signál?). Nic se neztratilo – zkuste to znovu, stejný záznam se nezapíše dvakrát.</T>
-          <BigButton icon="arrow" label="Zkusit znovu" tone="primary" onPress={failed} disabled={busy} />
+      {queued > 0 && (
+        <Banner kind="warn" title={t('scan.queued.title')}>
+          <T>{t('scan.queued.help').replace('{n}', String(queued))}</T>
+          <BigButton icon="arrow" label={t('scan.queued.send')} tone="primary" onPress={flush} disabled={busy} />
         </Banner>
       )}
+      {queued === 0 && lastSent !== null && <Banner kind="ok" title={t('scan.queued.sent').replace('{n}', String(lastSent))} />}
       {needsLeg && (
         <>
           <T kind="label">{t('scan.leg_required')}</T>
-          {legsFailed && legs.length === 0 && <T>Seznam spojů se nepodařilo načíst – zkontrolujte připojení a otevřete skener znovu.</T>}
+          {legsFailed && legs.length === 0 && <T>{t('scan.legsFailed')}</T>}
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.s }} accessibilityRole="radiogroup">
             {legs.map((l) => (
               <Chip key={l.id} label={`${t(`leg.${l.kind}`)} ${l.code}${l.departs_at ? ` · ${fmtTime(l.departs_at, data.edition.timezone)}` : ''}`}
@@ -133,27 +170,27 @@ export default function Scan() {
         permission?.granted ? (
           <View style={{ height: 320, borderRadius: 16, overflow: 'hidden', backgroundColor: '#000' }}>
             <CameraView style={{ flex: 1 }} facing="back" barcodeScannerSettings={{ barcodeTypes: ['qr'] }}
-              onBarcodeScanned={busy ? undefined : ({ data: d }) => submit(d)} accessibilityLabel="Kamera pro skenování jmenovky" />
+              onBarcodeScanned={busy ? undefined : ({ data: d }) => submit(d)} accessibilityLabel={t('scan.camera')} />
           </View>
         ) : (
           <Card>
-            <T>{permission?.canAskAgain === false ? t('scan.cameraDenied') : 'Pro skenování povolte kameru.'}</T>
+            <T>{permission?.canAskAgain === false ? t('scan.cameraDenied') : t('scan.allowCamera')}</T>
             {permission?.canAskAgain !== false
               ? <BigButton icon="scan" label="Povolit kameru" tone="primary" onPress={requestPermission} />
-              : <BigButton icon="scan" label="Otevřít nastavení telefonu" onPress={() => Linking.openSettings().catch(() => {})} />}
+              : <BigButton icon="scan" label={t('scan.openSettings')} onPress={() => Linking.openSettings().catch(() => {})} />}
           </Card>
         )
       )}
 
       {ready && (
         <Card>
-          <T kind="label">Kód z jmenovky (čtečka nebo ručně)</T>
+          <T kind="label">{t('scan.payload')}</T>
           <TextInput value={typed} onChangeText={setTyped} onSubmitEditing={() => { submit(typed); setTyped(''); }} autoCapitalize="characters"
-            autoCorrect={false} placeholder="LRD1.…" accessibilityLabel="Kód z jmenovky" testID="payload"
+            autoCorrect={false} placeholder="LRD1.…" accessibilityLabel={t('scan.payload.label')} testID="payload"
             style={{ minHeight: touch, borderWidth: 2, borderColor: colors.rule, borderRadius: 12, paddingHorizontal: space.m, fontFamily: fonts.regular, fontSize: 18 }} />
-          <BigButton label="Ověřit kód" icon="check" onPress={() => { submit(typed); setTyped(''); }} disabled={!typed.trim() || busy} testID="submit-payload" />
+          <BigButton label={t('scan.verify')} icon="check" onPress={() => { submit(typed); setTyped(''); }} disabled={!typed.trim() || busy} testID="submit-payload" />
           <T kind="label">{t('scan.manual')}</T>
-          <TextInput value={search} onChangeText={setSearch} placeholder="Jméno nebo čtyřmístný kód" accessibilityLabel={t('scan.manual')}
+          <TextInput value={search} onChangeText={setSearch} placeholder={t('scan.searchPlaceholder')} accessibilityLabel={t('scan.manual')}
             style={{ minHeight: touch, borderWidth: 2, borderColor: colors.rule, borderRadius: 12, paddingHorizontal: space.m, fontFamily: fonts.regular, fontSize: 20 }} />
           {visible.map((p) => <BigButton key={p.id} label={`${p.first_name} ${p.last_name}`} onPress={() => manual(p.id)} />)}
         </Card>
@@ -176,7 +213,7 @@ function Chip({ label, selected, onPress }: { label: string; selected: boolean; 
 function ResultView({ result, legId, legs, onNext }: { result: ScanResult; legId: string | null; legs: Leg[]; onNext: () => void }) {
   const { t, data } = useStore();
   const p = result.participant;
-  const kind = result.result === 'ok' ? 'ok' : result.result === 'wrong_leg' || result.result === 'no_room' ? 'warn' : 'bad';
+  const kind = result.result === 'ok' ? 'ok' : result.result === 'wrong_leg' || result.result === 'no_room' || result.result === 'pending' || result.result === 'queued' ? 'warn' : 'bad';
   const chosen = legs.find((l) => l.id === legId);
   const sameDirection = p?.legs.filter((l) => !chosen || l.direction === chosen.direction) ?? [];
   return (
@@ -185,6 +222,8 @@ function ResultView({ result, legId, legs, onNext }: { result: ScanResult; legId
         {result.result === 'wrong_leg' && sameDirection.length > 0 && (
           <T kind="big">{t('scan.belongsTo')}: {sameDirection.map((l) => `${t(`leg.${l.kind}`)} ${l.code}`).join(', ')}</T>
         )}
+        {result.result === 'pending' && <T>{t('scan.pending.help')}</T>}
+        {result.result === 'queued' && <T>{t('scan.queued.result')}</T>}
       </Banner>
       {p && <PersonCard p={p} tz={data?.edition.timezone ?? 'Europe/Paris'} />}
       <BigButton icon="scan" label={t('scan.next')} tone="primary" onPress={onNext} testID="scan-next" />
@@ -211,8 +250,8 @@ function PersonCard({ p, tz }: { p: ParticipantCard; tz: string }) {
         } />
       )}
       {p.carers.length > 0 && <Field label="Asistent" value={p.carers.map((c) => c.name).join(', ')} />}
-      {p.in_care.length > 0 && <Field label="Pečuje o" value={p.in_care.map((c) => c.name).join(', ')} />}
-      {p.logistics_note ? <Field label="Poznámka" value={p.logistics_note} /> : null}
+      {p.in_care.length > 0 && <Field label={t('scan.caresFor')} value={p.in_care.map((c) => c.name).join(', ')} />}
+      {p.logistics_note ? <Field label={t('common.note')} value={p.logistics_note} /> : null}
       {p.emergency_contacts.length > 0 && (
         <Field label="Kontakt v nouzi" value={p.emergency_contacts.map((c) => `${c.name}${c.relation ? ` (${c.relation})` : ''}: ${c.phone}`).join('\n')} />
       )}

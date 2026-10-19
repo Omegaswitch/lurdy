@@ -9,7 +9,7 @@ export const privacySections: { title: string; body: string[] }[] = [
   ] },
   { title: 'Jaké údaje aplikace používá', body: [
     'Jméno, kategorii účastníka, přidělený autobus nebo let, ubytování, program a kontakty na tým. Tyto údaje zapisují organizátoři pouti; aplikace je jen zobrazuje.',
-    'Váš čtyřmístný kód slouží k přihlášení. Členové týmu zadávají navíc kód akce.',
+    'K přihlášení slouží vaše číslo účastníka a kód z pozvánky. Členové týmu zadávají navíc kód akce.',
     'Zdravotní údaje aplikace na telefonu nezobrazuje a neposílá je v QR kódu ani v oznámeních.',
     'Členové týmu mohou organizátorům nahlásit událost (např. zdržení autobusu); text hlášení se uloží u organizátorů.',
   ] },

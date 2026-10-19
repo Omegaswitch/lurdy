@@ -1,4 +1,5 @@
-import { t, type Category, type Role, type Tables } from '@lurdy/shared';
+import { formatInvitationCode, invitationPayload, t, type Category, type Role, type Tables } from '@lurdy/shared';
+import QRCode from 'qrcode';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { friendlyError } from '../errors';
 import { fullName } from '../format';
@@ -167,7 +168,9 @@ function Editor({ row, onClose, onSaved }: { row: Row | null; onClose: () => voi
   const [form, setForm] = useState<Form>(() => (row ? fromRow(row) : blank));
   // the version these values came from: `row` keeps moving with live updates, the form must not silently win over them
   const [version, setVersion] = useState(row?.version ?? 0);
-  const [code, setCode] = useState<string | null>(null);
+  // both sign-in codes come from an organiser-only RPC on request; the invitation QR carries them for the person's phone
+  const [login, setLogin] = useState<{ access_code: string; login_secret: string } | null>(null);
+  const [inviteQr, setInviteQr] = useState<string | null>(null);
   const [message, setMessage] = useState<{ kind: 'error' | 'ok' | 'warn'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -176,9 +179,23 @@ function Editor({ row, onClose, onSaved }: { row: Row | null; onClose: () => voi
   useEffect(() => {
     if (!rowId) return;
     let cancelled = false;
-    supabase.rpc('participant_access_code', { p_participant: rowId }).then(({ data: c }) => { if (!cancelled) setCode(c ?? null); });
+    supabase.rpc('participant_login', { p_participant: rowId }).then(async ({ data: l }) => {
+      const v = l as { access_code: string; login_secret: string } | null;
+      if (cancelled || !v) return;
+      setLogin(v);
+      setInviteQr(await QRCode.toString(invitationPayload(v.access_code, v.login_secret), { type: 'svg', margin: 1, errorCorrectionLevel: 'M' }));
+    });
     return () => { cancelled = true; };
   }, [rowId]);
+
+  async function newInvitation() {
+    if (!row || !window.confirm('Vydat nový kód z pozvánky? Starý přestane platit a osoba musí dostat novou pozvánku.')) return;
+    const { data: s, error } = await supabase.rpc('reset_login_secret', { p_participant: row.id });
+    if (error || !s) return setMessage({ kind: 'error', text: friendlyError(error) });
+    setLogin((l) => (l ? { ...l, login_secret: s } : l));
+    setInviteQr(await QRCode.toString(invitationPayload(login?.access_code ?? '', s), { type: 'svg', margin: 1, errorCorrectionLevel: 'M' }));
+    setMessage({ kind: 'ok', text: 'Nový kód z pozvánky vydán. Pošlete osobě novou pozvánku.' });
+  }
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setForm((f) => ({ ...f, [k]: v }));
   const valid = form.first_name.trim() && form.last_name.trim();
   // Organisers grant team roles; organiser/medical are granted by a super admin.
@@ -249,9 +266,16 @@ function Editor({ row, onClose, onSaved }: { row: Row | null; onClose: () => voi
       {message && <Notice kind={message.kind}>{message.text}</Notice>}
       {row && (
         <div className="field">
-          <span className="label">{t('admin.accessCode')}</span>
-          <span className="mono" style={{ fontSize: '1.6rem' }}>{code ?? '····'}</span>
-          <span className="help">Osobní – nepište ho na jmenovku ani do veřejných seznamů.</span>
+          <span className="label">Přihlášení (z pozvánky)</span>
+          <div className="row" style={{ alignItems: 'center', gap: 16 }}>
+            <div>
+              <div><span className="help">Číslo účastníka</span><br /><span className="mono" style={{ fontSize: '1.6rem' }}>{login?.access_code ?? '····'}</span></div>
+              <div><span className="help">Kód z pozvánky</span><br /><span className="mono" style={{ fontSize: '1.3rem' }} data-testid="invite-code">{login ? formatInvitationCode(login.login_secret) : '····-····'}</span></div>
+            </div>
+            {inviteQr && <div style={{ width: 96, height: 96 }} aria-label="QR kód pozvánky" role="img" dangerouslySetInnerHTML={{ __html: inviteQr }} />}
+          </div>
+          <span className="help">Obojí patří jen do pozvánky této osoby – ne na jmenovku, ne do veřejných seznamů. QR v pozvánce vyplní přihlášení v aplikaci samo.</span>
+          <div><button className="btn small" type="button" onClick={newInvitation}>Vydat nový kód z pozvánky</button></div>
         </div>
       )}
       {row?.account_deleted_at && (

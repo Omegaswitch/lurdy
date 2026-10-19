@@ -3,23 +3,23 @@ import { supabase } from './supabase';
 
 // Runs `load`, and runs it again whenever any of `tables` changes in this edition (Supabase Realtime,
 // which applies the same row-level security as queries). Simple refetch: data sets are small.
-// A burst of changes (an import of hundreds of rows) is coalesced into one refetch, and a slow older
-// response never overwrites a newer one.
+// A burst of changes (an import of hundreds of rows) is coalesced into one refetch; a slow older
+// response never overwrites a newer one, and a fresh one is never held back by a slower later one.
 export function useLive<T>(load: () => Promise<T>, tables: string[], editionId: string, deps: unknown[] = []) {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const loadRef = useRef(load);
   loadRef.current = load;
-  const seq = useRef(0);
+  const seq = useRef(sequencer());
   const reload = useCallback(async () => {
-    const mine = ++seq.current;
+    const mine = seq.current.start();
     try {
       const result = await loadRef.current();
-      if (mine !== seq.current) return; // a newer load is already on its way
+      if (!seq.current.accept(mine)) return; // a newer answer is already on screen
       setData(result);
       setError(null);
     } catch (e) {
-      if (mine === seq.current) setError((e as Error).message);
+      if (seq.current.accept(mine)) setError((e as Error).message);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
@@ -49,6 +49,18 @@ export function useLive<T>(load: () => Promise<T>, tables: string[], editionId: 
   }, [reload, editionId, tables.join(',')]);
 
   return { data, error, reload };
+}
+
+// Orders the answers of overlapping loads: an answer is shown when it is newer than the one on screen, even while a
+// later load is still on its way (that one replaces it when it arrives); an answer older than what is shown is dropped.
+// Waiting for the very latest load instead would leave the screen stale for as long as one slow request takes.
+export function sequencer() {
+  let started = 0;
+  let shown = 0;
+  return {
+    start: () => ++started,
+    accept: (n: number) => { if (n <= shown) return false; shown = n; return true; },
+  };
 }
 
 // Throws the Supabase error so useLive can report it.

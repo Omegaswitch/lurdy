@@ -1,4 +1,7 @@
-import { aiReformatPrompt, DuplicateIndex, importTemplate, parseCsv, readTable, t, toCsv, type Category, type ImportRow, type Tables } from '@lurdy/shared';
+import { aiReformatPrompt, DuplicateIndex, formatInvitationCode, importTemplate, invitationPayload, parseCsv, readTable, t, toCsv, type Category, type ImportRow, type Tables } from '@lurdy/shared';
+
+// The participant app's public address, for the invitation link (set VITE_APP_URL once the app web is deployed).
+const appUrl = (import.meta.env.VITE_APP_URL as string | undefined)?.replace(/\/$/, '') ?? 'https://app.lurdy.eu';
 import { useMemo, useState } from 'react';
 import { friendlyError } from '../errors';
 import { Icon, Notice } from '../icons';
@@ -175,17 +178,20 @@ export async function exportParticipants(editionId: string, year: number, withCo
     .select('id, last_name, first_name, title, preferred_name, category, phone, email, language, mobility, logistics_note, leg_assignments(transport_legs(code, direction)), room_assignments(rooms(number, facilities(short_label, name)))')
     .eq('edition_id', editionId).order('last_name').order('first_name');
   if (error) throw error;
-  const codes = new Map<string, string>();
+  const codes = new Map<string, { access_code: string; login_secret: string }>();
   if (withCodes) {
-    const { data: c, error: e } = await supabase.rpc('participant_access_codes', { p_edition: editionId });
+    const { data: c, error: e } = await supabase.rpc('participant_logins', { p_edition: editionId });
     if (e) throw e;
-    for (const row of c ?? []) codes.set(row.participant_id, row.access_code);
+    for (const row of c ?? []) codes.set(row.participant_id, row);
   }
   const legs = (p: (typeof data)[number], dir: string) => p.leg_assignments.map((a) => a.transport_legs).filter((l) => l?.direction === dir).map((l) => l!.code).join(', ');
   const csv = toCsv(
-    ['Příjmení', 'Jméno', 'Titul', 'Oslovení', 'Kategorie', 'Telefon', 'E-mail', 'Jazyk', 'Pohyblivost', 'Poznámka', ...(withCodes ? ['Kód'] : []), 'Tam', 'Zpět', 'Ubytování', 'Pokoj'],
+    ['Příjmení', 'Jméno', 'Titul', 'Oslovení', 'Kategorie', 'Telefon', 'E-mail', 'Jazyk', 'Pohyblivost', 'Poznámka', ...(withCodes ? ['Číslo', 'Kód z pozvánky', 'Odkaz pozvánky'] : []), 'Tam', 'Zpět', 'Ubytování', 'Pokoj'],
     data.map((p) => [p.last_name, p.first_name, p.title, p.preferred_name, t(`category.${p.category}`), p.phone, p.email, p.language,
-      t(`mobility.${p.mobility}`), p.logistics_note, ...(withCodes ? [codes.get(p.id) ?? ''] : []), legs(p, 'outbound'), legs(p, 'return'),
+      t(`mobility.${p.mobility}`), p.logistics_note,
+      ...(withCodes ? [codes.get(p.id)?.access_code ?? '', codes.get(p.id) ? formatInvitationCode(codes.get(p.id)!.login_secret) : '',
+        codes.get(p.id) ? `${appUrl}/login?k=${invitationPayload(codes.get(p.id)!.access_code, codes.get(p.id)!.login_secret)}` : ''] : []),
+      legs(p, 'outbound'), legs(p, 'return'),
       p.room_assignments?.rooms?.facilities?.short_label ?? p.room_assignments?.rooms?.facilities?.name ?? '', p.room_assignments?.rooms?.number ?? '']),
   );
   const a = document.createElement('a');

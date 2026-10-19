@@ -50,7 +50,7 @@ export function Programme() {
       {editing && <EventForm key={editing === 'new' ? 'new' : editing.id} event={editing === 'new' ? null : editing} places={data?.places ?? []}
         onDone={() => { setEditing(null); reload(); }} />}
       {!data ? <div className="skeleton" style={{ width: 300 }} /> : data.events.length === 0 ? (
-        <p className="panel empty">Program je prázdný. Přidejte první bod, nebo převezměte program z minulého ročníku (připravujeme).</p>
+        <p className="panel empty">Program je prázdný. Přidejte první bod.</p>
       ) : days.map((day) => (
         <section key={day} className="panel" style={{ marginBottom: 16 }} aria-label={day}>
           <h2 style={{ padding: '12px 16px', borderBottom: '1px solid var(--line)', textTransform: 'capitalize' }}>{day}</h2>

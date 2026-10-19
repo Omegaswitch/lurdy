@@ -3,7 +3,7 @@ import { useState, type FormEvent } from 'react';
 import { friendlyError } from '../errors';
 import { fmtStamp } from '../format';
 import { Icon, Notice } from '../icons';
-import { must, useLive } from '../live';
+import { affected, must, useLive } from '../live';
 import { useReady } from '../session';
 import { supabase } from '../supabase';
 
@@ -40,21 +40,31 @@ function Contacts() {
     () => must(supabase.from('contacts').select('*').eq('edition_id', edition.id).order('is_emergency', { ascending: false }).order('sort')) as Promise<Contact[]>,
     ['contacts'], edition.id, [edition.id],
   );
-  const [f, setF] = useState({ label: '', name: '', phone: '', is_emergency: false, audiences: [] as Category[] });
+  const blank = { label: '', name: '', phone: '', is_emergency: false, audiences: [] as Category[] };
+  const [f, setF] = useState(blank);
+  const [editing, setEditing] = useState<Contact | null>(null); // the same form edits an existing contact
   const [message, setMessage] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  function edit(c: Contact) {
+    setEditing(c);
+    setF({ label: c.label, name: c.name ?? '', phone: c.phone ?? '', is_emergency: c.is_emergency, audiences: c.audiences });
+    document.getElementById('kl')?.focus();
+  }
   async function add(e: FormEvent) {
     e.preventDefault();
     if (busy) return;
     if (!f.label.trim()) return setMessage({ kind: 'error', text: 'Vyplňte, kdo to je (např. Vedoucí pouti).' });
     setBusy(true);
-    const { error: err } = await supabase.from('contacts').insert({
-      edition_id: edition.id, label: f.label.trim(), name: f.name.trim() || null, phone: f.phone.trim() || null,
-      is_emergency: f.is_emergency, audiences: f.audiences, sort: (data?.length ?? 0) * 10,
-    });
+    const values = { label: f.label.trim(), name: f.name.trim() || null, phone: f.phone.trim() || null, is_emergency: f.is_emergency, audiences: f.audiences };
+    const { data: rows, error: err } = editing
+      ? await supabase.from('contacts').update(values).eq('id', editing.id).eq('version', editing.version).select('id')
+      : await supabase.from('contacts').insert({ ...values, edition_id: edition.id, sort: (data?.length ?? 0) * 10 }).select('id');
     setBusy(false);
-    setMessage(err ? { kind: 'error', text: friendlyError(err) } : { kind: 'ok', text: 'Kontakt přidán.' });
-    if (!err) setF({ label: '', name: '', phone: '', is_emergency: false, audiences: [] });
+    if (err) return setMessage({ kind: 'error', text: friendlyError(err) });
+    if (editing && !rows?.length) return setMessage({ kind: 'error', text: t('common.conflict') });
+    setMessage({ kind: 'ok', text: editing ? 'Kontakt upraven.' : 'Kontakt přidán.' });
+    setF(blank);
+    setEditing(null);
     reload();
   }
   async function remove(c: Contact) {
@@ -78,13 +88,14 @@ function Contacts() {
                 <td><strong>{c.label}</strong>{c.is_emergency && <> <span className="tag"><Icon name="alert" width={12} /> nouzový</span></>}<div>{c.name}</div></td>
                 <td className="mono">{c.phone}</td>
                 <td><span className="tag">{audienceOptions.find((o) => key(o.value) === key(c.audiences))?.label ?? c.audiences.join(', ')}</span></td>
-                <td className="num"><button className="btn quiet small" onClick={() => remove(c)}>{t('common.delete')}</button></td>
+                <td className="num"><button className="btn quiet small" onClick={() => edit(c)}>{t('common.edit')}</button> <button className="btn quiet small" onClick={() => remove(c)}>{t('common.delete')}</button></td>
               </tr>
             ))}
           </tbody>
         </table>
       )}
-      <form className="stack" style={{ padding: 20 }} onSubmit={add} aria-label="Nový kontakt">
+      <form className="stack" style={{ padding: 20 }} onSubmit={add} aria-label={editing ? `Upravit kontakt ${editing.label}` : 'Nový kontakt'}>
+        {editing && <p style={{ margin: 0 }}><strong>Upravujete: {editing.label}</strong></p>}
         <div className="grid2">
           <div className="field"><label htmlFor="kl">Kdo (funkce)</label><input id="kl" value={f.label} onChange={(e) => setF({ ...f, label: e.target.value })} placeholder="Hlavní lékař v Accueil" /></div>
           <div className="field"><label htmlFor="kn">Jméno</label><input id="kn" value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} /></div>
@@ -95,7 +106,10 @@ function Contacts() {
             </select></div>
         </div>
         <label className="checkbox"><input type="checkbox" checked={f.is_emergency} onChange={(e) => setF({ ...f, is_emergency: e.target.checked })} /> Nouzový kontakt (zobrazí se nahoře, červeně)</label>
-        <div><button className="btn primary" type="submit" disabled={busy} aria-busy={busy}><Icon name="plus" width={18} /> Přidat kontakt</button></div>
+        <div className="row">
+          <button className="btn primary" type="submit" disabled={busy} aria-busy={busy}>{editing ? t('common.save') : <><Icon name="plus" width={18} /> Přidat kontakt</>}</button>
+          {editing && <button className="btn" type="button" onClick={() => { setEditing(null); setF(blank); }}>{t('common.cancel')}</button>}
+        </div>
       </form>
     </section>
   );
@@ -107,20 +121,37 @@ function Announcements() {
     () => must(supabase.from('announcements').select('*, announcement_acks(user_id)').eq('edition_id', edition.id).order('created_at', { ascending: false })) as Promise<Announcement[]>,
     ['announcements'], edition.id, [edition.id],
   );
-  const [f, setF] = useState({ title: '', body: '', critical: false, audiences: [] as Category[] });
+  const blank = { title: '', body: '', critical: false, audiences: [] as Category[] };
+  const [f, setF] = useState(blank);
+  const [editing, setEditing] = useState<Announcement | null>(null);
   const [message, setMessage] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  function edit(a: Announcement) {
+    setEditing(a);
+    setF({ title: a.title, body: a.body ?? '', critical: a.critical, audiences: a.audiences });
+    document.getElementById('at')?.focus();
+  }
   async function create(publish: boolean) {
     if (busy) return; // a double click must not publish twice
     if (!f.title.trim()) return setMessage({ kind: 'error', text: 'Vyplňte nadpis.' });
     setBusy(true);
-    const { error: err } = await supabase.from('announcements').insert({
-      edition_id: edition.id, title: f.title.trim(), body: f.body.trim() || null, critical: f.critical, audiences: f.audiences,
-      published_at: publish ? new Date().toISOString() : null,
-    });
+    const values = { title: f.title.trim(), body: f.body.trim() || null, critical: f.critical, audiences: f.audiences };
+    const { data: rows, error: err } = editing
+      ? await supabase.from('announcements').update({ ...values, published_at: publish ? (editing.published_at ?? new Date().toISOString()) : editing.published_at })
+          .eq('id', editing.id).eq('version', editing.version).select('id')
+      : await supabase.from('announcements').insert({ ...values, edition_id: edition.id, published_at: publish ? new Date().toISOString() : null }).select('id');
     setBusy(false);
-    setMessage(err ? { kind: 'error', text: friendlyError(err) } : { kind: 'ok', text: publish ? 'Oznámení zveřejněno.' : 'Uloženo jako koncept.' });
-    if (!err) setF({ title: '', body: '', critical: false, audiences: [] });
+    if (err) return setMessage({ kind: 'error', text: friendlyError(err) });
+    if (editing && !rows?.length) return setMessage({ kind: 'error', text: t('common.conflict') });
+    setMessage({ kind: 'ok', text: editing ? 'Oznámení upraveno.' : publish ? 'Oznámení zveřejněno.' : 'Uloženo jako koncept.' });
+    setF(blank);
+    setEditing(null);
+    reload();
+  }
+  async function unpublish(a: Announcement) {
+    if (!window.confirm(`Stáhnout oznámení „${a.title}“? Zmizí z aplikace, zůstane jako koncept.`)) return;
+    const { error: err } = await affected(supabase.from('announcements').update({ published_at: null }).eq('id', a.id).select('id'));
+    setMessage(err ? { kind: 'error', text: friendlyError(err) } : { kind: 'ok', text: 'Oznámení staženo.' });
     reload();
   }
   async function remove(a: Announcement) {
@@ -150,9 +181,19 @@ function Announcements() {
             </select></div>
           <label className="checkbox"><input type="checkbox" checked={f.critical} onChange={(e) => setF({ ...f, critical: e.target.checked })} /> Důležité – vyžádat potvrzení „Přečetl(a) jsem“</label>
         </div>
+        {editing && <p style={{ margin: 0 }}><strong>Upravujete: {editing.title}</strong></p>}
         <div className="row">
-          <button className="btn primary" type="button" onClick={() => create(true)} disabled={busy} aria-busy={busy}>Zveřejnit</button>
-          <button className="btn" type="button" onClick={() => create(false)} disabled={busy}>Uložit jako koncept</button>
+          {editing ? (
+            <>
+              <button className="btn primary" type="button" onClick={() => create(!!editing.published_at)} disabled={busy} aria-busy={busy}>{t('common.save')}</button>
+              <button className="btn" type="button" onClick={() => { setEditing(null); setF(blank); }}>{t('common.cancel')}</button>
+            </>
+          ) : (
+            <>
+              <button className="btn primary" type="button" onClick={() => create(true)} disabled={busy} aria-busy={busy}>Zveřejnit</button>
+              <button className="btn" type="button" onClick={() => create(false)} disabled={busy}>Uložit jako koncept</button>
+            </>
+          )}
         </div>
       </div>
       {data && data.length > 0 && (
@@ -162,9 +203,9 @@ function Announcements() {
             {data.map((a) => (
               <tr key={a.id}>
                 <td><strong>{a.title}</strong>{a.critical && <> <span className="tag"><Icon name="alert" width={12} /> důležité</span></>}{a.body && <div style={{ color: 'var(--muted)' }}>{a.body}</div>}</td>
-                <td>{a.published_at ? `zveřejněno ${fmtStamp(new Date(a.published_at))}` : <button className="btn small" onClick={() => publish(a)}>Zveřejnit</button>}</td>
+                <td>{a.published_at ? <>zveřejněno {fmtStamp(new Date(a.published_at))} <button className="btn quiet small" onClick={() => unpublish(a)}>Stáhnout</button></> : <button className="btn small" onClick={() => publish(a)}>Zveřejnit</button>}</td>
                 <td className="num">{a.critical ? a.announcement_acks.length : '—'}</td>
-                <td className="num"><button className="btn quiet small" onClick={() => remove(a)}>{t('common.delete')}</button></td>
+                <td className="num"><button className="btn quiet small" onClick={() => edit(a)}>{t('common.edit')}</button> <button className="btn quiet small" onClick={() => remove(a)}>{t('common.delete')}</button></td>
               </tr>
             ))}
           </tbody>

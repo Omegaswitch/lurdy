@@ -6,35 +6,35 @@ Last updated: 2026-10-19.
 
 ## What works today (development project, fictional data)
 The core loop runs end to end on the real backend and is covered by an automated test (`platform/e2e`, Playwright):
-organiser signs in (code + event code + authenticator) → creates a participant → assigns Bus A → prints the badge → a team member scans it in the app (Bus A) → organiser moves the person to Bus C → **the participant's open app switches to Bus C by itself** and **the same printed badge scans as Bus C**. Scan round trip measured from the test runner: p50 ≈ 150–370 ms, p95 ≈ 370–510 ms (target < 2 s).
+organiser signs in (number + invitation code + event code + authenticator) → creates a participant → assigns Bus A → prints the badge → a team member scans it ("not active yet") → organiser confirms the print → the badge scans (Bus A) → organiser moves the person to Bus C → **the participant's open app switches to Bus C by itself** and **the same printed badge scans as Bus C**. Scan round trip measured from the test runner: p50 ≈ 150–370 ms, p95 ≈ 370–510 ms (target < 2 s).
 
 ## By area
 | Phase | Item | State | Note |
 |---|---|---|---|
 | Plan | Planning documents A–J, roadmap | ✅ | `docs/` |
-| 1 | Schema, RLS, roles, MFA levels, audit, versioning, capacity | ✅ | 11 migrations (two are audit probes); SQL suite `supabase/tests/run.sh` (access matrix, integrity, scan, code login, race, seed, account deletion, hardening); hosted = local (fingerprints checked 2026-10-19 after the audit) |
-| 1 | Sign-in by code (+ event code, + MFA for privileged) | ✅ | Edge Function `code-login`; throttling tested; live-tested |
-| 2 | QR credentials, `scan_badge`, `staff_action`, `my_pilgrimage` | ✅ | |
-| 2 | Admin: sign-in + MFA enrolment, participants (create/edit/delete, roles), transport (legs, assign, move, remove, capacity), badges (mm layout, A4, crop marks, PDF) | ✅ | e2e + axe (WCAG 2.2 AA rules) on overview and participant screens |
+| 1 | Schema, RLS, roles, MFA levels, audit, versioning, capacity | ✅ | 13 migrations (two are audit probes); SQL suite `supabase/tests/run.sh` (access matrix, integrity, scan, code login, race, seed, account deletion, hardening, remediation); hosted = local (fingerprints checked 2026-10-19 after the remediation) |
+| 1 | Sign-in by attendee number + invitation code (QR / link fills both; + event code for the team, + MFA for privileged) | ✅ | Edge Function `code-login` v3; throttling tested; live-tested; invitation codes shown in the editor and the export, re-issuable |
+| 2 | QR credentials, `scan_badge`, `staff_action`, `my_pilgrimage`; printed badges pending until the organiser confirms the print | ✅ | e2e: a pending badge scans as "not active yet", then as valid after *Aktivovat* |
+| 2 | Admin: sign-in + MFA enrolment, participants (create/edit/delete, roles, invitation code), transport (legs create/edit/delete, assign, move, remove, capacity), badges (mm layout, A4, crop marks, PDF, pending batches) | ✅ | e2e + axe (WCAG 2.2 AA rules) on overview, participant, transport screens |
 | 2 | App: sign-in, home, journey, programme, accommodation, help, my code (full brightness + screen kept on), scanner, my duty, report, map, account & privacy | 🟡 | tested in the **web build** (e2e + screenshots); **not yet run on a physical iPhone/Android** (needs EAS build) — camera scanning and GPS only exercised in the browser |
 | 2 | Realtime updates (admin lists, participant app) | ✅ | proven by e2e |
-| 2 | Offline: participant app shows last copy with "as of" time | 🟡 | implemented; no automated offline test yet |
+| 2 | Offline: participant app shows last copy with "as of" time; scanner queues scans made without signal (idempotent replay) and caches the leg list | 🟡 | implemented, unit-level logic covered; no automated offline e2e yet (needs a device or a network-throttled browser run) |
 | 2 | Lourdes map (OSM, places from the programme, navigate, my location) | 🟡 | 14 sanctuary places with OSM positions, 4 with credited Wikimedia Commons photos; works in web build; device check pending |
 | 2 | Same functions on the web (no app needed) | 🟡 | the app's web build is the same code: every screen works in a browser. Differences: a browser cannot raise screen brightness (the code screen says so and keeps the screen on); camera scanning depends on the browser — typing/pasting the code always works |
-| 2 | App-store requirements: in-app account deletion, public privacy notice (`/privacy`), privacy manifest, encryption flag, minimal permissions | ✅ | e2e deletes an account through the app; checklist [security/app-store-checklist.md](security/app-store-checklist.md); privacy text needs the controller's name (Q2) |
+| 2 | App-store requirements: in-app account deletion, public privacy notice (`/privacy`), privacy manifest, encryption flag, minimal permissions, encrypted session storage | ✅ | e2e deletes an account through the app; checklist [security/app-store-checklist.md](security/app-store-checklist.md); privacy text needs the controller's name (Q2) |
 | 3 | Edition settings + event codes (before/during, end now) in admin | ✅ | e2e + axe |
 | 3 | Bulk import from Excel (.xlsx) or CSV: downloadable template, prompt to let any AI reformat an own sheet, preview, duplicate detection vs. database and within file, per-row decision; CSV export | ✅ | e2e: 151-row CSV with 5 planted duplicates + 1 error flagged exactly; template download, unknown layout → AI prompt with its headers, filled .xlsx previewed; 21 unit tests |
 | 3 | Edition create/duplicate/archive | ⬜ | |
-| 4 | Accommodation (facilities, rooms, occupancy, house/move/remove, room responsible) in admin | ✅ | e2e + axe; capacity refused by the database |
+| 4 | Accommodation (facilities create/edit/delete, rooms create/edit, occupancy, house/move/remove, room responsible) in admin | ✅ | e2e + axe; capacity refused by the database; shrinking below occupancy refused |
 | 4 | Care assignments (primary/backup/temporary with period, gaps, carer load) in admin | ✅ | e2e + axe |
 | 4 | Teams & duties screens in admin | ⬜ | database and app view ready |
 | 5 | Prints: alphabetical, by category, leg manifests (one per page, boarding tick column), room sheets, care roster, programme, contacts — every page stamped with edition + time + page numbers | ✅ | e2e renders PDFs; duty roster waits for the duties screen |
-| 6 | Programme editor (audiences, map place, change marker), contacts, announcements (draft/publish, critical + acknowledgements) | ✅ | e2e verifies what the participant receives |
+| 6 | Programme editor (audiences, map place, change marker), contacts (edit in place), announcements (draft/publish/unpublish, edit, critical + acknowledgements) | ✅ | e2e verifies what the participant receives, and that an unpublished announcement disappears |
 | 6 | Places editor (map pins) in admin | ⬜ | 14 shared sanctuary places seeded |
 | 7 | Medical module (records, step-up, carer-shareable info, break-glass, access log, purge) | ⬜ | schema `medical` exists and is locked; helpers `is_medical`, `mfa_fresh` tested |
-| 8 | Push notifications, incident workflow in admin, offline scanning queue | ⬜ | incident reporting from the app works (insert) |
+| 8 | Push notifications, incident workflow in admin | ⬜ | incident reporting from the app works (insert); a medical incident's text is readable only by the medical role (`incident_reports` view) |
 | 8 | App lock (biometric/PIN) for team phones | ⬜ | planned with the device builds |
-| 9 | Security and quality audit of the whole platform | 🟡 | first full audit 2026-10-19: [docs/audits/2026-10-19-audit.md](audits/2026-10-19-audit.md) — 2 Critical + 6 High fixed the same day; what remains is listed there. Verdict: CONDITIONAL PASS for the pilot with fictional data, FAIL for real medical data until the medical module exists |
+| 9 | Security and quality audit of the whole platform | 🟡 | first full audit 2026-10-19: [docs/audits/2026-10-19-audit.md](audits/2026-10-19-audit.md) — 2 Critical + 6 High fixed the same day; remediation of the rest the same day: [docs/audits/2026-10-19-remediation.md](audits/2026-10-19-remediation.md). Verdict: PASS for testing with fictional data; real participant data waits on the organisers' items (plan, DPIA, retention approval, device tests); real health data waits on the medical module |
 | 9 | Accessibility manual audit (screen reader on a real phone), backups/restore drill, deployment | ⬜ | |
 
 ## Open questions for the organisers
@@ -46,11 +46,14 @@ organiser signs in (code + event code + authenticator) → creates a participant
 | Q4 | Is `LurdyAPP` the future production or the staging project? | development/staging |
 | Q6 | One-click "reformat with AI" inside the admin (sends the sheet to Anthropic's API from our server) instead of copy-paste? Needs an API key, a processor agreement and a DPIA note. | copy-paste prompt only: the organiser chooses an approved AI service themselves |
 | Q7 | Map photos are loaded from Wikimedia's servers. Copy them into our own storage before production? | load from Wikimedia (credited, CC BY-SA) |
-| Q5 | 4-digit code alone for pilgrims — accepted residual risk (F §2). The audit measured it: with the per-address limit, one address can try ~120 codes an hour, i.e. an expected hijacked pilgrim account every hour or two per address. Add a personal PIN, or a longer code, before the first real edition? | code only (decided 2026-10-18); **recommend revisiting** |
-| Q8 | Audit and sign-in logs keep names, phones and e-mails of deleted people until a purge job exists (F §9). Who approves the retention period, so the purge can be written? | 12 months after the edition ends |
+| Q5 | ~~4-digit code alone for pilgrims~~ **Resolved 2026-10-19 (remediation):** sign-in needs the 4-digit number *and* an 8-character invitation code; the invitation's QR code or link fills both, so the typing effort for a pilgrim is unchanged when they scan. The number stays the attendee identifier. | — |
+| Q8 | Audit-log retention period (F §9). The purge job exists and runs nightly; personal fields of deleted people are scrubbed from the audit log at deletion time; sign-in attempts go after 30 days. **Audit-log rows are deleted only once a super admin records the approved period** with `select approve_log_retention(<days>);`. Who approves, and how many days? | keep everything until approved (proposal: 365 days) |
 
 ## Housekeeping on the development project
 - `app.zz_probe` is a leftover of the audit's column-privilege probe (one row, no personal data). Dropping it is a `DROP TABLE`, which the Supabase tool asks you to confirm: `drop table app.zz_probe;`.
+- Leaked-password protection is off on the project (nobody has a password, so it is irrelevant); switch it on in Authentication → Settings so the Security Advisor stays clean.
+- Set `VITE_APP_URL` on the admin's hosting to the app's public address before the first real invitations are exported (default `https://app.lurdy.eu`).
+- The admin's `participants` and `incidents` queries must name their columns (`select=*` is refused by the column privileges); the e2e suite and the SQL suite catch a regression.
 - Three fictional test organisers ("Ota Testovací-organizátor", "-2", and code 7700) carry orphaned authenticator factors from early test runs. Harmless (fictional), but the factors can only be removed with a `DELETE` on `auth.mfa_factors`, which the Supabase tool asks you to confirm. Tests now use organiser `2936`, which keeps one factor permanently; its secret is in `platform/e2e/.mfa-secrets.json` (git-ignored) or `E2E_ORGANISER_TOTP`.
 - `role_grants.user_id` is an unused, always-null column left by a non-destructive migration; drop it in a later migration when convenient.
 

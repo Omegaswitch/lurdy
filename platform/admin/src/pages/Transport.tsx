@@ -1,7 +1,7 @@
 import { t, type Enums, type Tables } from '@lurdy/shared';
 import { useMemo, useState, type FormEvent } from 'react';
 import { friendlyError } from '../errors';
-import { fmtDay, fmtTime, fromLocalInput, fullName } from '../format';
+import { fmtDay, fmtTime, fromLocalInput, fullName, toLocalInput } from '../format';
 import { Icon, Notice } from '../icons';
 import { affected, must, useLive } from '../live';
 import { useReady } from '../session';
@@ -33,7 +33,7 @@ export function Transport() {
     [edition.id],
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [creating, setCreating] = useState(false);
+  const [editing, setEditing] = useState<'new' | Leg | null>(null);
   const selected = data?.legs.find((l) => l.id === selectedId) ?? data?.legs[0] ?? null;
 
   return (
@@ -43,10 +43,11 @@ export function Transport() {
           <h1>{t('admin.transport')}</h1>
           <p>Lety, autobusy a kamion pro každou cestu zvlášť. Kapacitu hlídá databáze.</p>
         </div>
-        <button className="btn primary" onClick={() => setCreating(true)}><Icon name="plus" width={18} /> Nový spoj</button>
+        <button className="btn primary" onClick={() => setEditing('new')}><Icon name="plus" width={18} /> Nový spoj</button>
       </div>
       {error && <Notice kind="error">{error}</Notice>}
-      {creating && <NewLeg facilities={data?.facilities ?? []} onDone={(id) => { setCreating(false); if (id) { setSelectedId(id); reload(); } }} />}
+      {editing && <LegForm key={editing === 'new' ? 'new' : editing.id} existing={editing === 'new' ? null : editing} facilities={data?.facilities ?? []}
+        onDone={(id) => { setEditing(null); if (id) setSelectedId(id); reload(); }} />}
       {!data ? <div className="skeleton" style={{ width: 300 }} /> : data.legs.length === 0 ? (
         <p className="panel empty">Zatím žádné spoje. Začněte letem tam, pak autobusy z letiště.</p>
       ) : (
@@ -81,14 +82,14 @@ export function Transport() {
               );
             })}
           </nav>
-          {selected && <LegDetail key={selected.id} leg={selected} legs={data.legs} people={data.people} />}
+          {selected && <LegDetail key={selected.id} leg={selected} legs={data.legs} people={data.people} onEdit={() => setEditing(selected)} onDeleted={() => { setSelectedId(null); reload(); }} />}
         </div>
       )}
     </>
   );
 }
 
-function LegDetail({ leg, legs, people }: { leg: Leg; legs: Leg[]; people: Person[] }) {
+function LegDetail({ leg, legs, people, onEdit, onDeleted }: { leg: Leg; legs: Leg[]; people: Person[]; onEdit: () => void; onDeleted: () => void }) {
   const { edition } = useReady();
   const [message, setMessage] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
   const [query, setQuery] = useState('');
@@ -111,10 +112,18 @@ function LegDetail({ leg, legs, people }: { leg: Leg; legs: Leg[]; people: Perso
     const { error } = await affected(op.select('id'));
     setMessage(error ? { kind: 'error', text: friendlyError(error) } : { kind: 'ok', text: ok });
   };
+  async function removeLeg() {
+    const n = leg.leg_assignments.length;
+    if (!window.confirm(n ? `Smazat spoj ${leg.code}? ${n} ${n === 1 ? 'člověk přijde' : n < 5 ? 'lidé přijdou' : 'lidí přijde'} o přidělení a bude je třeba umístit znovu.` : `Smazat spoj ${leg.code}?`)) return;
+    const { error } = await affected(supabase.from('transport_legs').delete().eq('id', leg.id).select('id'));
+    if (error) return setMessage({ kind: 'error', text: friendlyError(error) });
+    onDeleted();
+  }
 
   return (
     <section className="panel" aria-label={`Spoj ${leg.code}`}>
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)' }}>
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+        <div style={{ flex: 1 }}>
         <h2>{t(`leg.${leg.kind}`)} {leg.code}{leg.label && ` · ${leg.label}`}</h2>
         <p style={{ margin: '4px 0 0', color: 'var(--muted)' }}>
           {[leg.origin, leg.destination].filter(Boolean).join(' → ')}
@@ -122,6 +131,9 @@ function LegDetail({ leg, legs, people }: { leg: Leg; legs: Leg[]; people: Perso
           {' · '}{t('admin.capacity')}: {leg.leg_assignments.length}{leg.capacity != null ? ` / ${leg.capacity}` : ''}
           {' · '}{t('admin.wheelchairs')}: {wheelchairs} / {leg.wheelchair_capacity}
         </p>
+        </div>
+        <button className="btn small" onClick={onEdit}>{t('common.edit')}</button>
+        <button className="btn quiet small" onClick={removeLeg}>Smazat spoj</button>
       </div>
       <div className="stack" style={{ padding: '16px 20px' }}>
         {message && <Notice kind={message.kind}>{message.text}</Notice>}
@@ -176,9 +188,13 @@ function LegDetail({ leg, legs, people }: { leg: Leg; legs: Leg[]; people: Perso
   );
 }
 
-function NewLeg({ facilities, onDone }: { facilities: { id: string; name: string }[]; onDone: (id: string | null) => void }) {
+function LegForm({ existing, facilities, onDone }: { existing: Leg | null; facilities: { id: string; name: string }[]; onDone: (id: string | null) => void }) {
   const { edition } = useReady();
-  const [f, setF] = useState({ kind: 'bus' as Enums<'leg_kind'>, direction: 'outbound' as Enums<'leg_direction'>, code: '', label: '', origin: '', destination: '',
+  const [f, setF] = useState(existing ? {
+    kind: existing.kind, direction: existing.direction, code: existing.code, label: existing.label ?? '', origin: existing.origin ?? '', destination: existing.destination ?? '',
+    departs: existing.departs_at ? toLocalInput(existing.departs_at, edition.timezone) : '', capacity: existing.capacity == null ? '' : String(existing.capacity),
+    wheelchair: String(existing.wheelchair_capacity), facility: existing.facility_id ?? '',
+  } : { kind: 'bus' as Enums<'leg_kind'>, direction: 'outbound' as Enums<'leg_direction'>, code: '', label: '', origin: '', destination: '',
     departs: '', capacity: '50', wheelchair: '0', facility: '' });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -189,19 +205,23 @@ function NewLeg({ facilities, onDone }: { facilities: { id: string; name: string
     if (busy) return;
     if (!f.code.trim()) return setError('Vyplňte označení spoje (např. A nebo číslo letu).');
     setBusy(true);
-    const { data, error: err } = await supabase.from('transport_legs').insert({
-      edition_id: edition.id, kind: f.kind, direction: f.direction, code: f.code.trim(), label: f.label.trim() || null,
+    const values = {
+      kind: f.kind, direction: f.direction, code: f.code.trim(), label: f.label.trim() || null,
       origin: f.origin.trim() || null, destination: f.destination.trim() || null, departs_at: fromLocalInput(f.departs, edition.timezone),
       capacity: f.capacity ? Number(f.capacity) : null, wheelchair_capacity: Number(f.wheelchair) || 0, facility_id: f.facility || null,
-    }).select('id').single();
+    };
+    const { data, error: err } = existing
+      ? await supabase.from('transport_legs').update(values).eq('id', existing.id).eq('version', existing.version).select('id')
+      : await supabase.from('transport_legs').insert({ ...values, edition_id: edition.id }).select('id');
     setBusy(false);
-    if (err) return setError(friendlyError(err));
-    onDone(data.id);
+    if (err) return setError(err.code === '23505' ? 'Spoj s tímto označením v tomto směru už existuje.' : friendlyError(err));
+    if (existing && !data?.length) return setError(t('common.conflict'));
+    onDone(data?.[0]?.id ?? null);
   }
 
   return (
-    <form className="panel stack" style={{ padding: 20, marginBottom: 24 }} onSubmit={save}>
-      <h2>Nový spoj</h2>
+    <form className="panel stack" style={{ padding: 20, marginBottom: 24 }} onSubmit={save} aria-label={existing ? `Upravit spoj ${existing.code}` : 'Nový spoj'}>
+      <h2>{existing ? `Upravit spoj ${existing.code}` : 'Nový spoj'}</h2>
       {error && <Notice kind="error">{error}</Notice>}
       <div className="row" style={{ alignItems: 'flex-end' }}>
         <div className="field"><label htmlFor="k">Druh</label>

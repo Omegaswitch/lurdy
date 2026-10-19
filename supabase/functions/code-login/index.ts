@@ -1,4 +1,5 @@
-// Sign-in with the personal 4-digit code (+ the 6-character event code for team members).
+// Sign-in with the 4-digit attendee number + the 8-character code from the invitation (+ the 6-character event
+// code for team members).
 // The database decides (public.code_login_check: throttling, suspension, event-code validity);
 // this function only turns a positive answer into a normal Supabase Auth session.
 // Each participant gets one Auth user, created on first sign-in, with a synthetic address that never receives mail.
@@ -20,15 +21,16 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response(null, { headers: cors });
   if (req.method !== 'POST') return reply(405, { error: 'method' });
 
-  let body: { code?: unknown; eventCode?: unknown };
+  let body: { code?: unknown; secret?: unknown; eventCode?: unknown };
   try {
     body = await req.json();
   } catch {
     return reply(400, { error: 'invalid' });
   }
   const code = typeof body.code === 'string' ? body.code.trim() : '';
+  const secret = typeof body.secret === 'string' ? body.secret.toUpperCase().replace(/[^A-Z0-9]/g, '') : '';
   const eventCode = typeof body.eventCode === 'string' ? body.eventCode.trim().toUpperCase() : '';
-  if (!/^\d{4}$/.test(code) || (eventCode && !/^[A-Z0-9]{6}$/.test(eventCode))) return reply(401, { error: 'invalid' });
+  if (!/^\d{4}$/.test(code) || !/^[A-Z2-9]{8}$/.test(secret) || (eventCode && !/^[A-Z0-9]{6}$/.test(eventCode))) return reply(401, { error: 'invalid' });
   // The connecting address as the gateway saw it. Supabase's edge gateway rewrites X-Forwarded-For (verified: a forged
   // header is not reflected into the log), and Cloudflare names the client in cf-connecting-ip; the last hop is the
   // one a client cannot forge should a proxy ever append instead of replace.
@@ -38,6 +40,7 @@ Deno.serve(async (req) => {
   const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: check, error: checkError } = await admin.rpc('code_login_check', {
     p_code: code,
+    p_secret: secret,
     p_staff_code: eventCode || null,
     p_ip: ip,
   });

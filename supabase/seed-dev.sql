@@ -30,9 +30,16 @@ begin
     (ed, 'malade', 'Marie', 'Vzorová', 'wheelchair') returning id into p_mal;
 
   insert into public.role_grants (participant_id, role) values (p_org, 'organizer'), (p_staff, 'staff'), (p_assist, 'assistant');
+  -- fixed invitation codes so the automated tests can sign these fictional people in (the numbers stay random)
+  update public.participants set login_secret = 'DEVADMNX' where id = p_org;
+  update public.participants set login_secret = 'DEVSTAFF' where id = p_staff;
+  update public.participants set login_secret = 'DEVASSST' where id = p_assist;
+  update public.participants set login_secret = 'DEVPUTNK' where id = p_pil;
+  update public.participants set login_secret = 'DEVNEMCN' where id = p_mal;
   -- a second organiser used only by the automated end-to-end tests (they enrol and remove MFA on it)
   insert into public.participants (edition_id, category, first_name, last_name) values (ed, 'staff', 'Ota', 'Testovací-organizátor') returning id into p_org;
   insert into public.role_grants (participant_id, role) values (p_org, 'organizer');
+  update public.participants set login_secret = 'DEVTEST2' where id = p_org;
   insert into public.staff_codes (edition_id, code, label, valid_from, valid_until)
   values (ed, 'DEV123', 'vývoj', now() - interval '1 day', now() + interval '365 days');
 

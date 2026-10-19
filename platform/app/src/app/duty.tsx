@@ -35,18 +35,18 @@ export default function Duty() {
             <T kind="label">nastoupilo</T>
             {missing.length === 0 ? (
               <View style={{ flexDirection: 'row', gap: space.s, alignItems: 'center' }}>
-                <Icon name="check" color={colors.ok} /><T kind="big" style={{ color: colors.ok }}>Všichni nastoupili</T>
+                <Icon name="check" color={colors.ok} /><T kind="big" style={{ color: colors.ok }}>{t('duty.allBoarded')}</T>
               </View>
             ) : (
               <>
-                <T kind="big" style={{ color: colors.warn }}>Chybí ({missing.length}):</T>
+                <T kind="big" style={{ color: colors.warn }}>{t('duty.missing').replace('{n}', String(missing.length))}</T>
                 {missing.map((a, i) => <T key={i}>{a.participants ? `${a.participants.last_name} ${a.participants.first_name}` : '—'}</T>)}
               </>
             )}
           </Card>
         );
       })}
-      {data.in_care.length > 0 && <T kind="title" accessibilityRole="header">Moje péče</T>}
+      {data.in_care.length > 0 && <T kind="title" accessibilityRole="header">{t('duty.myCare')}</T>}
       {data.in_care.map((c) => (
         <Card key={c.id + (c.starts_at ?? '')}>
           <T kind="big">{c.name}</T>
@@ -54,7 +54,7 @@ export default function Duty() {
           {c.ends_at && <T kind="label">do {fmtDay(c.ends_at, tz)} {fmtTime(c.ends_at, tz)}</T>}
         </Card>
       ))}
-      {data.duties.length > 0 && <T kind="title" accessibilityRole="header">Služby</T>}
+      {data.duties.length > 0 && <T kind="title" accessibilityRole="header">{t('duty.duties')}</T>}
       {data.duties.map((d, i) => (
         <Card key={i}>
           <T kind="big">{d.title}</T>
@@ -62,7 +62,7 @@ export default function Duty() {
           {d.note ? <T>{d.note}</T> : null}
         </Card>
       ))}
-      {legs.length === 0 && data.in_care.length === 0 && data.duties.length === 0 && <Empty>Teď nemáte přidělenou žádnou službu.</Empty>}
+      {legs.length === 0 && data.in_care.length === 0 && data.duties.length === 0 && <Empty>{t('duty.none')}</Empty>}
     </Screen>
   );
 }

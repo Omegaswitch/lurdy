@@ -34,7 +34,7 @@ export default function Home() {
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.l }}>
         <Shield width={48} />
         <View style={{ flex: 1 }}>
-          {name ? <T kind="title" accessibilityRole="header">Dobrý den, {name}</T> : null}
+          {name ? <T kind="title" accessibilityRole="header">{t('home.greeting').replace('{name}', name)}</T> : null}
           <T kind="label">{data.edition.title}</T>
         </View>
       </View>
@@ -42,7 +42,7 @@ export default function Home() {
       {critical.map((a) => (
         <Banner key={a.id} kind="warn" title={a.title}>
           {a.body ? <T>{a.body}</T> : null}
-          <BigButton label="Přečetl(a) jsem" icon="check" onPress={() => ack(a.id)} />
+          <BigButton label={t('home.ack')} icon="check" onPress={() => ack(a.id)} />
         </Banner>
       ))}
 
@@ -71,8 +71,8 @@ export default function Home() {
       {data.roles.length > 0 && <BigButton icon="alert" label={t('home.report')} onPress={() => router.push('/report')} />}
 
       <View style={{ gap: space.m, marginTop: space.xl }}>
-        <BigButton icon="text" label={scale > 1 ? 'Běžné písmo' : 'Větší písmo'} onPress={() => setScale(scale > 1 ? 1 : 1.3)} />
-        <BigButton icon="lock" label="Účet a soukromí" onPress={() => router.push('/account')} />
+        <BigButton icon="text" label={scale > 1 ? t('home.normalFont') : t('home.largerFont')} onPress={() => setScale(scale > 1 ? 1 : 1.3)} />
+        <BigButton icon="lock" label={t('account.title')} onPress={() => router.push('/account')} />
         <BigButton icon="logout" label={t('common.signOut')} onPress={signOut} />
       </View>
     </Screen>

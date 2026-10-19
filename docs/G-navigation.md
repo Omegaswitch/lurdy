@@ -6,7 +6,7 @@ The app adapts to the signed-in account: what you see is the union of *your own 
 
 **No tab bar, no small menus** (organisers' decision, ADR-12). One home screen with full-width buttons (≥ 64 pt, icon + word); every screen does one thing and has a big *Zpět* (back) in the red header. Text is large and follows the phone's text size, plus an in-app *Větší písmo* switch.
 
-Sign-in: one screen — 4-digit code; *Jsem člen týmu* reveals the event-code field.
+Sign-in: one screen — *Naskenovat pozvánku* (the invitation's QR code fills the attendee number and the invitation code), or the two fields typed; *Jsem člen týmu* reveals the event-code field. The invitation link (`/login?k=LRDL.<number>.<code>`) opens the same screen already filled in.
 
 ### Home — everyone
 1. Greeting + edition; critical announcements with *Přečetl(a) jsem*.

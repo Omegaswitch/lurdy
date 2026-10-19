@@ -85,15 +85,15 @@ export default function Badge() {
       <Card style={{ alignItems: 'center', gap: space.xl }}>
         <T kind="huge" style={{ textAlign: 'center' }}>{[me.title, me.first_name, me.last_name].filter(Boolean).join(' ')}</T>
         {payload ? (
-          <View style={{ padding: space.l, backgroundColor: '#fff' }} accessible accessibilityLabel="Váš osobní QR kód">
+          <View style={{ padding: space.l, backgroundColor: '#fff' }} accessible accessibilityLabel={t('badge.qrLabel')}>
             <QRCode value={payload} size={260} color={colors.ink} backgroundColor="#fff" ecl="M" />
           </View>
         ) : error ? (
-          <Banner kind="warn" title="Kód teď nelze načíst">
-            <T>Připojte se k internetu a otevřete tuto obrazovku znovu. Tištěná jmenovka platí dál.</T>
+          <Banner kind="warn" title={t('badge.unavailable')}>
+            <T>{t('badge.unavailable.help')}</T>
           </Banner>
         ) : <ActivityIndicator size="large" color={colors.red} />}
-        {renewed && <Banner kind="info" title="Máte nový kód"><T>Předchozí kód v telefonu už neplatil, proto se vystavil nový.</T></Banner>}
+        {renewed && <Banner kind="info" title={t('badge.renewed')}><T>{t('badge.renewed.help')}</T></Banner>}
         <T kind="big" style={{ textAlign: 'center' }}>{t('badge.show')}</T>
         {Platform.OS === 'web' && <T style={{ textAlign: 'center' }}>{t('badge.webBrightness')}</T>}
       </Card>

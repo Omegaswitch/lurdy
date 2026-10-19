@@ -34,7 +34,7 @@ export function Accommodation() {
     [edition.id],
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [editing, setEditing] = useState<'facility' | { facility: string } | null>(null);
+  const [editing, setEditing] = useState<'facility' | { facility: string } | { editFacility: Facility } | { editRoom: Room & { facility: Facility } } | null>(null);
   const rooms = data?.facilities.flatMap((f) => f.rooms.map((r) => ({ ...r, facility: f }))) ?? [];
   const selected = rooms.find((r) => r.id === selectedId) ?? rooms[0] ?? null;
   const housed = new Set(rooms.flatMap((r) => r.room_assignments.map((a) => a.participant_id)));
@@ -49,8 +49,10 @@ export function Accommodation() {
         <button className="btn primary" onClick={() => setEditing('facility')}><Icon name="plus" width={18} /> Nové zařízení</button>
       </div>
       {error && <Notice kind="error">{error}</Notice>}
-      {editing === 'facility' && <NewFacility onDone={() => { setEditing(null); reload(); }} />}
-      {typeof editing === 'object' && editing && <NewRoom facilityId={editing.facility} onDone={(id) => { setEditing(null); if (id) setSelectedId(id); reload(); }} />}
+      {editing === 'facility' && <FacilityForm existing={null} onDone={() => { setEditing(null); reload(); }} />}
+      {typeof editing === 'object' && editing && 'editFacility' in editing && <FacilityForm key={editing.editFacility.id} existing={editing.editFacility} onDone={() => { setEditing(null); reload(); }} />}
+      {typeof editing === 'object' && editing && 'facility' in editing && <RoomForm facilityId={editing.facility} existing={null} onDone={(id) => { setEditing(null); if (id) setSelectedId(id); reload(); }} />}
+      {typeof editing === 'object' && editing && 'editRoom' in editing && <RoomForm key={editing.editRoom.id} facilityId={editing.editRoom.facility_id} existing={editing.editRoom} onDone={() => { setEditing(null); reload(); }} />}
       {!data ? <div className="skeleton" style={{ width: 300 }} /> : data.facilities.length === 0 ? (
         <p className="panel empty">Zatím žádné ubytování. Přidejte hotel a zařízení pro nemocné (např. Accueil Notre-Dame).</p>
       ) : (
@@ -58,9 +60,12 @@ export function Accommodation() {
           <nav className="panel timetable" aria-label="Pokoje">
             {data.facilities.map((f) => (
               <div key={f.id}>
-                <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
                   <span className="tag"><i style={{ background: f.colour ?? '#999' }} />{f.short_label ?? f.name}</span>
-                  <button className="btn quiet small" onClick={() => setEditing({ facility: f.id })}><Icon name="plus" width={14} /> pokoj</button>
+                  <span>
+                    <button className="btn quiet small" onClick={() => setEditing({ editFacility: f })} aria-label={`Upravit ${f.name}`}>{t('common.edit')}</button>
+                    <button className="btn quiet small" onClick={() => setEditing({ facility: f.id })}><Icon name="plus" width={14} /> pokoj</button>
+                  </span>
                 </h3>
                 {f.rooms.map((r) => {
                   const n = r.room_assignments.length;
@@ -80,14 +85,14 @@ export function Accommodation() {
               </div>
             ))}
           </nav>
-          {selected && <RoomDetail key={selected.id} room={selected} rooms={rooms} people={data.people} housed={housed} />}
+          {selected && <RoomDetail key={selected.id} room={selected} rooms={rooms} people={data.people} housed={housed} onEdit={() => setEditing({ editRoom: selected })} onDeleted={() => { setSelectedId(null); reload(); }} />}
         </div>
       )}
     </>
   );
 }
 
-function RoomDetail({ room, rooms, people, housed }: { room: Room & { facility: Facility }; rooms: (Room & { facility: Facility })[]; people: Person[]; housed: Set<string> }) {
+function RoomDetail({ room, rooms, people, housed, onEdit, onDeleted }: { room: Room & { facility: Facility }; rooms: (Room & { facility: Facility })[]; people: Person[]; housed: Set<string>; onEdit: () => void; onDeleted: () => void }) {
   const [message, setMessage] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
   const [query, setQuery] = useState('');
   const byId = useMemo(() => new Map(people.map((p) => [p.id, p])), [people]);
@@ -102,11 +107,14 @@ function RoomDetail({ room, rooms, people, housed }: { room: Room & { facility: 
 
   return (
     <section className="panel" aria-label={`Pokoj ${room.number}`}>
-      <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)' }}>
-        <h2>{room.facility.name} · pokoj {room.number}</h2>
-        <p style={{ margin: '4px 0 0', color: 'var(--muted)' }}>
-          {[room.floor && `${room.floor}. patro`, room.zone, `${room.room_assignments.length} / ${room.capacity} míst`].filter(Boolean).join(' · ')}
-        </p>
+      <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+        <div style={{ flex: 1 }}>
+          <h2>{room.facility.name} · pokoj {room.number}</h2>
+          <p style={{ margin: '4px 0 0', color: 'var(--muted)' }}>
+            {[room.floor && `${room.floor}. patro`, room.zone, `${room.room_assignments.length} / ${room.capacity} míst`].filter(Boolean).join(' · ')}
+          </p>
+        </div>
+        <button className="btn small" onClick={onEdit}>Upravit pokoj</button>
       </div>
       <div className="stack" style={{ padding: '16px 20px' }}>
         {message && <Notice kind={message.kind}>{message.text}</Notice>}
@@ -140,8 +148,12 @@ function RoomDetail({ room, rooms, people, housed }: { room: Room & { facility: 
       {room.room_assignments.length === 0 ? (
         <div className="empty">
           <p style={{ margin: '0 0 12px' }}>Pokoj je prázdný.</p>
-          <button className="btn small" onClick={() => window.confirm(`Smazat pokoj ${room.number}?`) &&
-            run(supabase.from('rooms').delete().eq('id', room.id), `Pokoj ${room.number} smazán.`)}>Smazat pokoj</button>
+          <button className="btn small" onClick={async () => {
+            if (!window.confirm(`Smazat pokoj ${room.number}?`)) return;
+            const { error } = await affected(supabase.from('rooms').delete().eq('id', room.id).select('id'));
+            if (error) return setMessage({ kind: 'error', text: friendlyError(error) });
+            onDeleted();
+          }}>Smazat pokoj</button>
         </div>
       ) : (
         <table>
@@ -178,9 +190,12 @@ function RoomDetail({ room, rooms, people, housed }: { room: Room & { facility: 
   );
 }
 
-function NewFacility({ onDone }: { onDone: () => void }) {
+function FacilityForm({ existing, onDone }: { existing: Facility | null; onDone: () => void }) {
   const { edition } = useReady();
-  const [f, setF] = useState({ name: '', short_label: '', kind: 'hotel' as Enums<'facility_kind'>, address: '', phone: '', colour: '#1f5fa8', lat: '', lng: '' });
+  const [f, setF] = useState(existing ? {
+    name: existing.name, short_label: existing.short_label ?? '', kind: existing.kind, address: existing.address ?? '', phone: existing.phone ?? '',
+    colour: existing.colour ?? '#1f5fa8', lat: existing.lat == null ? '' : String(existing.lat), lng: existing.lng == null ? '' : String(existing.lng),
+  } : { name: '', short_label: '', kind: 'hotel' as Enums<'facility_kind'>, address: '', phone: '', colour: '#1f5fa8', lat: '', lng: '' });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f, v: string) => setF((x) => ({ ...x, [k]: v }));
@@ -194,17 +209,29 @@ function NewFacility({ onDone }: { onDone: () => void }) {
     if ((lat !== null && !Number.isFinite(lat)) || (lng !== null && !Number.isFinite(lng))) return setError('Souřadnice musí být číslo, např. 43.0991.');
     if ((lat === null) !== (lng === null)) return setError('Vyplňte obě souřadnice, nebo žádnou.');
     setBusy(true);
-    const { error: err } = await supabase.from('facilities').insert({
-      edition_id: edition.id, name: f.name.trim(), short_label: f.short_label.trim() || null, kind: f.kind, address: f.address.trim() || null,
+    const values = {
+      name: f.name.trim(), short_label: f.short_label.trim() || null, kind: f.kind, address: f.address.trim() || null,
       phone: f.phone.trim() || null, colour: f.colour, lat, lng,
-    });
+    };
+    const { data, error: err } = existing
+      ? await supabase.from('facilities').update(values).eq('id', existing.id).eq('version', existing.version).select('id')
+      : await supabase.from('facilities').insert({ ...values, edition_id: edition.id }).select('id');
     setBusy(false);
+    if (err) return setError(err.code === '23505' ? 'Zařízení s tímto názvem už existuje.' : friendlyError(err));
+    if (existing && !data?.length) return setError(t('common.conflict'));
+    onDone();
+  }
+  async function remove() {
+    if (!existing) return;
+    if (existing.rooms.length) return setError('Nejdřív smažte pokoje tohoto zařízení.');
+    if (!window.confirm(`Smazat zařízení ${existing.name}?`)) return;
+    const { error: err } = await affected(supabase.from('facilities').delete().eq('id', existing.id).select('id'));
     if (err) return setError(friendlyError(err));
     onDone();
   }
   return (
-    <form className="panel stack" style={{ padding: 20, marginBottom: 24 }} onSubmit={save}>
-      <h2>Nové zařízení</h2>
+    <form className="panel stack" style={{ padding: 20, marginBottom: 24 }} onSubmit={save} aria-label={existing ? `Upravit ${existing.name}` : 'Nové zařízení'}>
+      <h2>{existing ? `Upravit ${existing.name}` : 'Nové zařízení'}</h2>
       {error && <Notice kind="error">{error}</Notice>}
       <div className="row" style={{ alignItems: 'flex-end' }}>
         <div className="field" style={{ minWidth: 240 }}><label htmlFor="fn2">Název</label><input id="fn2" value={f.name} onChange={(e) => set('name', e.target.value)} /></div>
@@ -219,14 +246,16 @@ function NewFacility({ onDone }: { onDone: () => void }) {
         <div className="field"><label htmlFor="flng">Zem. délka</label><input id="flng" inputMode="decimal" value={f.lng} onChange={(e) => set('lng', e.target.value)} style={{ width: 120 }} placeholder="-0.0565" /></div>
       </div>
       <span className="help">Souřadnice umístí ubytování na mapu v aplikaci (najdete je na openstreetmap.org → pravým tlačítkem → Zobrazit adresu).</span>
-      <div className="row"><button className="btn primary" type="submit" disabled={busy} aria-busy={busy}>{t('common.save')}</button><button className="btn" type="button" onClick={onDone}>{t('common.cancel')}</button></div>
+      <div className="row"><button className="btn primary" type="submit" disabled={busy} aria-busy={busy}>{t('common.save')}</button><button className="btn" type="button" onClick={onDone}>{t('common.cancel')}</button>
+        {existing && <button className="btn quiet" type="button" style={{ marginLeft: 'auto' }} onClick={remove}>Smazat zařízení</button>}</div>
     </form>
   );
 }
 
-function NewRoom({ facilityId, onDone }: { facilityId: string; onDone: (id: string | null) => void }) {
+function RoomForm({ facilityId, existing, onDone }: { facilityId: string; existing: Room | null; onDone: (id: string | null) => void }) {
   const { edition } = useReady();
-  const [f, setF] = useState({ number: '', floor: '', zone: '', capacity: '2' });
+  const [f, setF] = useState(existing ? { number: existing.number, floor: existing.floor ?? '', zone: existing.zone ?? '', capacity: String(existing.capacity) }
+    : { number: '', floor: '', zone: '', capacity: '2' });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f, v: string) => setF((x) => ({ ...x, [k]: v }));
@@ -235,16 +264,18 @@ function NewRoom({ facilityId, onDone }: { facilityId: string; onDone: (id: stri
     if (busy) return;
     if (!f.number.trim()) return setError('Vyplňte číslo pokoje.');
     setBusy(true);
-    const { data, error: err } = await supabase.from('rooms').insert({
-      edition_id: edition.id, facility_id: facilityId, number: f.number.trim(), floor: f.floor.trim() || null, zone: f.zone.trim() || null, capacity: Number(f.capacity) || 0,
-    }).select('id').single();
+    const values = { number: f.number.trim(), floor: f.floor.trim() || null, zone: f.zone.trim() || null, capacity: Number(f.capacity) || 0 };
+    const { data, error: err } = existing
+      ? await supabase.from('rooms').update(values).eq('id', existing.id).eq('version', existing.version).select('id')
+      : await supabase.from('rooms').insert({ ...values, edition_id: edition.id, facility_id: facilityId }).select('id');
     setBusy(false);
     if (err) return setError(err.code === '23505' ? 'Pokoj s tímto číslem už v zařízení je.' : friendlyError(err));
-    onDone(data.id);
+    if (existing && !data?.length) return setError(t('common.conflict'));
+    onDone(data?.[0]?.id ?? null);
   }
   return (
-    <form className="panel stack" style={{ padding: 20, marginBottom: 24 }} onSubmit={save}>
-      <h2>Nový pokoj</h2>
+    <form className="panel stack" style={{ padding: 20, marginBottom: 24 }} onSubmit={save} aria-label={existing ? `Upravit pokoj ${existing.number}` : 'Nový pokoj'}>
+      <h2>{existing ? `Upravit pokoj ${existing.number}` : 'Nový pokoj'}</h2>
       {error && <Notice kind="error">{error}</Notice>}
       <div className="row" style={{ alignItems: 'flex-end' }}>
         <div className="field"><label htmlFor="rn">Číslo</label><input id="rn" value={f.number} onChange={(e) => set('number', e.target.value)} style={{ width: 100 }} /></div>

@@ -1,11 +1,12 @@
 # Aplikace Pouť do Lurd – návod pro poutníky a nemocné
 
-**Co potřebujete:** chytrý telefon (nebo počítač) a svůj **čtyřmístný kód** z pozvánky. Bez telefonu se nic neděje – stačí jmenovka, kterou dostanete na letišti.
+**Co potřebujete:** chytrý telefon (nebo počítač) a svou **pozvánku** – je na ní vaše čtyřmístné číslo účastníka, osmimístný kód z pozvánky a QR kód, který oboje vyplní za vás. Bez telefonu se nic neděje – stačí jmenovka, kterou dostanete na letišti.
 
 ## Přihlášení
 1. Otevřete aplikaci *Pouť do Lurd*.
-2. Napište svůj čtyřmístný kód a stiskněte **Přihlásit**.
-3. Kód nikomu neříkejte – kdo ho zná, vidí vaše údaje o cestě a ubytování.
+2. Klepněte na **Naskenovat pozvánku** a namiřte telefon na QR kód v pozvánce (nebo otevřete odkaz z pozvánky) – číslo i kód se vyplní samy. Bez QR kódu je napište ručně.
+3. Stiskněte **Přihlásit**.
+4. Pozvánku nikomu nedávejte – kdo zná číslo i kód, vidí vaše údaje o cestě a ubytování. Když ji ztratíte, organizátoři vám vystaví nový kód a starý přestane platit.
 
 ## Co v aplikaci najdete
 Na úvodní obrazovce jsou velká tlačítka:

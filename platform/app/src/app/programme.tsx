@@ -47,7 +47,7 @@ export default function Programme() {
                       <Pressable onPress={() => router.push({ pathname: '/map', params: { place: place.id } })} accessibilityRole="button"
                         style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: space.s }}>
                         <Icon name="map" color={colors.redStrong} size={24} />
-                        <T kind="label" style={{ color: colors.redStrong }}>Ukázat na mapě</T>
+                        <T kind="label" style={{ color: colors.redStrong }}>{t('programme.showOnMap')}</T>
                       </Pressable>
                     )}
                   </View>

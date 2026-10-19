@@ -13,7 +13,7 @@ let page: Page;
 let secret = '';
 const tag = Date.now().toString(36);
 const malade = `Nemocná${tag}`;
-const PILGRIM = process.env.E2E_PILGRIM_CODE ?? '3672';
+const PILGRIM = DEV.pilgrim;
 
 const a11y = async () => {
   const r = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
@@ -36,6 +36,7 @@ test.afterAll(async () => {
   const org = await organiserClient(secret);
   await org.from('participants').delete().like('last_name', 'Nemocná%').eq('first_name', 'Test');
   await org.from('rooms').delete().like('number', 'T%').eq('capacity', 0);
+  await org.from('transport_legs').delete().like('code', 'T%').like('destination', 'Testovací cíl%');
   await org.from('participants').delete().like('last_name', 'Importovaný%');
 });
 
@@ -50,6 +51,29 @@ test('edition: add an event code, then end it', async () => {
   await a11y();
   await row.getByRole('button', { name: 'Ukončit' }).click();
   await expect(row).toContainText('neplatí');
+});
+
+test('transport: create a leg, edit it, delete it', async () => {
+  await go('Doprava');
+  await page.getByRole('button', { name: 'Nový spoj' }).click();
+  const form = page.getByRole('form', { name: 'Nový spoj' });
+  await form.getByLabel('Označení').fill(`T${tag}`.slice(0, 8));
+  await form.getByLabel('Kam').fill('Testovací cíl');
+  await form.getByLabel('Míst').fill('3');
+  await form.getByRole('button', { name: 'Uložit' }).click();
+  const detail = page.getByRole('region', { name: `Spoj T${tag}`.slice(0, 13) });
+  await expect(detail).toContainText('Testovací cíl');
+  await detail.getByRole('button', { name: 'Upravit' }).click();
+  const edit = page.getByRole('form', { name: /^Upravit spoj/ });
+  await edit.getByLabel('Kam').fill('Testovací cíl (změněn)');
+  await edit.getByLabel('Míst').fill('4');
+  await edit.getByRole('button', { name: 'Uložit' }).click();
+  await expect(detail).toContainText('Testovací cíl (změněn)');
+  await expect(detail).toContainText('0 / 4');
+  await a11y();
+  await detail.getByRole('button', { name: 'Smazat spoj' }).click(); // the confirm dialog is auto-accepted
+  await expect(detail).toHaveCount(0);
+  await expect(page.locator('.timetable .code', { hasText: `T${tag}`.slice(0, 8) })).toHaveCount(0);
 });
 
 test('accommodation: create a room, house a new participant, room capacity enforced', async () => {
@@ -68,6 +92,11 @@ test('accommodation: create a room, house a new participant, room capacity enfor
   await page.getByLabel('Lůžek', { exact: true }).fill('0');
   await page.getByRole('button', { name: 'Uložit' }).click();
   await expect(page.getByRole('heading', { name: new RegExp(`pokoj T${tag}`.slice(0, 16)) })).toBeVisible();
+  // editing the room goes through the same form with optimistic locking
+  await page.getByRole('button', { name: 'Upravit pokoj' }).click();
+  await page.getByRole('form', { name: /^Upravit pokoj/ }).getByLabel('Patro').fill('3');
+  await page.getByRole('form', { name: /^Upravit pokoj/ }).getByRole('button', { name: 'Uložit' }).click();
+  await expect(page.getByRole('region', { name: /^Pokoj T/ })).toContainText('3. patro');
   await page.getByLabel('Ubytovat').fill(malade);
   await page.getByRole('listitem').filter({ hasText: malade }).getByRole('button', { name: 'Přidat' }).click();
   await expect(page.getByRole('alert')).toContainText('je plný'); // 0 beds: the database refuses
@@ -95,7 +124,7 @@ test('programme: add an item for pilgrims; the pilgrim sees it; an edit marks it
   await page.getByRole('button', { name: 'Poutníci', exact: true }).click();
   await page.getByRole('button', { name: 'Uložit' }).click();
   await expect(page.getByRole('row').filter({ hasText: `Testovací bod ${tag}` })).toBeVisible();
-  const pilgrim = await codeClient(PILGRIM);
+  const pilgrim = await codeClient(PILGRIM, DEV.pilgrimSecret);
   const find = async () => ((await pilgrim.rpc('my_pilgrimage')).data as { events: { title: string; changed: boolean; place_id: string | null }[] })
     .events.find((e) => e.title.startsWith(`Testovací bod ${tag}`));
   expect((await find())?.place_id).toBeTruthy();
@@ -120,10 +149,18 @@ test('contacts and announcements reach the pilgrim', async () => {
   await page.getByRole('button', { name: 'Zveřejnit', exact: true }).click();
   await expect(page.getByRole('row').filter({ hasText: `Testovací oznámení ${tag}` })).toContainText('zveřejněno');
   await a11y();
-  const pilgrim = await codeClient(PILGRIM);
+  const pilgrim = await codeClient(PILGRIM, DEV.pilgrimSecret);
   const mine = (await pilgrim.rpc('my_pilgrimage')).data as { contacts: { label: string }[]; announcements: { title: string; critical: boolean }[] };
   expect(mine.contacts.map((c) => c.label)).toContain(`Testovací kontakt ${tag}`);
   expect(mine.announcements.find((a) => a.title === `Testovací oznámení ${tag}`)?.critical).toBe(true);
+  // a contact is edited in place; a published announcement can be taken back (stays as a draft)
+  await page.getByRole('row').filter({ hasText: `Testovací kontakt ${tag}` }).getByRole('button', { name: 'Upravit' }).click();
+  await page.getByRole('form', { name: /^Upravit kontakt/ }).getByLabel('Jméno', { exact: true }).fill('Testovací Osoba');
+  await page.getByRole('form', { name: /^Upravit kontakt/ }).getByRole('button', { name: 'Uložit' }).click();
+  await expect(page.getByRole('row').filter({ hasText: `Testovací kontakt ${tag}` })).toContainText('Testovací Osoba');
+  await page.getByRole('row').filter({ hasText: `Testovací oznámení ${tag}` }).getByRole('button', { name: 'Stáhnout' }).click();
+  await expect(page.getByRole('row').filter({ hasText: `Testovací oznámení ${tag}` })).not.toContainText('zveřejněno');
+  await expect.poll(async () => ((await pilgrim.rpc('my_pilgrimage')).data as typeof mine).announcements.some((a) => a.title === `Testovací oznámení ${tag}`)).toBe(false);
   await page.getByRole('row').filter({ hasText: `Testovací kontakt ${tag}` }).getByRole('button', { name: 'Smazat' }).click();
   await page.getByRole('row').filter({ hasText: `Testovací oznámení ${tag}` }).getByRole('button', { name: 'Smazat' }).click();
   await expect(page.getByRole('row').filter({ hasText: `Testovací oznámení ${tag}` })).toHaveCount(0);
@@ -185,7 +222,7 @@ test('CSV import flags exactly the planted duplicates and errors; export contain
   const read = async (d: Promise<import('@playwright/test').Download>) => Buffer.concat((await (await (await d).createReadStream()).toArray()) as Buffer[]).toString('utf8');
   let text = await read(download);
   expect(text.startsWith('\uFEFFPříjmení;Jméno')).toBe(true);
-  expect(text.split('\r\n')[0]).not.toContain('Kód');
+  expect(text.split('\r\n')[0]).not.toContain('Kód z pozvánky');
   expect(text).toContain('Importovaný145;Test');
   expect(text.split('\r\n').filter((l) => l.startsWith('Importovaný')).length).toBe(145);
   await page.getByRole('button', { name: 'Exportovat CSV' }).click();
@@ -193,7 +230,7 @@ test('CSV import flags exactly the planted duplicates and errors; export contain
   download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Stáhnout CSV' }).click();
   text = await read(download);
-  expect(text.split('\r\n')[0]).toContain(';Kód;');
+  expect(text.split('\r\n')[0]).toContain(';Číslo;Kód z pozvánky;Odkaz pozvánky;');
   expect(text).toMatch(new RegExp(`Importovaný145;Test;[^\\r\\n]*;${code};`));
 });
 

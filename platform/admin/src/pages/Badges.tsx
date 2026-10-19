@@ -14,13 +14,15 @@ type Row = Pick<Tables<'participants'>, 'id' | 'title' | 'first_name' | 'last_na
   credentials: { id: string; kind: string; revoked_at: string | null }[];
 };
 type Printed = { row: Row; svg: string };
-type Batch = { items: Printed[]; at: string };
+type Batch = { id: string; items: Printed[]; at: string };
+type Pending = { batch_id: string; participant_id: string; issued_at: string };
 type Config = BadgeConfig & { heading: string };
 const HEADING = 'PÈLERINAGE MALTE TCHÈQUE';
 
-// Printing issues a new QR per person and cancels their previous printed badge. The QR texts exist only in this
-// tab (and in its session storage, so a jammed printer or a closed preview does not lose them); they vanish
-// when the tab closes.
+// Printing issues a *pending* QR per person: the badge they already have keeps working until the organiser
+// confirms the print (Aktivovat), which is when the old badge stops. A failed print is discarded. The QR texts
+// exist only in this tab (and in its session storage, so a closed preview does not lose them); they vanish when
+// the tab closes.
 const batchKey = (editionId: string) => `badges:lastPrint:${editionId}`;
 const readBatch = (editionId: string): Batch | null => {
   try { return JSON.parse(sessionStorage.getItem(batchKey(editionId)) ?? 'null'); } catch { return null; }
@@ -37,6 +39,11 @@ export function Badges() {
     edition.id,
     [edition.id],
   );
+  const { data: pending, reload: reloadPending } = useLive(
+    () => must(supabase.from('pending_credentials').select('batch_id, participant_id, issued_at').eq('edition_id', edition.id)
+      .is('activated_at', null).is('discarded_at', null).order('issued_at')) as Promise<Pending[]>,
+    [], edition.id, [edition.id],
+  );
   const [config, setConfig] = useState<Config>(() => ({ ...defaultBadgeConfig, heading: HEADING, ...(edition.badge_config as Partial<Config>) }));
   const [filter, setFilter] = useState<'all' | 'unprinted' | Category>('unprinted');
   const [chosen, setChosen] = useState<Set<string>>(new Set());
@@ -46,6 +53,27 @@ export function Badges() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ kind: 'error' | 'ok' | 'warn'; text: string } | null>(null);
   const layout = useMemo(() => impose(config), [config]);
+  const batches = useMemo(() => {
+    const m = new Map<string, Pending[]>();
+    for (const p of pending ?? []) m.set(p.batch_id, [...(m.get(p.batch_id) ?? []), p]);
+    return [...m.entries()].map(([id, rows]) => ({ id, rows, at: rows[0]!.issued_at }));
+  }, [pending]);
+  const nameOf = (id: string) => { const r = (data ?? []).find((x) => x.id === id); return r ? fullName(r) : '…'; };
+
+  async function activate(batchId: string) {
+    setBusy(true);
+    const { data: n, error: err } = await supabase.rpc('activate_batch', { p_batch: batchId });
+    setBusy(false);
+    setMessage(err ? { kind: 'error', text: friendlyError(err) } : { kind: 'ok', text: `Aktivováno ${n} jmenovek. Dřívější jmenovky těchto lidí už neplatí.` });
+    if (!err) { if (printed?.id === batchId) setPrinted(null); reloadPending(); reload(); }
+  }
+  async function discard(batchId: string) {
+    setBusy(true);
+    const { error: err } = await supabase.rpc('discard_batch', { p_batch: batchId });
+    setBusy(false);
+    setMessage(err ? { kind: 'error', text: friendlyError(err) } : { kind: 'ok', text: 'Tisk zahozen. Dosavadní jmenovky platí dál.' });
+    if (!err) { if (printed?.id === batchId) setPrinted(null); reloadPending(); }
+  }
   const configErrors = validateBadgeConfig(config);
 
   const hasCard = (r: Row) => r.credentials.some((c) => c.kind === 'card' && !c.revoked_at);
@@ -84,9 +112,10 @@ export function Badges() {
     setBusy(true);
     setMessage(null);
     const items: Printed[] = [];
+    const batchId = crypto.randomUUID();
     try {
       for (const row of list) {
-        const { data: payload, error: err } = await supabase.rpc('issue_credential', { p_participant: row.id });
+        const { data: payload, error: err } = await supabase.rpc('issue_pending_credential', { p_participant: row.id, p_batch: batchId });
         if (err || !payload) throw err ?? new Error('no payload');
         items.push({ row, svg: await QRCode.toString(payload, { type: 'svg', margin: 1, errorCorrectionLevel: 'M' }) });
       }
@@ -96,12 +125,12 @@ export function Badges() {
       setBusy(false);
     }
     if (items.length) {
-      const batch: Batch = { items, at: new Date().toISOString() };
+      const batch: Batch = { id: batchId, items, at: new Date().toISOString() };
       try { sessionStorage.setItem(batchKey(edition.id), JSON.stringify(batch)); } catch { /* storage full or blocked: the preview still shows */ }
       setLastBatch(batch);
       setPrinted(batch);
       setChosen(new Set());
-      reload();
+      reloadPending();
     }
   }
 
@@ -163,9 +192,9 @@ export function Badges() {
             <Notice kind="warn">
               <strong id="reprint-title">{t('admin.printWarning')}</strong>{' '}
               Týká se: {reprint.slice(0, 8).map(fullName).join(', ')}{reprint.length > 8 ? ` a dalších ${reprint.length - 8}` : ''}.
-              Jmenovky, které už tito lidé mají, při skenování ukážou „Neplatná jmenovka“ – rozdejte jim nové.
+              Jejich dosavadní jmenovky platí, dokud tisk nepotvrdíte tlačítkem „Aktivovat“; potom začnou platit nové a staré ukážou „Neplatná jmenovka“.
               <div className="row" style={{ marginTop: 10 }}>
-                <button className="btn primary" onClick={print}>Vytisknout a zneplatnit staré</button>
+                <button className="btn primary" onClick={print}>Vytisknout nové</button>
                 <button className="btn" onClick={() => setConfirming(false)}>{t('common.cancel')}</button>
               </div>
             </Notice>
@@ -192,7 +221,21 @@ export function Badges() {
         )}
       </section>
 
-      {!printed && lastBatch && (
+      {batches.length > 0 && (
+        <section className="panel stack" style={{ padding: 20, marginTop: 24 }} aria-label="Čekající tisky">
+          <h2>Vytištěno, čeká na potvrzení</h2>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>Nové jmenovky začnou platit až po aktivaci. Do té doby je skener hlásí jako „ještě není aktivní“ a dosavadní jmenovky platí dál.</p>
+          {batches.map((b) => (
+            <div key={b.id} className="row" style={{ alignItems: 'center', gap: 12 }} data-testid="pending-batch">
+              <span>{fmtStamp(new Date(b.at))} · {b.rows.length} {b.rows.length === 1 ? 'jmenovka' : b.rows.length < 5 ? 'jmenovky' : 'jmenovek'}: {b.rows.slice(0, 5).map((r) => nameOf(r.participant_id)).join(', ')}{b.rows.length > 5 ? '…' : ''}</span>
+              <button className="btn primary small" onClick={() => activate(b.id)} disabled={busy}>Aktivovat – vytištěno v pořádku</button>
+              <button className="btn small" onClick={() => discard(b.id)} disabled={busy}>Zahodit – tisk se nepovedl</button>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {!printed && lastBatch && (batches.some((b) => b.id === lastBatch.id)) && (
         <p className="no-print" style={{ marginTop: 16 }}>
           Poslední tisk ({fmtStamp(new Date(lastBatch.at))}, {lastBatch.items.length} jmenovek) lze otevřít znovu, dokud nezavřete tuto záložku – třeba když se tisk nepovedl.{' '}
           <button className="btn small" onClick={() => setPrinted(lastBatch)}><Icon name="printer" width={16} /> Znovu otevřít poslední tisk</button>

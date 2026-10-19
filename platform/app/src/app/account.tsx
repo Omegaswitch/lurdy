@@ -8,7 +8,7 @@ import { Banner, BigButton, Card, Screen, T } from '../lib/ui';
 // Account and privacy: the privacy notice and deleting one's own account (required by both app stores).
 // Two steps, big buttons, plain words; nothing happens on the first tap.
 export default function Account() {
-  const { session, deleteAccount } = useStore();
+  const { session, deleteAccount, t } = useStore();
   const [step, setStep] = useState<'idle' | 'confirm' | 'busy' | 'failed'>('idle');
   if (!session) return <Redirect href="/login" />;
 
@@ -20,23 +20,23 @@ export default function Account() {
   }
 
   return (
-    <Screen title="Účet a soukromí">
-      <BigButton icon="lock" label="Ochrana soukromí" hint="Jaké údaje aplikace používá" onPress={() => router.push('/privacy')} />
+    <Screen title={t('account.title')}>
+      <BigButton icon="lock" label={t('account.privacy')} hint={t('account.privacy.hint')} onPress={() => router.push('/privacy')} />
       <Card>
-        <T kind="title" accessibilityRole="header">Smazat můj účet</T>
-        <T>Smaže se váš přihlašovací účet a kód na obrazovce telefonu přestane platit. Se svým čtyřmístným kódem se už nepřihlásíte.</T>
+        <T kind="title" accessibilityRole="header">{t('account.delete')}</T>
+        <T>{t('account.delete.what')}</T>
         <T>Údaje o vaší účasti na pouti (autobus, ubytování) mají organizátoři; smažou je na vaši žádost nebo po skončení ročníku. Tištěná jmenovka platí, dokud ji organizátoři nezruší.</T>
         {step === 'failed' && (
-          <Banner kind="bad" title="Účet se nepodařilo smazat">
-            <T>Zkontrolujte připojení k internetu a zkuste to znovu, nebo se obraťte na organizátory.</T>
+          <Banner kind="bad" title={t('account.delete.failed')}>
+            <T>{t('account.delete.failed.help')}</T>
           </Banner>
         )}
         {step === 'idle' || step === 'failed' ? (
-          <BigButton icon="trash" label="Smazat můj účet" tone="danger" onPress={() => setStep('confirm')} testID="delete-account" />
+          <BigButton icon="trash" label={t('account.delete')} tone="danger" onPress={() => setStep('confirm')} testID="delete-account" />
         ) : (
           <View style={{ gap: space.m }}>
-            <Banner kind="warn" title="Opravdu smazat?"><T>Tento krok nejde vrátit zpět.</T></Banner>
-            <BigButton icon="trash" label="Ano, smazat účet" tone="danger" onPress={remove} disabled={step === 'busy'} testID="delete-account-confirm" />
+            <Banner kind="warn" title={t('account.delete.confirm')}><T>{t('account.delete.irreversible')}</T></Banner>
+            <BigButton icon="trash" label={t('account.delete.yes')} tone="danger" onPress={remove} disabled={step === 'busy'} testID="delete-account-confirm" />
             <BigButton icon="x" label="Ne, ponechat" onPress={() => setStep('idle')} disabled={step === 'busy'} />
           </View>
         )}

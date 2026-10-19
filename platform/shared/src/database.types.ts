@@ -916,6 +916,45 @@ export type Database = {
           },
         ]
       }
+      pending_credentials: {
+        Row: {
+          activated_at: string | null
+          batch_id: string
+          discarded_at: string | null
+          edition_id: string
+          id: string
+          issued_at: string
+          issued_by: string | null
+          kind: Database["public"]["Enums"]["credential_kind"]
+          participant_id: string
+          token_hash: string
+        }
+        Insert: {
+          activated_at?: string | null
+          batch_id: string
+          discarded_at?: string | null
+          edition_id: string
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          kind?: Database["public"]["Enums"]["credential_kind"]
+          participant_id: string
+          token_hash: string
+        }
+        Update: {
+          activated_at?: string | null
+          batch_id?: string
+          discarded_at?: string | null
+          edition_id?: string
+          id?: string
+          issued_at?: string
+          issued_by?: string | null
+          kind?: Database["public"]["Enums"]["credential_kind"]
+          participant_id?: string
+          token_hash?: string
+        }
+        Relationships: []
+      }
       places: {
         Row: {
           accessibility: string | null
@@ -1510,7 +1549,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      incident_reports: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          edition_id: string
+          id: string
+          kind: Database["public"]["Enums"]["incident_kind"]
+          location: string | null
+          participant_id: string | null
+          reported_by: string
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["incident_severity"]
+          status: Database["public"]["Enums"]["incident_status"]
+          summary: string | null
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Relationships: []
+      }
     }
     Functions: {
       delete_my_account: { Args: never; Returns: undefined }
@@ -1536,6 +1594,20 @@ export type Database = {
       my_digital_credential: { Args: { p_edition?: string }; Returns: string }
       my_digital_credential_valid: { Args: { p_edition?: string }; Returns: boolean }
       participant_access_code: { Args: { p_participant: string }; Returns: string }
+      participant_login: { Args: { p_participant: string }; Returns: Json }
+      participant_logins: {
+        Args: { p_edition: string }
+        Returns: { participant_id: string; access_code: string; login_secret: string }[]
+      }
+      reset_login_secret: { Args: { p_participant: string }; Returns: string }
+      approve_log_retention: { Args: { p_days: number }; Returns: undefined }
+      purge_logs_now: { Args: never; Returns: Json }
+      issue_pending_credential: {
+        Args: { p_participant: string; p_batch: string; p_kind?: Database["public"]["Enums"]["credential_kind"] }
+        Returns: string
+      }
+      activate_batch: { Args: { p_batch: string }; Returns: number }
+      discard_batch: { Args: { p_batch: string }; Returns: number }
       participant_access_codes: {
         Args: { p_edition: string }
         Returns: { participant_id: string; access_code: string }[]

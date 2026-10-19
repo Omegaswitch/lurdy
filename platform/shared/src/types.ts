@@ -27,7 +27,7 @@ export type ParticipantCard = {
   emergency_contacts: { name: string; relation: string | null; phone: string }[];
 };
 
-export type ScanResultCode = 'ok' | 'wrong_leg' | 'revoked' | 'invalid' | 'not_authorized' | 'leg_required' | 'no_room';
+export type ScanResultCode = 'ok' | 'wrong_leg' | 'revoked' | 'invalid' | 'not_authorized' | 'leg_required' | 'no_room' | 'pending' | 'queued';
 export type ScanResult = { result: ScanResultCode; replayed?: boolean; credential_kind?: string; participant?: ParticipantCard };
 
 // public.my_pilgrimage

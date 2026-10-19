@@ -129,15 +129,15 @@ export function NoData() {
   return (
     <Screen title={t('app.name')}>
       {noAccess ? (
-        <Banner kind="info" title="Zatím tu nic není">
-          <T>Váš ročník pouti ještě nebyl spuštěn, nebo k němu nemáte přístup. Zkuste to později, nebo se zeptejte organizátorů.</T>
+        <Banner kind="info" title={t('nodata.empty')}>
+          <T>{t('nodata.empty.help')}</T>
         </Banner>
       ) : offline ? (
-        <Banner kind="warn" title="Jste bez připojení">
-          <T>Při prvním přihlášení je potřeba internet, aby se do telefonu stáhl váš program.</T>
+        <Banner kind="warn" title={t('nodata.offline')}>
+          <T>{t('nodata.offline.help')}</T>
         </Banner>
       ) : <ActivityIndicator size="large" color={colors.red} />}
-      <BigButton icon="arrow" label="Zkusit znovu" tone="primary" onPress={refresh} />
+      <BigButton icon="arrow" label={t('common.retry')} tone="primary" onPress={refresh} />
       <BigButton icon="logout" label={t('common.signOut')} onPress={signOut} />
     </Screen>
   );

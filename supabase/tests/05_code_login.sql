@@ -15,45 +15,45 @@ select tests.throws($$update public.participants set access_code = (select acces
 
 -- only the service role (Edge Function) may run the sign-in check
 select tests.login('a5');
-select tests.throws($$select public.code_login_check('0000', null, '1.1.1.1')$$, 'participants cannot call the login check', '42501');
+select tests.throws($$select public.code_login_check('0000', 'ZZZZZZZZ', null, '1.1.1.1')$$, 'participants cannot call the login check', '42501');
 reset role;
 select tests.anon();
-select tests.throws($$select public.code_login_check('0000', null, '1.1.1.1')$$, 'anon cannot call the login check', '42501');
+select tests.throws($$select public.code_login_check('0000', 'ZZZZZZZZ', null, '1.1.1.1')$$, 'anon cannot call the login check', '42501');
 reset role;
 
-create temp table c as select id, access_code from public.participants;
+create temp table c as select id, access_code, login_secret from public.participants;
 -- pilgrim: code alone
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p3')), null, '10.0.0.1') ->> 'participant_id',
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p3')), (select login_secret from c where id = tests.id('p3')), null, '10.0.0.1') ->> 'participant_id',
                 tests.id('p3')::text, 'pilgrim signs in with code only');
 -- team member: needs a currently valid event code of the same edition
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), null, '10.0.0.2') ->> 'ok', 'false', 'staff without event code refused');
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), 'OLD000', '10.0.0.2') ->> 'ok', 'false', 'expired event code refused');
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), 'XYZ789', '10.0.0.2') ->> 'ok', 'false', 'other edition''s event code refused');
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), ' abc123 ', '10.0.0.2') ->> 'staff_code_id',
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), (select login_secret from c where id = tests.id('p1')), null, '10.0.0.2') ->> 'ok', 'false', 'staff without event code refused');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), (select login_secret from c where id = tests.id('p1')), 'OLD000', '10.0.0.2') ->> 'ok', 'false', 'expired event code refused');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), (select login_secret from c where id = tests.id('p1')), 'XYZ789', '10.0.0.2') ->> 'ok', 'false', 'other edition''s event code refused');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), (select login_secret from c where id = tests.id('p1')), ' abc123 ', '10.0.0.2') ->> 'staff_code_id',
                 tests.id('c1')::text, 'staff signs in with code + event code (case-insensitive)');
 -- the answer for a wrong code and a wrong event code is identical
-select tests.eq(public.code_login_check('0000', 'ABC123', '10.0.0.3'), public.code_login_check((select access_code from c where id = tests.id('p1')), 'WRONG1', '10.0.0.3'),
+select tests.eq(public.code_login_check('0000', 'ZZZZZZZZ', 'ABC123', '10.0.0.3'), public.code_login_check((select access_code from c where id = tests.id('p1')), (select login_secret from c where id = tests.id('p1')), 'WRONG1', '10.0.0.3'),
                 'no hint which part was wrong');
 -- suspended accounts and archived editions cannot sign in
 update public.profiles set status = 'suspended' where id = tests.id('a5');
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p3')), null, '10.0.0.4') ->> 'ok', 'false', 'suspended refused');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p3')), (select login_secret from c where id = tests.id('p3')), null, '10.0.0.4') ->> 'ok', 'false', 'suspended refused');
 update public.profiles set status = 'active' where id = tests.id('a5');
 update public.editions set status = 'archived' where id = tests.id('e2');
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p9')), null, '10.0.0.4') ->> 'ok', 'false', 'archived edition refused');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p9')), (select login_secret from c where id = tests.id('p9')), null, '10.0.0.4') ->> 'ok', 'false', 'archived edition refused');
 
 -- throttling: 5 wrong guesses for one code, or 30 from one address, within 15 minutes
 do $$ begin
-  for i in 1..5 loop perform public.code_login_check((select access_code from c where id = tests.id('p1')), 'WRONG' || i, '10.0.1.' || i); end loop;
+  for i in 1..5 loop perform public.code_login_check((select access_code from c where id = tests.id('p1')), (select login_secret from c where id = tests.id('p1')), 'WRONG' || i, '10.0.1.' || i); end loop;
 end $$;
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), 'ABC123', '10.0.2.1') ->> 'reason', 'throttled', 'code locked after 5 failures, even with the right event code');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p1')), (select login_secret from c where id = tests.id('p1')), 'ABC123', '10.0.2.1') ->> 'reason', 'throttled', 'code locked after 5 failures, even with the right event code');
 do $$ begin
   -- codes that belong to nobody
-  perform public.code_login_check(lpad(g::text, 4, '0'), null, '10.0.3.3')
+  perform public.code_login_check(lpad(g::text, 4, '0'), 'ZZZZZZZZ', null, '10.0.3.3')
   from generate_series(0, 9999) g
   where not exists (select 1 from public.participants where access_code = lpad(g::text, 4, '0')) limit 30;
 end $$;
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p7')), null, '10.0.3.3') ->> 'reason', 'throttled', 'address blocked after 30 wrong guesses');
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p7')), null, '10.0.3.4') ->> 'ok', 'true', 'other IPs still work');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p7')), (select login_secret from c where id = tests.id('p7')), null, '10.0.3.3') ->> 'reason', 'throttled', 'address blocked after 30 wrong guesses');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p7')), (select login_secret from c where id = tests.id('p7')), null, '10.0.3.4') ->> 'ok', 'true', 'other IPs still work');
 
 -- linking a new auth user to a participant
 insert into auth.users (id, email) values (tests.id('n1'), 'n1@example.test');

@@ -7,7 +7,13 @@ export const SUPABASE_URL = process.env.SUPABASE_URL ?? 'https://vcfrcczyqpsbmew
 export const PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY ?? 'sb_publishable_6aqvmALLqpY4ijdE0vETzQ_q5fxMqWc';
 // Fictional dev seed (supabase/seed-dev.sql): the test organiser, a staff member, the event code. Codes are random
 // per database; override with E2E_ORGANISER_CODE / E2E_STAFF_CODE when running against another project.
-export const DEV = { organiser: process.env.E2E_ORGANISER_CODE ?? '2936', staff: process.env.E2E_STAFF_CODE ?? '0505', event: 'DEV123' };
+// Numbers are random per database; the invitation codes of the fictional people are fixed in seed-dev.sql.
+export const DEV = {
+  organiser: process.env.E2E_ORGANISER_CODE ?? '2936', organiserSecret: process.env.E2E_ORGANISER_SECRET ?? 'DEVTEST3',
+  staff: process.env.E2E_STAFF_CODE ?? '0505', staffSecret: process.env.E2E_STAFF_SECRET ?? 'DEVSTAFF',
+  pilgrim: process.env.E2E_PILGRIM_CODE ?? '3672', pilgrimSecret: process.env.E2E_PILGRIM_SECRET ?? 'DEVPUTNK',
+  event: 'DEV123',
+};
 
 // RFC 6238 TOTP (SHA-1, 30 s, 6 digits) from a base32 secret, as an authenticator app computes it.
 export function totp(secret: string, at = Date.now()): string {
@@ -23,11 +29,11 @@ export function totp(secret: string, at = Date.now()): string {
 }
 
 // A signed-in API client, through the same code-login function the apps use.
-export async function codeClient(code: string, eventCode?: string) {
+export async function codeClient(code: string, secret: string, eventCode?: string) {
   const res = await fetch(`${SUPABASE_URL}/functions/v1/code-login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', apikey: PUBLISHABLE_KEY },
-    body: JSON.stringify({ code, eventCode }),
+    body: JSON.stringify({ code, secret, eventCode }),
   });
   if (!res.ok) throw new Error(`code-login ${res.status}`);
   const s = await res.json();
@@ -49,7 +55,8 @@ const nextStep = () => new Promise((r) => setTimeout(r, 31_000 - (Date.now() % 3
 // Signs the test organiser into the admin, enrolling MFA the first time. Returns the TOTP secret.
 export async function adminLogin(page: Page): Promise<string> {
   await page.goto('/');
-  await page.getByLabel('Váš čtyřmístný kód').fill(DEV.organiser);
+  await page.getByLabel('Vaše číslo účastníka').fill(DEV.organiser);
+  await page.getByLabel('Kód z pozvánky').fill(DEV.organiserSecret);
   await page.getByLabel('Kód pouti (6 znaků)').fill(DEV.event);
   await page.getByRole('button', { name: 'Přihlásit' }).click();
   // first call may hit a cold Edge Function
@@ -59,22 +66,22 @@ export async function adminLogin(page: Page): Promise<string> {
   const secret = enrolling ? (await shown.textContent())!.trim() : knownSecret();
   if (!secret) throw new Error('The test organiser has an authenticator factor but its secret is unknown (set E2E_ORGANISER_TOTP).');
   if (enrolling) saveSecret(DEV.organiser, secret);
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) { // a verification by a previous spec's cleanup may fall in the same 30 s step
     await page.getByLabel('Šestimístné číslo z aplikace').fill(totp(secret));
     await page.getByRole('button', { name: 'Ověřit' }).click();
     if (await page.getByRole('heading', { name: 'Přehled' }).waitFor({ timeout: 10_000 }).then(() => true, () => false)) return secret;
     await nextStep();
   }
-  throw new Error('MFA verification failed twice');
+  throw new Error('MFA verification failed three times');
 }
 
 // The test organiser as an API client with MFA (aal2), e.g. to clean up test data whatever happened in the UI.
 export async function organiserClient(secret: string) {
-  const org = await codeClient(DEV.organiser, DEV.event);
+  const org = await codeClient(DEV.organiser, DEV.organiserSecret, DEV.event);
   const { data } = await org.auth.mfa.listFactors();
   const factor = data?.totp.find((f) => f.status === 'verified');
   if (!factor) throw new Error('test organiser has no verified factor');
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) { // a verification by a previous spec's cleanup may fall in the same 30 s step
     const { error } = await org.auth.mfa.challengeAndVerify({ factorId: factor.id, code: totp(secret) });
     if (!error) {
       // the tests create and delete people: refuse to run anywhere but the fictional development edition
@@ -84,5 +91,5 @@ export async function organiserClient(secret: string) {
     }
     await nextStep();
   }
-  throw new Error('MFA verification failed twice');
+  throw new Error('MFA verification failed three times');
 }

@@ -12,9 +12,9 @@ export default function Help() {
     <Screen title={t('home.help')}>
       <Card>
         <T kind="label">{t('help.emergency')}</T>
-        <BigButton icon="phone" tone="danger" label="112" hint="Evropské tísňové číslo" onPress={() => call('112')} />
+        <BigButton icon="phone" tone="danger" label="112" hint={t('help.eu112')} onPress={() => call('112')} />
         {data.edition.emergency_phone && (
-          <BigButton icon="phone" tone="primary" label={data.edition.emergency_phone} hint="Nouzová linka pouti" onPress={() => call(data.edition.emergency_phone!)} />
+          <BigButton icon="phone" tone="primary" label={data.edition.emergency_phone} hint={t('help.pilgrimageLine')} onPress={() => call(data.edition.emergency_phone!)} />
         )}
       </Card>
       {data.carers.length > 0 && (

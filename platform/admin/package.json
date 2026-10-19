@@ -13,8 +13,8 @@
     "@lurdy/shared": "workspace:*",
     "@supabase/supabase-js": "2.118.0",
     "qrcode": "1.5.4",
-    "react": "19.3.1",
-    "react-dom": "19.3.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
     "read-excel-file": "9.3.10",
     "write-excel-file": "4.1.1"
   },

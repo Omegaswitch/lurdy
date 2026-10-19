@@ -45,5 +45,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: node api/test.js
+      - run: node tests/api.test.js
       - run: python3 build.py --production

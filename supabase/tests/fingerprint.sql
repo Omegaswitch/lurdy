@@ -1,5 +1,5 @@
 -- Fingerprint of our schema objects; run locally and on the hosted project to prove they match.
-select 'functions' k, md5(string_agg(pg_get_functiondef(p.oid), '' order by n.nspname, p.proname)) v
+select 'functions' k, md5(string_agg(pg_get_functiondef(p.oid), '' order by n.nspname, p.proname, pg_get_function_identity_arguments(p.oid))) v
   from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname in ('app', 'public') and p.proname <> 'rls_auto_enable' -- Supabase's own
 union all
 select 'policies', md5(string_agg(schemaname || tablename || policyname || cmd || coalesce(qual, '') || coalesce(with_check, ''), '' order by tablename, policyname))

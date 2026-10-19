@@ -1,7 +1,7 @@
 -- Audit hardening: codes hidden from the API, throttle not usable against others, account link guarded,
 -- lost-phone revocation, replay ownership, anon cannot execute functions.
 begin;
-create temp table c as select id, access_code from public.participants;
+create temp table c as select id, access_code, login_secret from public.participants;
 grant select on c to authenticated, anon;
 
 -- 1. access codes: no API role reads the column; organisers use the RPC; the scanner search returns no code
@@ -30,15 +30,15 @@ select tests.ok(not exists (select 1 from audit.login_attempts where ok and code
 -- 2. throttling: a blocked address cannot lock a code, and throttled answers do not extend the block
 do $$ begin
   -- thirty different codes that belong to nobody (the same wrong code five times trips the per-code limit first)
-  perform public.code_login_check(lpad(g::text, 4, '0'), null, '10.8.0.1')
+  perform public.code_login_check(lpad(g::text, 4, '0'), 'ZZZZZZZZ', null, '10.8.0.1')
   from generate_series(0, 9999) g
   where not exists (select 1 from public.participants where access_code = lpad(g::text, 4, '0')) limit 30;
 end $$;
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p3')), null, '10.8.0.1') ->> 'reason', 'throttled', 'address blocked after 30 wrong guesses');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p3')), (select login_secret from c where id = tests.id('p3')), null, '10.8.0.1') ->> 'reason', 'throttled', 'address blocked after 30 wrong guesses');
 do $$ begin
-  for i in 1..6 loop perform public.code_login_check((select access_code from c where id = tests.id('p3')), null, '10.8.0.1'); end loop;
+  for i in 1..6 loop perform public.code_login_check((select access_code from c where id = tests.id('p3')), (select login_secret from c where id = tests.id('p3')), null, '10.8.0.1'); end loop;
 end $$;
-select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p3')), null, '10.8.0.2') ->> 'ok', 'true', 'the blocked address did not lock p3''s code for others');
+select tests.eq(public.code_login_check((select access_code from c where id = tests.id('p3')), (select login_secret from c where id = tests.id('p3')), null, '10.8.0.2') ->> 'ok', 'true', 'the blocked address did not lock p3''s code for others');
 select tests.ok(not exists (select 1 from audit.login_attempts where ok and code is not null), 'successful sign-in logged without the code');
 
 -- 3. the account link: an organiser cannot re-point a registration, sign-in can

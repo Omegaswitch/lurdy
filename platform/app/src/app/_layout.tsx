@@ -8,14 +8,14 @@ import { colors, fonts } from '../lib/theme';
 // Everything but the sign-in and the privacy notice needs a session: a deep link (web) or a cold start lands on
 // the sign-in screen instead of an empty page.
 function Routes() {
-  const { session } = useStore();
+  const { session, t } = useStore();
   return (
     <Stack
       screenOptions={{
         headerStyle: { backgroundColor: colors.red },
         headerTintColor: '#fff',
         headerTitleStyle: { fontFamily: fonts.bold, fontSize: 22 },
-        headerBackTitle: 'Zpět',
+        headerBackTitle: t('common.back'),
         contentStyle: { backgroundColor: colors.ground },
       }}>
       <Stack.Screen name="login" options={{ headerShown: false }} />

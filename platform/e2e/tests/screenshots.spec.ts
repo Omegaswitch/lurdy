@@ -1,6 +1,6 @@
 // Visual review captures (SHOTS=dir npx playwright test screenshots). Skipped in normal runs.
 import { test } from '@playwright/test';
-import { adminLogin } from './helpers';
+import { adminLogin, DEV } from './helpers';
 
 test.skip(!process.env.SHOTS, 'set SHOTS=<dir> to capture');
 
@@ -49,7 +49,8 @@ test('app screens', async ({ browser }) => {
   await p.goto(APP);
   await p.getByTestId('code').waitFor();
   await p.screenshot({ path: `${dir}/app-login.png` });
-  await p.getByTestId('code').fill(process.env.E2E_PILGRIM_CODE ?? '3672');
+  await p.getByTestId('code').fill(DEV.pilgrim);
+  await p.getByTestId('invite').fill(DEV.pilgrimSecret);
   await p.getByTestId('submit').click();
   await p.getByText(/Dobrý den/).waitFor({ timeout: 20_000 });
   await p.screenshot({ path: `${dir}/app-home.png`, fullPage: true });
@@ -91,9 +92,10 @@ test('app screens', async ({ browser }) => {
 
   const s = await (await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2 })).newPage();
   await s.goto(APP);
-  await s.getByTestId('code').fill(process.env.E2E_STAFF_CODE ?? '0505');
+  await s.getByTestId('code').fill(DEV.staff);
+  await s.getByTestId('invite').fill(DEV.staffSecret);
   await s.getByRole('switch', { name: 'Jsem člen týmu' }).click();
-  await s.getByTestId('eventCode').fill('DEV123');
+  await s.getByTestId('eventCode').fill(DEV.event);
   await s.getByTestId('submit').click();
   await s.getByTestId('go-scan').waitFor({ timeout: 20_000 });
   await s.screenshot({ path: `${dir}/app-staff-home.png`, fullPage: true });
