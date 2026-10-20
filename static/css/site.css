@@ -80,6 +80,11 @@ p{margin:0}
 @view-transition{navigation:auto}
 /* the transition name makes the header its own stacking context; lift it so dropdowns sit above animated page content */
 .site-header{view-transition-name:site-header;position:relative;z-index:30}
+/* the menu bar stays at the top once the page scrolls past the banner: the header is sticky, shifted up by
+   everything above the menu (site.js measures it into --stick); without JavaScript the header scrolls away as before */
+.site-header.sticky{position:sticky;top:calc(-1 * var(--stick,0px))}
+html.has-sticky{scroll-padding-top:calc(var(--nav-h,0px) + 24px)}
+@media (max-width:960px){.site-header.sticky .menu.open>.nav-list{max-height:calc(100dvh - var(--nav-h,48px));overflow-y:auto;overscroll-behavior:contain}}
 .site-footer{view-transition-name:site-footer}
 /* the Magistry frame holds still: the new header and footer are shown at once (the old ones, which may carry an open mobile menu, are dropped) */
 ::view-transition-group(site-header),::view-transition-group(site-footer),::view-transition-new(site-header),::view-transition-new(site-footer){animation:none}
