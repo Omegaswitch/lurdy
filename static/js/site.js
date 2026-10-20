@@ -1,5 +1,20 @@
 // lurdy.eu — progressive enhancement only; every page works without this file.
 (function () {
+  // ---- the menu bar stays at the top once the page scrolls past it (see .site-header.sticky in site.css)
+  var header = document.querySelector(".site-header"), bar = header && header.querySelector(".mainnav");
+  if (header && bar) {
+    var pin = function () {
+      var toggle = bar.querySelector(".menu-toggle");
+      header.style.setProperty("--stick", bar.offsetTop + "px");
+      document.documentElement.style.setProperty("--nav-h", ((toggle && toggle.offsetHeight) || bar.offsetHeight) + "px");
+    };
+    pin();
+    header.classList.add("sticky");
+    document.documentElement.classList.add("has-sticky");
+    window.addEventListener("resize", pin);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(pin);
+  }
+
   // ---- main menu (mobile) and submenus
   var toggle = document.querySelector(".menu-toggle");
   var menu = document.getElementById("menu");
