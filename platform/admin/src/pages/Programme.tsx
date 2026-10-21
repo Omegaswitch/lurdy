@@ -58,7 +58,7 @@ export function Programme() {
             <tbody>
               {data.events.filter((e) => fmtDay(e.starts_at, edition.timezone) === day).map((e) => (
                 <tr key={e.id} className="clickable" onClick={() => setEditing(e)}>
-                  <td className="mono" style={{ width: 110 }}>{fmtTime(e.starts_at, edition.timezone)}{e.ends_at && `–${fmtTime(e.ends_at, edition.timezone)}`}</td>
+                  <td className="mono" style={{ width: 130, whiteSpace: 'nowrap' }}>{fmtTime(e.starts_at, edition.timezone)}{e.ends_at && `–${fmtTime(e.ends_at, edition.timezone)}`}</td>
                   <td><strong>{e.title}</strong>{e.location && <span style={{ color: 'var(--muted)' }}> · {e.location}</span>}</td>
                   <td><span className="tag">{audienceLabel(e.audiences)}</span></td>
                   <td>{e.place_id ? <span className="tag"><Icon name="map" width={12} /> na mapě</span> : ''}</td>

@@ -90,10 +90,11 @@ export function Accommodation() {
 function RoomDetail({ room, rooms, people, housed }: { room: Room & { facility: Facility }; rooms: (Room & { facility: Facility })[]; people: Person[]; housed: Set<string> }) {
   const [message, setMessage] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
   const [query, setQuery] = useState('');
+  const [moving, setMoving] = useState<string | null>(null); // the one row whose "move to" choice is open
   const byId = useMemo(() => new Map(people.map((p) => [p.id, p])), [people]);
-  const candidates = people
-    .filter((p) => !housed.has(p.id) && fold(`${p.first_name} ${p.last_name}`).includes(fold(query.trim())))
-    .slice(0, 8);
+  const unhoused = people.filter((p) => !housed.has(p.id));
+  const hasRoom = room.room_assignments.length < room.capacity;
+  const candidates = unhoused.filter((p) => fold(`${p.first_name} ${p.last_name}`).includes(fold(query.trim()))).slice(0, 8);
   // every change asks for the affected row back: zero rows (rights lapsed, row gone) is an error, not "Uloženo"
   const run = async (op: Affecting, ok: string) => {
     const { error } = await affected(op.select('id'));
@@ -120,10 +121,10 @@ function RoomDetail({ room, rooms, people, housed }: { room: Room & { facility: 
           <span className="help">Člen týmu, který má pokoj na starosti, nemusí v pokoji bydlet.</span>
         </div>
         <div className="field">
-          <label htmlFor="addr">Ubytovat</label>
+          <label htmlFor="addr">Ubytovat{unhoused.length > 0 && ` · ${unhoused.length} bez lůžka`}</label>
           <input id="addr" type="search" placeholder="Jméno (zobrazí se jen dosud neubytovaní)" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
-        {query.trim() && (
+        {(query.trim() || (hasRoom && unhoused.length > 0)) && (
           <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 4 }}>
             {candidates.length === 0 && <li style={{ color: 'var(--muted)' }}>{t('admin.noResults')}</li>}
             {candidates.map((p) => (
@@ -145,7 +146,7 @@ function RoomDetail({ room, rooms, people, housed }: { room: Room & { facility: 
         </div>
       ) : (
         <table>
-          <thead><tr><th>Ubytovaní</th><th>Lůžko</th><th>{t('admin.moveTo')}</th><th><span className="visually-hidden">{t('admin.remove')}</span></th></tr></thead>
+          <thead><tr><th>Ubytovaní</th><th>Lůžko</th><th><span className="visually-hidden">{t('admin.moveTo')}</span></th><th><span className="visually-hidden">{t('admin.remove')}</span></th></tr></thead>
           <tbody>
             {room.room_assignments.map((a) => {
               const p = byId.get(a.participant_id);
@@ -159,13 +160,14 @@ function RoomDetail({ room, rooms, people, housed }: { room: Room & { facility: 
                       onBlur={(e) => e.target.value !== (a.bed ?? '') && run(supabase.from('room_assignments').update({ bed: e.target.value || null }).eq('id', a.id), 'Lůžko uloženo.')} />
                   </td>
                   <td>
+                    {moving !== a.id ? <button className="btn quiet small" onClick={() => setMoving(a.id)}>{t('admin.moveTo')}…</button> : <>
                     <label className="visually-hidden" htmlFor={`mvr-${a.id}`}>{t('admin.moveTo')}</label>
-                    <select id={`mvr-${a.id}`} value="" onChange={(e) => e.target.value && run(
+                    <select id={`mvr-${a.id}`} value="" autoFocus onBlur={() => setMoving(null)} onChange={(e) => { setMoving(null); if (e.target.value) run(
                       supabase.from('room_assignments').update({ room_id: e.target.value }).eq('id', a.id),
-                      `${fullName(p)} přestěhován(a).`)}>
+                      `${fullName(p)} přestěhován(a).`); }}>
                       <option value="">—</option>
                       {rooms.filter((r) => r.id !== room.id).map((r) => <option key={r.id} value={r.id}>{r.facility.short_label ?? r.facility.name} {r.number} ({r.room_assignments.length}/{r.capacity})</option>)}
-                    </select>
+                    </select></>}
                   </td>
                   <td className="num"><button className="btn quiet small" onClick={() => run(supabase.from('room_assignments').delete().eq('id', a.id), `${fullName(p)} odebrán(a) z pokoje.`)}>{t('admin.remove')}</button></td>
                 </tr>
