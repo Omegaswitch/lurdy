@@ -23,6 +23,7 @@ node tests/api.test.js              # checks the application function, with the 
 | `content/forms.json` | The fields of the online applications (sick, pilgrims, team). It is shared by the page generator and the email function. |
 | `static/files/` | Downloadable applications (Word/RTF), poster and travel information |
 | `static/media/` | Photos, WebP at 800 and 1600 px |
+| `static/img/og-<lang>.jpg` | 1200×630 link-preview cards (Discord, iMessage, Facebook): the Lourdes basilica photo under a dark veil, the Order's lockup in that language, a red strip. Rebuild with `python3 tools/make_og.py` after a lockup or photo change. |
 
 **Opening registration for a new year:**
 1. Update `pilgrimage` (number, start, end) and `last` in `site.json`.
