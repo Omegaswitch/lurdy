@@ -1,6 +1,6 @@
 import type { Role, Tables } from '@lurdy/shared';
 import type { Session } from '@supabase/supabase-js';
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { supabase } from './supabase';
 
 type Edition = Tables<'editions'>;
@@ -22,8 +22,8 @@ const AuthContext = createContext<Ctx | null>(null);
 // access_code is withheld from the API (sign-in codes are credentials), so participant queries name their columns.
 export const participantColumns = 'id, edition_id, user_id, category, title, first_name, last_name, preferred_name, phone, email, language, mobility, logistics_note, staff_note, photo_path, account_deleted_at, version, created_at, updated_at, updated_by';
 
-// A shared organiser laptop must not stay signed in forever: no activity for this long signs out.
-const IDLE_MS = 30 * 60_000;
+// The session stays until the user signs out (no idle sign-out, owner's decision 2026-10-22): the authenticator is
+// asked once per sign-in on each device, not again while the session lasts.
 
 // Admin is for organisers (and super admins). Their rights only count with MFA (aal2) — enforced by the database;
 // this only decides which screen to show.
@@ -64,7 +64,6 @@ async function resolve(): Promise<AuthState> {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>({ status: 'loading' });
-  const lastActivity = useRef(Date.now());
   const refresh = useCallback(async () => {
     try {
       const next = await resolve();
@@ -87,18 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
     return () => data.subscription.unsubscribe();
   }, [refresh]);
-  useEffect(() => {
-    const touch = () => { lastActivity.current = Date.now(); };
-    const events = ['mousemove', 'keydown', 'pointerdown', 'scroll', 'touchstart'] as const;
-    for (const e of events) window.addEventListener(e, touch, { passive: true });
-    const timer = setInterval(() => {
-      if (state.status === 'ready' && Date.now() - lastActivity.current > IDLE_MS) signOut();
-    }, 60_000);
-    return () => {
-      for (const e of events) window.removeEventListener(e, touch);
-      clearInterval(timer);
-    };
-  }, [state.status, signOut]);
   return <AuthContext.Provider value={{ state, refresh, signOut }}>{children}</AuthContext.Provider>;
 }
 

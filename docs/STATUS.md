@@ -56,6 +56,7 @@ organiser signs in (e-mail + password + authenticator; set up once through numbe
 - `app.zz_probe` is a leftover of the audit's column-privilege probe (one row, no personal data). Dropping it is a `DROP TABLE`, which the Supabase tool asks you to confirm: `drop table app.zz_probe;`.
 - Leaked-password protection is off on the project; organisers now sign into the admin with a password, so switch it on in Authentication → Settings.
 - Password-reset e-mails: set up custom SMTP (Authentication → SMTP) — the built-in sender is rate-limited and meant for testing — and add the admin's address to Authentication → URL configuration → Redirect URLs. Until then, an organiser who forgot the password repeats the first-time setup (invitation codes + authenticator).
+- Admin sessions stay signed in until **Odhlásit** (the 30-minute idle sign-out from audit item M3 was removed at the owner's request, 2026-10-22): the authenticator is asked once per sign-in on each device. Organisers must sign out on shared computers.
 - Each organiser and medical team member does the one-time setup (e-mail + password) before their first admin sign-in.
 - Set `VITE_APP_URL` on the admin's hosting to the app's public address before the first real invitations are exported (default `https://app.lurdy.eu`).
 - The admin's `participants` and `incidents` queries must name their columns (`select=*` is refused by the column privileges); the e2e suite and the SQL suite catch a regression.

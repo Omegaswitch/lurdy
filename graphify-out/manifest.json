@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "platform/admin/src/session.tsx": {
-    "mtime": 1792684165.0271804,
-    "seen": 1792692756.2670372,
-    "ast_hash": "27e92aef7b914486b286b1eaded03e1c",
+    "mtime": 1792697599.9201012,
+    "seen": 1792697638.3812385,
+    "ast_hash": "4b7e208379f94c72c62216dfb92a0756",
     "semantic_hash": ""
   },
   "platform/admin/src/supabase.ts": {
@@ -660,9 +660,9 @@
     "semantic_hash": ""
   },
   "docs/STATUS.md": {
-    "mtime": 1792696931.9164767,
-    "seen": 1792696944.0360353,
-    "ast_hash": "abc29d88bbdb14bca418454742cc226b",
+    "mtime": 1792697599.9210076,
+    "seen": 1792697638.3815475,
+    "ast_hash": "c7a20cf1391d8015f9d31351b0853025",
     "semantic_hash": ""
   },
   "docs/guides/organizator.md": {
