@@ -23,6 +23,11 @@ select pg_temp.code_login('a1', 'aal2');
 select tests.ok(not app.is_organizer(tests.id('e1')), 'code session is never an organiser');
 select tests.throws($$select * from public.participant_access_codes(tests.id('e1'))$$, 'code session cannot export codes', '42501');
 select tests.ok(public.my_admin_grant(), 'the setup screen still knows this person holds an organiser grant');
+-- and none through the table rules either (they use the set form, app.edition_ids)
+select tests.eq((select count(*) from app.edition_ids('{organizer,medical}')), 0::bigint, 'code session: no organiser edition in the table rules');
+select tests.eq(tests.n($$select id from public.participants$$), 1::bigint, 'code session sees only its own participant row');
+select tests.throws($$insert into public.rooms (edition_id, facility_id, number, capacity) select edition_id, id, 'X1', 1 from public.facilities limit 1$$,
+  'code session cannot create a room', '42501');
 reset role;
 
 -- medical: same rule
@@ -37,6 +42,7 @@ reset role;
 update public.staff_codes set valid_until = now() - interval '1 hour' where id = tests.id('c1');
 select tests.login('a1', 'aal2', 60);
 select tests.ok(app.is_organizer(tests.id('e1')), 'organiser keeps rights after the event code expired (password session)');
+select tests.eq(tests.n($$select id from public.participants where edition_id = tests.id('e1')$$), 9::bigint, 'and still reads every participant through the table rules');
 reset role;
 select tests.login('a3', 'aal2', 60);
 select tests.ok(not app.is_staff(tests.id('e1')), 'staff lose rights when the event code expired, even with a password');
