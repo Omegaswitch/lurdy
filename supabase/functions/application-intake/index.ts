@@ -2,6 +2,7 @@
 // edition for the organisers (admin → Přihlášky). Only the website calls this: it proves itself with a shared secret
 // (INTAKE_SECRET here, LURDY_INTAKE_SECRET on the website). Identity, contact and emergency contact only — the website
 // never sends health answers, the ID-card number or attachments (they stay in the organisers' e-mail).
+// The reply lists the addresses chosen to be told about new applications; the website sends them the notice.
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 
 const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
@@ -46,5 +47,7 @@ Deno.serve(async (req) => {
     language: LANGS.includes(b.lang as string) ? b.lang : 'cs',
   }).select('id').single();
   if (error) { console.error(error.message); return reply(500, { error: 'server' }); }
-  return reply(201, { id: data.id });
+  // who is to be told about it (admin → Přihlášky → Upozornění); the website sends the notice
+  const { data: notify } = await admin.from('application_notify').select('email').order('email');
+  return reply(201, { id: data.id, notify: (notify ?? []).map((r) => r.email) });
 });

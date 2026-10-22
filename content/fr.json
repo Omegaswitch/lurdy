@@ -118,7 +118,13 @@
   "draftNote": "Votre formulaire est enregistré au fur et à mesure, uniquement dans ce navigateur, pour que vous ne le perdiez pas ; il est effacé après l’envoi. Les pièces jointes ne sont pas enregistrées.",
   "draftClear": "Effacer le formulaire",
   "chooseFiles": "Choisir des fichiers",
-  "errorServer": "Le formulaire n’a pas pu être envoyé à cause d’un problème technique. Vos données restent enregistrées dans votre navigateur ; réessayez dans un moment ou envoyez le formulaire par e-mail à lurdy@lurdy.eu."
+  "errorServer": "Le formulaire n’a pas pu être envoyé à cause d’un problème technique. Vos données restent enregistrées dans votre navigateur ; réessayez dans un moment ou envoyez le formulaire par e-mail à lurdy@lurdy.eu.",
+  "receiptTitle": "Inscription reçue",
+  "receiptLead": "Merci, nous avons bien reçu votre inscription au pèlerinage à Lourdes et nous sommes en train de la traiter.",
+  "receiptNext": "Nous vous contacterons dans les prochains jours pour vous confirmer votre participation au pèlerinage.",
+  "receiptContact": "Pour toute question, écrivez-nous à {email}.",
+  "receiptNote": "Ce message a été envoyé automatiquement après l’envoi de votre inscription sur notre site. Il ne contient aucune des informations saisies.",
+  "mailHeader": "Pèlerinage de l’Ordre à Lourdes"
  },
  "nav": [
   "ucast",

@@ -1,5 +1,5 @@
 import { t, type Enums, type Tables } from '@lurdy/shared';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { friendlyError } from '../errors';
 import { fmtStamp } from '../format';
 import { Notice } from '../icons';
@@ -46,6 +46,7 @@ export function Applications() {
         </div>
       </div>
       {error && <Notice kind="error">{error}</Notice>}
+      {superAdmin && <NotifyPanel />}
       <div className="row" role="tablist" aria-label="Stav přihlášek" style={{ marginBottom: 16 }}>
         {statuses.map((s) => (
           <button key={s.key} role="tab" aria-selected={s.key === status} className={`btn${s.key === status ? ' primary' : ''}`} onClick={() => { setStatus(s.key); setOpen(null); }}>
@@ -150,5 +151,51 @@ function Decide({ a, people, onDone }: { a: Application; people: { id: string; f
         <button className="btn quiet" onClick={decline} disabled={busy}>Zamítnout</button>
       </div>
     </div>
+  );
+}
+
+// Who gets an e-mail when a new application arrives (super admins choose; e.g. one coordinator or a shared mailbox).
+function NotifyPanel() {
+  const [emails, setEmails] = useState<string[] | null>(null);
+  const [value, setValue] = useState('');
+  const [message, setMessage] = useState<string | null>(null);
+  const load = async () => {
+    const { data, error } = await supabase.from('application_notify').select('email').order('email');
+    if (error) return setMessage(friendlyError(error));
+    setEmails(data.map((r) => r.email));
+  };
+  useEffect(() => { load(); }, []);
+  async function add(e: FormEvent) {
+    e.preventDefault();
+    const email = value.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setMessage('Zadejte platnou e-mailovou adresu.');
+    const { error } = await supabase.from('application_notify').insert({ email });
+    if (error) return setMessage(error.code === '23505' ? 'Tato adresa už v seznamu je.' : friendlyError(error));
+    setValue(''); setMessage(null); load();
+  }
+  async function remove(email: string) {
+    const { error } = await supabase.from('application_notify').delete().eq('email', email);
+    if (error) return setMessage(friendlyError(error));
+    load();
+  }
+  return (
+    <details className="panel" style={{ padding: '14px 20px', marginBottom: 16 }}>
+      <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Upozornění e-mailem na novou přihlášku ({emails?.length ?? '…'})</summary>
+      <div className="stack" style={{ marginTop: 12 }}>
+        <p style={{ margin: 0, color: 'var(--muted)' }}>Když na webu přijde nová přihláška, tyto adresy dostanou krátké upozornění (jméno, druh přihlášky, odkaz sem). Celá přihláška jde dál jen na adresu přihlášek. Seznam vidí a mění jen hlavní správci.</p>
+        {message && <Notice kind="error">{message}</Notice>}
+        {emails && emails.length === 0 && <p style={{ margin: 0 }}>Zatím nikdo – upozornění se neposílají.</p>}
+        {emails && emails.length > 0 && (
+          <ul style={{ margin: 0, paddingLeft: 18 }}>
+            {emails.map((e) => <li key={e}>{e} <button className="btn quiet small" onClick={() => remove(e)} aria-label={`Odebrat ${e}`}>Odebrat</button></li>)}
+          </ul>
+        )}
+        <form className="row" style={{ alignItems: 'flex-end' }} onSubmit={add}>
+          <div className="field"><label htmlFor="notify-email">Přidat adresu</label>
+            <input id="notify-email" type="email" value={value} onChange={(e) => setValue(e.target.value)} placeholder="např. koordinator@lurdy.eu" style={{ minWidth: 280 }} /></div>
+          <button className="btn" type="submit">Přidat</button>
+        </form>
+      </div>
+    </details>
   );
 }

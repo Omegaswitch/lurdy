@@ -118,7 +118,13 @@
   "draftNote": "Your application is saved as you go, only in this browser, so you don’t lose it; it is deleted once sent. Attachments are not saved.",
   "draftClear": "Clear the form",
   "chooseFiles": "Choose files",
-  "errorServer": "The application could not be sent because of a technical problem. What you filled in is still saved in your browser; please try again shortly, or send the application by email to lurdy@lurdy.eu."
+  "errorServer": "The application could not be sent because of a technical problem. What you filled in is still saved in your browser; please try again shortly, or send the application by email to lurdy@lurdy.eu.",
+  "receiptTitle": "Application received",
+  "receiptLead": "Thank you, we have received your application for the pilgrimage to Lourdes and are now processing it.",
+  "receiptNext": "In the coming days we will contact you to confirm your participation in the pilgrimage.",
+  "receiptContact": "If you have any questions, write to us at {email}.",
+  "receiptNote": "This e-mail was sent automatically after you submitted the application on our website. It contains none of the details you entered.",
+  "mailHeader": "The Order’s Pilgrimage to Lourdes"
  },
  "nav": [
   "ucast",

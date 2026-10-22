@@ -6,7 +6,10 @@ const sent = [];
 const intakes = [];
 let intakeOk = true;
 global.fetch = async (url, o) => {
-  if (url.includes("intake")) { intakes.push({ headers: o.headers, body: JSON.parse(o.body) }); return { ok: intakeOk, status: intakeOk ? 201 : 500, text: async () => "" }; }
+  if (url.includes("intake")) {
+    intakes.push({ headers: o.headers, body: JSON.parse(o.body) });
+    return { ok: intakeOk, status: intakeOk ? 201 : 500, text: async () => "", json: async () => ({ id: "x", notify: ["koordinator@example.test", "not an address"] }) };
+  }
   sent.push(JSON.parse(o.body)); return { ok: true, text: async () => "" };
 };
 process.env.RESEND_API_KEY = "test";
@@ -44,7 +47,11 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   assert.ok(sent[0].html.includes("Jan &lt;b&gt;Novák&lt;/b&gt;"), "applicant input is escaped");
   assert.ok(sent[0].text.includes("diabetická, neslaná"), "options in Czech for the organisers");
   assert.ok(sent[0].text.includes("1. 1. 1950"), "date assembled");
-  assert.ok(!sent[1].text.includes("1950"), "the receipt carries no application data");
+  assert.ok(!sent[1].text.includes("1950") && !sent[1].html.includes("1950") && !sent[1].html.includes("Nov"), "the receipt carries no application data");
+  assert.equal(sent[1].subject, "Pilgrimage to Lourdes: Application received", "receipt in the applicant's language");
+  assert.ok(sent[1].html.includes("we have received your application") && sent[1].html.includes("cid:lockup"), "styled receipt with the lockup");
+  assert.deepEqual(sent[1].attachments.map((a) => [a.content_id, a.filename]), [["lockup", "maltezsky-rad.png"]], "lockup travels inside the e-mail");
+  assert.ok(sent[0].html.includes("cid:lockup") && !sent[0].html.includes("Otevřít Přihlášky"), "organiser e-mail styled; no admin link when not connected");
 
   sent.length = 0;
   assert.equal((await call({ ...good, consent: "" })).status, 400, "consent is required");
@@ -66,7 +73,7 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   sent.length = 0;
   r = await multipart(good, [["zpráva lékaře.pdf", Buffer.from("%PDF-1.4 test")], ["foto.jpg", Buffer.from([0xff, 0xd8, 0xff, 0xe0, 1, 2])]]);
   assert.equal(r.status, 303, "multipart with attachments");
-  assert.deepEqual(sent[0].attachments.map((a) => a.filename), ["1-zprava_lekare.pdf", "2-foto.jpg"]);
+  assert.deepEqual(sent[0].attachments.map((a) => a.filename), ["maltezsky-rad.png", "1-zprava_lekare.pdf", "2-foto.jpg"]);
   assert.ok(sent[0].text.includes("diabetická, neslaná"), "repeated checkbox values survive multipart");
   sent.length = 0;
   assert.equal((await multipart(good, [["virus.pdf", Buffer.from("MZ\x90")]])).status, 400, "file checked by content, not name");
@@ -86,6 +93,12 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   assert.equal(intakes[0].body.form, "malade");
   assert.equal(intakes[0].body.birth, "1950-01-01");
   assert.ok(sent[0].text.includes("uloženo ve správě pouti"), "the organisers see it was filed");
+  assert.equal(sent.length, 3, "application, notice, receipt");
+  const notice = sent.find((m) => m.subject.startsWith("Nová přihláška"));
+  assert.deepEqual(notice.to, ["koordinator@example.test"], "the notice goes to the chosen addresses only (invalid ones dropped)");
+  assert.equal(notice.subject, "Nová přihláška: Jan <b>Novák</b> (Přihláška – nemocní)");
+  assert.ok(notice.html.includes("Jan &lt;b&gt;Novák&lt;/b&gt;") && notice.html.includes("https://lurdy.vercel.app/#/prihlasky"), "escaped, with the admin link");
+  for (const word of ["fiktivní", "MUDr", "777", "Praha", "jan@example.com"]) assert.ok(!notice.html.includes(word) && !notice.text.includes(word), `the notice carries no ${word}`);
   intakeOk = false;
   sent.length = 0;
   assert.equal((await call(sick)).status, 303, "the platform being down does not fail the applicant");

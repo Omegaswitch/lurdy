@@ -118,7 +118,13 @@
   "draftNote": "Il modulo viene salvato man mano, solo in questo browser, perché non lo perdiate; dopo l’invio viene cancellato. Gli allegati non vengono salvati.",
   "draftClear": "Cancella il modulo",
   "chooseFiles": "Scegli i file",
-  "errorServer": "Non è stato possibile inviare il modulo a causa di un problema tecnico. I dati inseriti restano salvati nel vostro browser; riprovate tra poco oppure inviate il modulo via e-mail a lurdy@lurdy.eu."
+  "errorServer": "Non è stato possibile inviare il modulo a causa di un problema tecnico. I dati inseriti restano salvati nel vostro browser; riprovate tra poco oppure inviate il modulo via e-mail a lurdy@lurdy.eu.",
+  "receiptTitle": "Iscrizione ricevuta",
+  "receiptLead": "Grazie, abbiamo ricevuto la vostra iscrizione al pellegrinaggio a Lourdes e la stiamo elaborando.",
+  "receiptNext": "Nei prossimi giorni vi contatteremo per confermare la vostra partecipazione al pellegrinaggio.",
+  "receiptContact": "Per qualsiasi domanda, scriveteci a {email}.",
+  "receiptNote": "Questa e-mail è stata inviata automaticamente dopo l’invio dell’iscrizione sul nostro sito. Non contiene nessuno dei dati inseriti.",
+  "mailHeader": "Pellegrinaggio dell’Ordine a Lourdes"
  },
  "nav": [
   "ucast",

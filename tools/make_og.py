@@ -7,6 +7,7 @@ Same recipe as the school sites' tools/make_og.py. Run once after a lockup or ph
 """
 import base64
 import io
+import re
 from pathlib import Path
 
 from PIL import Image
@@ -33,6 +34,24 @@ def card(page, lang):
     print(out.name, out.stat().st_size)
 
 
+def email_logo(page, lang):
+    # the lockup as a PNG for e-mails (mail clients do not show SVG); 2× for sharp screens, shown 60 px high
+    # the banner lockup is drawn for red (white shield, red cross, white lettering); e-mails have a white header, so
+    # it takes the standard colours on white: red shield, white cross, red lettering (first #fff is the shield body)
+    svg = (ROOT / "static" / "img" / "lockup" / f"{lang}.svg").read_text()
+    svg = svg.replace('fill="#fff"', 'fill="SHIELD"', 1).replace('fill="#e31818"', 'fill="#fff"', 1)
+    svg = svg.replace('fill="#fff"', 'fill="CROSS"', 1).replace('fill="#fff"', f'fill="{RED}"').replace("SHIELD", RED).replace("CROSS", "#fff")
+    logo = "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
+    vb = [float(v) for v in re.search(r'viewBox="([^"]+)"', svg).group(1).split()]  # each language has its own width
+    page.set_viewport_size({"width": round(120 * vb[2] / vb[3]), "height": 120})
+    page.set_content(f'<!doctype html><body style="margin:0;background:#fff"><img src="{logo}" style="display:block;height:120px;width:auto" alt=""></body>')
+    page.wait_for_timeout(200)
+    out = ROOT / "static" / "img" / "email" / f"lockup-{lang}.png"
+    out.parent.mkdir(exist_ok=True)
+    Image.open(io.BytesIO(page.screenshot())).convert("RGB").quantize(64).save(out, "PNG", optimize=True)
+    print(out.name, out.stat().st_size)
+
+
 def main():
     exe = "/opt/pw-browsers/chromium" if Path("/opt/pw-browsers/chromium").exists() else None
     with sync_playwright() as p:
@@ -40,6 +59,8 @@ def main():
         page = b.new_page(viewport={"width": 1200, "height": 630})
         for lang in LANGS:
             card(page, lang)
+        for lang in LANGS:
+            email_logo(page, lang)
         b.close()
 
 

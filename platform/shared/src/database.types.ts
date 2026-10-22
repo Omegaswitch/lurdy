@@ -15,6 +15,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      application_notify: {
+        Row: { email: string; added_at: string; added_by: string | null }
+        Insert: { email: string; added_at?: string; added_by?: string | null }
+        Update: { email?: string; added_at?: string; added_by?: string | null }
+        Relationships: []
+      }
       applications: {
         Row: {
           id: string

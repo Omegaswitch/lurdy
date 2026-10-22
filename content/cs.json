@@ -118,7 +118,13 @@
   "draftNote": "Rozpracovaná přihláška se průběžně ukládá jen v tomto prohlížeči, abyste o ni nepřišli; po odeslání se smaže. Přílohy se neukládají.",
   "draftClear": "Smazat vyplněné údaje",
   "chooseFiles": "Vybrat soubory",
-  "errorServer": "Přihlášku se kvůli technické chybě nepodařilo odeslat. Vyplněné údaje zůstaly uložené ve vašem prohlížeči; zkuste to prosím za chvíli znovu, nebo pošlete přihlášku e-mailem na lurdy@lurdy.eu."
+  "errorServer": "Přihlášku se kvůli technické chybě nepodařilo odeslat. Vyplněné údaje zůstaly uložené ve vašem prohlížeči; zkuste to prosím za chvíli znovu, nebo pošlete přihlášku e-mailem na lurdy@lurdy.eu.",
+  "receiptTitle": "Přihláška přijata",
+  "receiptLead": "Děkujeme, vaši přihlášku na pouť do Lurd jsme přijali a nyní ji zpracováváme.",
+  "receiptNext": "V následujících dnech vás budeme kontaktovat s potvrzením vaší účasti na pouti.",
+  "receiptContact": "Máte-li dotaz, napište nám na {email}.",
+  "receiptNote": "Tento e-mail byl odeslán automaticky po odeslání přihlášky na našem webu. Neobsahuje žádné údaje z přihlášky.",
+  "mailHeader": "Řádová pouť do Lurd"
  },
  "nav": [
   "ucast",

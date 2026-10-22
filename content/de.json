@@ -118,7 +118,13 @@
   "draftNote": "Ihre Anmeldung wird laufend nur in diesem Browser gespeichert, damit sie nicht verloren geht; nach dem Senden wird sie gelöscht. Anhänge werden nicht gespeichert.",
   "draftClear": "Formular leeren",
   "chooseFiles": "Dateien auswählen",
-  "errorServer": "Die Anmeldung konnte wegen eines technischen Problems nicht gesendet werden. Ihre Eingaben bleiben in Ihrem Browser gespeichert; bitte versuchen Sie es gleich noch einmal oder senden Sie die Anmeldung per E-Mail an lurdy@lurdy.eu."
+  "errorServer": "Die Anmeldung konnte wegen eines technischen Problems nicht gesendet werden. Ihre Eingaben bleiben in Ihrem Browser gespeichert; bitte versuchen Sie es gleich noch einmal oder senden Sie die Anmeldung per E-Mail an lurdy@lurdy.eu.",
+  "receiptTitle": "Anmeldung erhalten",
+  "receiptLead": "Vielen Dank, wir haben Ihre Anmeldung zur Wallfahrt nach Lourdes erhalten und bearbeiten sie nun.",
+  "receiptNext": "In den nächsten Tagen melden wir uns bei Ihnen, um Ihre Teilnahme an der Wallfahrt zu bestätigen.",
+  "receiptContact": "Bei Fragen schreiben Sie uns an {email}.",
+  "receiptNote": "Diese E-Mail wurde nach dem Absenden Ihrer Anmeldung auf unserer Website automatisch verschickt. Sie enthält keine Ihrer Angaben.",
+  "mailHeader": "Wallfahrt des Ordens nach Lourdes"
  },
  "nav": [
   "ucast",

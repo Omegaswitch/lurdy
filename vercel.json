@@ -4,6 +4,11 @@
   "installCommand": "",
   "buildCommand": "python3 build.py --production",
   "outputDirectory": "dist",
+  "functions": {
+    "api/prihlaska.js": {
+      "includeFiles": "static/img/email/**"
+    }
+  },
   "cleanUrls": false,
   "trailingSlash": true,
   "headers": [
