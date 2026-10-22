@@ -36,11 +36,11 @@ def card(page, lang):
 
 def email_logo(page, lang):
     # the lockup as a PNG for e-mails (mail clients do not show SVG); 2× for sharp screens, shown 60 px high
-    # the banner lockup has white lettering for the red banner; e-mails have a white header, so the lettering turns red.
+    # the banner lockup has white lettering for the red banner; e-mails have a white header, so the lettering turns black.
     # The shield stays as drawn; the lettering is the last white shape (before it: the shield's border and the cross).
     svg = (ROOT / "static" / "img" / "lockup" / f"{lang}.svg").read_text()
     head, _, tail = svg.rpartition('fill="#fff"')
-    svg = f'{head}fill="{RED}"{tail}'
+    svg = f'{head}fill="#111"{tail}'
     logo = "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
     vb = [float(v) for v in re.search(r'viewBox="([^"]+)"', svg).group(1).split()]  # each language has its own width
     page.set_viewport_size({"width": round(120 * vb[2] / vb[3]), "height": 120})

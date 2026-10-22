@@ -1518,9 +1518,9 @@
     "semantic_hash": ""
   },
   "tools/make_og.py": {
-    "mtime": 1792703048.9624689,
-    "seen": 1792703081.40086,
-    "ast_hash": "ca76cb7033255cb4e8a9378b0f77bfef",
+    "mtime": 1792703094.3317366,
+    "seen": 1792703109.8226583,
+    "ast_hash": "72cf04318c82053bba6c04edaee63316",
     "semantic_hash": ""
   },
   "docs/audits/2026-10-19-remediation.md": {
@@ -1530,32 +1530,32 @@
     "semantic_hash": ""
   },
   "static/img/og-cs.jpg": {
-    "mtime": 1792703050.6813016,
-    "seen": 1792703081.4009812,
+    "mtime": 1792703096.0493026,
+    "seen": 1792703109.8228693,
     "ast_hash": "152ad02ac7c070b5e45353ef63b5888e",
     "semantic_hash": ""
   },
   "static/img/og-de.jpg": {
-    "mtime": 1792703053.3813016,
-    "seen": 1792703081.4009833,
+    "mtime": 1792703098.7133026,
+    "seen": 1792703109.8228712,
     "ast_hash": "6f259567acfc1e054e6a68fdbab91bb6",
     "semantic_hash": ""
   },
   "static/img/og-en.jpg": {
-    "mtime": 1792703051.3533015,
-    "seen": 1792703081.4009857,
+    "mtime": 1792703096.7013025,
+    "seen": 1792703109.8228734,
     "ast_hash": "89e9bf8b3e9d73b79c6488a38887b3e0",
     "semantic_hash": ""
   },
   "static/img/og-fr.jpg": {
-    "mtime": 1792703052.0173016,
-    "seen": 1792703081.4009874,
+    "mtime": 1792703097.3773026,
+    "seen": 1792703109.8228757,
     "ast_hash": "44ce052a0fd3801bdd6947491f149d76",
     "semantic_hash": ""
   },
   "static/img/og-it.jpg": {
-    "mtime": 1792703052.6893017,
-    "seen": 1792703081.4009888,
+    "mtime": 1792703098.0373027,
+    "seen": 1792703109.8228776,
     "ast_hash": "820ac729e7387861f5de860d19177f8f",
     "semantic_hash": ""
   },
@@ -1614,33 +1614,33 @@
     "semantic_hash": ""
   },
   "static/img/email/lockup-cs.png": {
-    "mtime": 1792703053.6413016,
-    "seen": 1792703081.4009526,
-    "ast_hash": "b34abaaaaa5c3749d7de6453d07efcfb",
+    "mtime": 1792703098.9653027,
+    "seen": 1792703109.8228362,
+    "ast_hash": "c38d86ffa14ca2c8d2d7393f79aa3d89",
     "semantic_hash": ""
   },
   "static/img/email/lockup-de.png": {
-    "mtime": 1792703054.6453016,
-    "seen": 1792703081.4009552,
-    "ast_hash": "522816920a51f85daf9779a370a6eba1",
+    "mtime": 1792703099.9613028,
+    "seen": 1792703109.822839,
+    "ast_hash": "65d1cb03f9d88179ba56a73c8dbcc1d5",
     "semantic_hash": ""
   },
   "static/img/email/lockup-en.png": {
-    "mtime": 1792703053.8933017,
-    "seen": 1792703081.4009573,
-    "ast_hash": "eec9852026e0f72b42e2f74fe04ca98e",
+    "mtime": 1792703099.2133026,
+    "seen": 1792703109.822842,
+    "ast_hash": "2ad1733791d5f2e03538904806ad13a6",
     "semantic_hash": ""
   },
   "static/img/email/lockup-fr.png": {
-    "mtime": 1792703054.1453016,
-    "seen": 1792703081.40096,
-    "ast_hash": "4d8e9f65adf94c15a155c88eaa20ec88",
+    "mtime": 1792703099.4573026,
+    "seen": 1792703109.8228445,
+    "ast_hash": "6f2180a190fb98a52765e12bbe9f5d89",
     "semantic_hash": ""
   },
   "static/img/email/lockup-it.png": {
-    "mtime": 1792703054.3933017,
-    "seen": 1792703081.400962,
-    "ast_hash": "f0e1e9c680b2185d904b63ebeef59a87",
+    "mtime": 1792703099.7053027,
+    "seen": 1792703109.8228464,
+    "ast_hash": "a442140f0cbcf54284b7fefed975e018",
     "semantic_hash": ""
   }
 }
