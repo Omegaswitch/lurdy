@@ -126,6 +126,7 @@ test('scan → Bus A; move to Bus C; same badge scans as Bus C; participant app 
   await page.getByRole('link', { name: 'Doprava' }).click();
   await leg('A').click();
   const row = page.getByRole('row').filter({ hasText: surname });
+  await row.getByRole('button', { name: /Přesunout do/ }).click(); // the leg choice opens per row
   await row.getByRole('combobox').selectOption({ label: 'Autobus C' });
   await expect(page.getByRole('status')).toContainText('přesunut');
 

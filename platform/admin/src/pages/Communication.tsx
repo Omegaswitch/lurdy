@@ -86,7 +86,7 @@ function Contacts() {
             {data.map((c) => (
               <tr key={c.id}>
                 <td><strong>{c.label}</strong>{c.is_emergency && <> <span className="tag"><Icon name="alert" width={12} /> nouzový</span></>}<div>{c.name}</div></td>
-                <td className="mono">{c.phone}</td>
+                <td className="mono" style={{ whiteSpace: 'nowrap' }}>{c.phone}</td>
                 <td><span className="tag">{audienceOptions.find((o) => key(o.value) === key(c.audiences))?.label ?? c.audiences.join(', ')}</span></td>
                 <td className="num"><button className="btn quiet small" onClick={() => edit(c)}>{t('common.edit')}</button> <button className="btn quiet small" onClick={() => remove(c)}>{t('common.delete')}</button></td>
               </tr>

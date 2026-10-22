@@ -141,7 +141,7 @@ function EventCodes() {
       <form className="stack" style={{ padding: 20 }} onSubmit={add} aria-label="Nový kód pouti">
         <div className="row" style={{ alignItems: 'flex-end' }}>
           <div className="field"><label htmlFor="cc">Nový kód</label>
-            <input id="cc" className="code" value={form.code} readOnly style={{ maxWidth: '10ch', fontSize: '1.2rem' }} /></div>
+            <input id="cc" className="code" value={form.code} readOnly style={{ maxWidth: 'none', width: '9em', fontSize: '1.2rem' }} /></div>
           <button className="btn small" type="button" onClick={() => setForm((f) => ({ ...f, code: randomEventCode() }))}>Jiný kód</button>
           <div className="field"><label htmlFor="cl">Popis</label><input id="cl" value={form.label} onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))} /></div>
         </div>

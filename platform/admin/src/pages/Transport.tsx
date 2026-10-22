@@ -93,6 +93,7 @@ function LegDetail({ leg, legs, people, onEdit, onDeleted }: { leg: Leg; legs: L
   const { edition } = useReady();
   const [message, setMessage] = useState<{ kind: 'error' | 'ok'; text: string } | null>(null);
   const [query, setQuery] = useState('');
+  const [moving, setMoving] = useState<string | null>(null); // the one row whose "move to" choice is open
   const byId = useMemo(() => new Map(people.map((p) => [p.id, p])), [people]);
   const onLeg = new Set(leg.leg_assignments.map((a) => a.participant_id));
   // People without any leg in this direction come first: they are the ones still to place.
@@ -131,6 +132,9 @@ function LegDetail({ leg, legs, people, onEdit, onDeleted }: { leg: Leg; legs: L
           {' · '}{t('admin.capacity')}: {leg.leg_assignments.length}{leg.capacity != null ? ` / ${leg.capacity}` : ''}
           {' · '}{t('admin.wheelchairs')}: {wheelchairs} / {leg.wheelchair_capacity}
         </p>
+        {wheelchairs > leg.wheelchair_capacity && (
+          <div style={{ marginTop: 12 }}><Notice kind="warn">Na spoji je {wheelchairs} lidí na vozíku, ale jen {leg.wheelchair_capacity} míst pro vozík. Přesuňte {wheelchairs - leg.wheelchair_capacity} z nich, nebo navyšte místa.</Notice></div>
+        )}
         </div>
         <button className="btn small" onClick={onEdit}>{t('common.edit')}</button>
         <button className="btn quiet small" onClick={removeLeg}>Smazat spoj</button>
@@ -158,21 +162,22 @@ function LegDetail({ leg, legs, people, onEdit, onDeleted }: { leg: Leg; legs: L
       </div>
       {passengers.length === 0 ? <p className="empty">Na tomto spoji zatím nikdo není.</p> : (
         <table>
-          <thead><tr><th>{t('admin.passengers')}</th><th>Stav</th><th>{t('admin.moveTo')}</th><th><span className="visually-hidden">{t('admin.remove')}</span></th></tr></thead>
+          <thead><tr><th>{t('admin.passengers')}</th><th>Stav</th><th><span className="visually-hidden">{t('admin.moveTo')}</span></th><th><span className="visually-hidden">{t('admin.remove')}</span></th></tr></thead>
           <tbody>
             {passengers.map(({ a, p }) => (
               <tr key={a.id}>
                 <td>{fullName(p)} <span className={`tag ${p.category}`}>{t(`category.${p.category}`)}</span>{p.mobility === 'wheelchair' && <> <span className="tag">{t('mobility.wheelchair')}</span></>}</td>
                 <td>{a.arrived_at ? <span className="tag"><Icon name="check" width={12} /> Dorazil(a)</span> : a.boarded_at ? <span className="tag"><Icon name="check" width={12} /> {t('journey.boarded')}</span> : '—'}</td>
                 <td>
+                  {moving !== a.id ? <button className="btn quiet small" onClick={() => setMoving(a.id)}>{t('admin.moveTo')}…</button> : <>
                   <label className="visually-hidden" htmlFor={`mv-${a.id}`}>{t('admin.moveTo')}</label>
-                  <select id={`mv-${a.id}`} value="" onChange={(e) => e.target.value && run(
+                  <select id={`mv-${a.id}`} value="" autoFocus onBlur={() => setMoving(null)} onChange={(e) => { setMoving(null); if (e.target.value) run(
                     supabase.from('leg_assignments').update({ leg_id: e.target.value }).eq('id', a.id),
-                    `${fullName(p)} přesunut(a) do ${legs.find((l) => l.id === e.target.value)?.code}.`)}>
+                    `${fullName(p)} přesunut(a) do ${legs.find((l) => l.id === e.target.value)?.code}.`); }}>
                     <option value="">—</option>
                     {legs.filter((l) => l.id !== leg.id && l.direction === leg.direction && !l.leg_assignments.some((x) => x.participant_id === p.id))
                       .map((l) => <option key={l.id} value={l.id}>{t(`leg.${l.kind}`)} {l.code}</option>)}
-                  </select>
+                  </select></>}
                 </td>
                 <td className="num">
                   <button className="btn quiet small" onClick={() => run(supabase.from('leg_assignments').delete().eq('id', a.id), `${fullName(p)} odebrán(a) z ${leg.code}.`)}>

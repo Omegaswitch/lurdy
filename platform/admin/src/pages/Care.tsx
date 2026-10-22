@@ -1,7 +1,7 @@
 import { t, type Enums, type Tables } from '@lurdy/shared';
 import { useMemo, useState, type FormEvent } from 'react';
 import { friendlyError } from '../errors';
-import { fmtStamp, fromLocalInput, fullName } from '../format';
+import { activeNow as active, fmtStamp, fromLocalInput, fullName } from '../format';
 import { Icon, Notice } from '../icons';
 import { affected, must, useLive } from '../live';
 import { useReady } from '../session';
@@ -13,8 +13,6 @@ type Person = Pick<Tables<'participants'>, 'id' | 'first_name' | 'last_name' | '
   room_assignments: { rooms: { number: string; facilities: { short_label: string | null; name: string } | null } | null } | null;
 };
 type Assignment = Tables<'care_assignments'>;
-const active = (a: Assignment, now: number) =>
-  (!a.starts_at || new Date(a.starts_at).getTime() <= now) && (!a.ends_at || new Date(a.ends_at).getTime() > now);
 
 export function Care() {
   const { edition } = useReady();
@@ -43,7 +41,7 @@ export function Care() {
     const malades = data.people.filter((p) => p.category === 'malade').map((m) => {
       const mine = data.assignments.filter((a) => a.malade_id === m.id);
       return { m, mine, covered: mine.some((a) => a.kind === 'primary' && active(a, now)) };
-    });
+    }).sort((a, b) => Number(a.covered) - Number(b.covered)); // those still without a main assistant first
     return { byId, load, malades, carers: data.people.filter((p) => p.category !== 'malade'), now };
   }, [data]);
 

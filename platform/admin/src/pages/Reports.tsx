@@ -102,10 +102,10 @@ export function Reports() {
                 sub={[t(`direction.${l.direction}`), [l.origin, l.destination].filter(Boolean).join(' → '), l.departs_at && `${fmtDay(l.departs_at, edition.timezone)} ${fmtTime(l.departs_at, edition.timezone)}`,
                   `${pax.length}${l.capacity != null ? ` / ${l.capacity}` : ''} osob`, `vozíky: ${pax.filter((p) => p.mobility === 'wheelchair').length}`, resp && `odpovídá ${fullName(resp)}`].filter(Boolean).join(' · ')}>
                 <table className="print-table">
-                  <thead><tr><th className="tick">Nást.</th><th>#</th><th>Příjmení a jméno</th><th>Kategorie</th><th>Pohyblivost</th><th>Telefon</th></tr></thead>
+                  <thead><tr><th className="tick">Nást.</th><th className="num">#</th><th>Příjmení a jméno</th><th>Kategorie</th><th>Pohyblivost</th><th>Telefon</th></tr></thead>
                   <tbody>
                     {pax.map((p, i) => (
-                      <tr key={p.id}><td className="tick">{p.leg_assignments.find((a) => a.leg_id === l.id)?.boarded_at ? '✓' : ''}</td><td>{i + 1}</td>
+                      <tr key={p.id}><td className="tick">{p.leg_assignments.find((a) => a.leg_id === l.id)?.boarded_at ? <Icon name="check" width={12} /> : ''}</td><td className="num">{i + 1}</td>
                         <td><strong>{p.last_name}</strong> {[p.title, p.first_name].filter(Boolean).join(' ')}</td><td>{t(`category.${p.category}`)}</td>
                         <td>{p.mobility === 'walks' ? '' : t(`mobility.${p.mobility}`)}</td><td>{p.phone}</td></tr>
                     ))}
@@ -193,13 +193,13 @@ function PeopleTable({ people, legs, rooms, facilities }: { people: Person[]; le
   const facById = new Map(facilities.map((f) => [f.id, f]));
   return (
     <table className="print-table">
-      <thead><tr><th>#</th><th>Příjmení a jméno</th><th>Kategorie</th><th>Tam</th><th>Zpět</th><th>Ubytování</th></tr></thead>
+      <thead><tr><th className="num">#</th><th>Příjmení a jméno</th><th>Kategorie</th><th>Tam</th><th>Zpět</th><th>Ubytování</th></tr></thead>
       <tbody>
         {people.map((p, i) => {
           const codes = (dir: Leg['direction']) => p.leg_assignments.map((a) => legById.get(a.leg_id)).filter((l) => l?.direction === dir).map((l) => l!.code).join(', ');
           const room = p.room_assignments ? roomById.get(p.room_assignments.room_id) : null;
           return (
-            <tr key={p.id}><td>{i + 1}</td><td><strong>{p.last_name}</strong> {[p.title, p.first_name].filter(Boolean).join(' ')}</td><td>{t(`category.${p.category}`)}</td>
+            <tr key={p.id}><td className="num">{i + 1}</td><td><strong>{p.last_name}</strong> {[p.title, p.first_name].filter(Boolean).join(' ')}</td><td>{t(`category.${p.category}`)}</td>
               <td>{codes('outbound')}</td><td>{codes('return')}</td>
               <td>{room ? `${facById.get(room.facility_id)?.short_label ?? ''} ${room.number}` : ''}</td></tr>
           );

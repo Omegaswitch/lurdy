@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parent
 DIST = ROOT / "dist"
 
 # Only these official emblem/brand files may appear; anything else under /img/ is a new, unapproved mark.
-BRAND_FILES = re.compile(r"^/img/(banner/banner-photo\.webp|lockup/(cs|en|fr|it|de)\.svg|favicon/[\w.-]+)$")
+BRAND_FILES = re.compile(r"^/img/(banner/banner-photo\.webp|og-(cs|en|fr|it|de)\.jpg|lockup/(cs|en|fr|it|de)\.svg|favicon/[\w.-]+)$")
 # The communications policy forbids the acronym; legacy texts are flagged, not rewritten.
 ACRONYM = re.compile(r"\bS\.?\s?M\.?\s?O\.?\s?M\b")
 

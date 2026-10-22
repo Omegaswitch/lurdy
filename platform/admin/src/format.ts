@@ -5,6 +5,9 @@ export const fmtDay = (iso: string | null, tz: string) =>
   iso ? new Intl.DateTimeFormat('cs-CZ', { timeZone: tz, weekday: 'short', day: 'numeric', month: 'numeric' }).format(new Date(iso)) : '';
 export const fmtStamp = (d: Date) =>
   new Intl.DateTimeFormat('cs-CZ', { dateStyle: 'medium', timeStyle: 'short' }).format(d);
+// A care assignment (or anything with an optional from–until window) that is in force at `now`.
+export const activeNow = (a: { starts_at: string | null; ends_at: string | null }, now: number) =>
+  (!a.starts_at || new Date(a.starts_at).getTime() <= now) && (!a.ends_at || new Date(a.ends_at).getTime() > now);
 export const fullName = (p: { title?: string | null; first_name: string; last_name: string }) =>
   [p.title, p.first_name, p.last_name].filter(Boolean).join(' ');
 
