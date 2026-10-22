@@ -54,4 +54,13 @@ select tests.anon();
 select tests.throws($$select public.my_admin_grant()$$, 'anon cannot call my_admin_grant', '42501');
 reset role;
 
+-- the super admin (master access): password + authenticator, never through a code session
+select tests.login('a0', 'aal2', 60);
+select tests.ok(app.is_super_admin(), 'super admin with password + authenticator');
+reset role;
+select pg_temp.code_login('a0', 'aal2');
+select tests.ok(not app.is_super_admin(), 'a code session is never super admin');
+select tests.ok(not app.is_organizer(tests.id('e1')), 'and gets no organiser rights through it');
+reset role;
+
 rollback;

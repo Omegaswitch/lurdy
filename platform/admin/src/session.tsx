@@ -45,7 +45,7 @@ async function resolve(): Promise<AuthState> {
   if (aal.data?.currentLevel !== 'aal2') return { status: 'needsMfa', enrolled: aal.data?.nextLevel === 'aal2' };
   // The admin is for password sessions only (the database agrees): a code session here is the one-time setup.
   const byPassword = (aal.data?.currentAuthenticationMethods ?? []).some((m) => (typeof m === 'string' ? m : m.method) === 'password');
-  if (!byPassword && !superAdmin) return { status: 'setup' };
+  if (!byPassword) return { status: superAdmin && !granted.length ? 'noAccess' : 'setup' };
   const editions = await supabase.from('editions').select('*').order('status').order('year', { ascending: false });
   if (editions.error) return { status: 'error', message: editions.error.message };
   const edition = editions.data.find((e) => e.status === 'active') ?? editions.data[0];

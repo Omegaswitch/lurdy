@@ -1,5 +1,5 @@
 {
-  "0": "useReady",
+  "0": "Reports.tsx",
   "1": "ui.tsx",
   "2": "build.py",
   "3": "20261018211334_operations.sql",
@@ -46,7 +46,7 @@
   "44": "shim.sql",
   "45": "public.code_login_check",
   "46": "shared/tsconfig.json",
-  "47": "STATUS.md",
+  "47": "App Store and Google Play checklist",
   "48": "code-login/index.ts",
   "49": "04_concurrency.sh",
   "50": "06_seed_dev.sh",
@@ -67,9 +67,9 @@
   "65": "20261019150000_advisor_followup.sql",
   "66": "20261019130248_hardening.sql",
   "67": "t",
-  "68": "Participants.tsx",
+  "68": "src/index.ts",
   "69": "Audit of the whole platform — 2026-10-19",
-  "70": "Accommodation.tsx",
+  "70": "t",
   "71": "Notice",
   "72": "Module",
   "73": "Badges.tsx",
@@ -86,5 +86,9 @@
   "84": "09_remediation.sql",
   "85": "11_admin_login.sql",
   "86": "public.places",
-  "87": "10_archive.sql"
+  "87": "10_archive.sql",
+  "88": "Edition.tsx",
+  "89": "Transport.tsx",
+  "90": "lurdy.eu",
+  "91": "app.is_super_admin"
 }

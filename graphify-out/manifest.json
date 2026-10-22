@@ -156,9 +156,9 @@
     "semantic_hash": ""
   },
   "platform/admin/src/session.tsx": {
-    "mtime": 1792679020.8710845,
-    "seen": 1792683856.2316194,
-    "ast_hash": "3d4c49ce0700d445ee5a13e5648e53b7",
+    "mtime": 1792684165.0271804,
+    "seen": 1792692756.2670372,
+    "ast_hash": "27e92aef7b914486b286b1eaded03e1c",
     "semantic_hash": ""
   },
   "platform/admin/src/supabase.ts": {
@@ -1512,9 +1512,9 @@
     "semantic_hash": ""
   },
   "supabase/tests/11_admin_login.sql": {
-    "mtime": 1792678921.6900342,
-    "seen": 1792683856.2318046,
-    "ast_hash": "7dc7f0d1da8454c404cf26db5c1a0123",
+    "mtime": 1792684165.016928,
+    "seen": 1792692756.2672963,
+    "ast_hash": "7e049b17d70cb29ed0e6bd0f63420aa4",
     "semantic_hash": ""
   },
   "tools/make_og.py": {
@@ -1557,6 +1557,12 @@
     "mtime": 1792683576.925301,
     "seen": 1792683856.231956,
     "ast_hash": "820ac729e7387861f5de860d19177f8f",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261022160000_super_admin_password.sql": {
+    "mtime": 1792684155.3878958,
+    "seen": 1792692756.267269,
+    "ast_hash": "e3ff566e3e47d6e03e9a8fdad5d20e31",
     "semantic_hash": ""
   }
 }
