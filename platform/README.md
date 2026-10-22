@@ -26,3 +26,5 @@ Rules the tests enforce: every new database function ends with `revoke execute â
 Test suites: `supabase/tests/run.sh` (11 SQL suites: access, integrity, scan, concurrency, code login, seed, account deletion, hardening, remediation, archive, admin sign-in; `run.sh fingerprint` prints the schema fingerprint to compare with the hosted project), Vitest in `shared/` and `admin/`, Playwright in `e2e/` (admin + app web build against the development project, with axe accessibility checks on every admin screen and the app's screens).
 
 Updating database types after a migration: regenerate `shared/src/database.types.ts` (Supabase CLI `supabase gen types typescript` or the Supabase MCP tool).
+
+Hosting the admin on Vercel: a project with Root Directory `platform/admin`; `platform/admin/vercel.json` sets install, build, output and security headers (the repository root's `vercel.json` is the lurdy.eu website's). `admin/.env.production` holds the public build defaults (development project URL and publishable key); variables set in Vercel override them.
