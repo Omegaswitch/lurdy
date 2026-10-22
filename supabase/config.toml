@@ -11,9 +11,12 @@ jwt_expiry = 900
 enroll_enabled = true
 verify_enabled = true
 
-# Both functions check the caller themselves: code-login has no user yet; delete-account verifies the bearer.
+# The functions check the caller themselves: code-login has no user yet; delete-account and admin-login-setup verify the bearer.
 [functions.code-login]
 verify_jwt = false
 
 [functions.delete-account]
+verify_jwt = true
+
+[functions.admin-login-setup]
 verify_jwt = true

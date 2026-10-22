@@ -10,13 +10,6 @@ export default function Help() {
   if (!data) return <NoData />;
   return (
     <Screen title={t('home.help')}>
-      <Card>
-        <T kind="label">{t('help.emergency')}</T>
-        <BigButton icon="phone" tone="danger" label="112" hint={t('help.eu112')} onPress={() => call('112')} />
-        {data.edition.emergency_phone && (
-          <BigButton icon="phone" tone="primary" label={data.edition.emergency_phone} hint={t('help.pilgrimageLine')} onPress={() => call(data.edition.emergency_phone!)} />
-        )}
-      </Card>
       {data.carers.length > 0 && (
         <View style={{ gap: space.m }}>
           <T kind="title" accessibilityRole="header">Moji asistenti</T>
@@ -30,6 +23,14 @@ export default function Help() {
         <BigButton key={c.label + c.phone} icon="phone" label={c.label} hint={[c.name, c.phone].filter(Boolean).join(' · ')}
           tone={c.is_emergency ? 'primary' : 'plain'} onPress={() => c.phone && call(c.phone)} disabled={!c.phone} />
       ))}
+      {/* emergency numbers last, set apart at the bottom of the screen */}
+      <Card>
+        <T kind="label">{t('help.emergency')}</T>
+        <BigButton icon="phone" tone="danger" label="112" hint={t('help.eu112')} onPress={() => call('112')} />
+        {data.edition.emergency_phone && (
+          <BigButton icon="phone" tone="primary" label={data.edition.emergency_phone} hint={t('help.pilgrimageLine')} onPress={() => call(data.edition.emergency_phone!)} />
+        )}
+      </Card>
     </Screen>
   );
 }

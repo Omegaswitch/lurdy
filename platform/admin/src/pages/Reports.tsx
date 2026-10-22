@@ -1,4 +1,4 @@
-import { t, type Category } from '@lurdy/shared';
+import { t, toCsv, type Category } from '@lurdy/shared';
 import { useState, type ReactNode } from 'react';
 import { fmtDay, fmtStamp, fmtTime, fullName } from '../format';
 import { Icon, Notice } from '../icons';
@@ -64,7 +64,7 @@ export function Reports() {
       <div className="page-head no-print">
         <div>
           <h1>Tisk</h1>
-          <p>Záložní papírové sestavy. Každá strana nese ročník a čas tisku – starší papír poznáte. Zdravotní údaje se sem nikdy nedostanou.</p>
+          <p>Záložní papírové sestavy, každá také ke stažení jako CSV (Excel). Každá strana nese ročník a čas tisku – starší papír poznáte. Zdravotní údaje se sem nikdy nedostanou.</p>
         </div>
       </div>
       <div className="panel toolbar no-print" style={{ marginBottom: 24 }}>
@@ -72,7 +72,8 @@ export function Reports() {
         <select id="rep" value={report} onChange={(e) => setReport(e.target.value as ReportKey)} style={{ width: 320 }}>
           {reports.map(([k, label]) => <option key={k} value={k}>{label}</option>)}
         </select>
-        <button className="btn primary" style={{ marginLeft: 'auto' }} onClick={() => window.print()} disabled={!data}><Icon name="printer" width={18} /> {t('admin.print')}</button>
+        <button className="btn" style={{ marginLeft: 'auto' }} onClick={() => data && downloadCsv(report, title, data, edition)} disabled={!data}><Icon name="download" width={18} /> Stáhnout CSV</button>
+        <button className="btn primary" onClick={() => window.print()} disabled={!data}><Icon name="printer" width={18} /> {t('admin.print')}</button>
       </div>
       {error && <Notice kind="error">{error}</Notice>}
       {!data ? <div className="skeleton" style={{ width: 300 }} /> : (
@@ -206,4 +207,65 @@ function PeopleTable({ people, legs, rooms, facilities }: { people: Person[]; le
       </tbody>
     </table>
   );
+}
+
+// The same report as a CSV file for Excel (UTF-8 with BOM, ';'): one row per line of the printed table, plus the
+// section (bus, house, day) as a column where the printout groups by it.
+type Data = { people: Person[]; legs: Leg[]; rooms: Room[]; facilities: Facility[]; care: Care[]; events: Event[]; contacts: Contact[]; byId: Map<string, Person> };
+type Ed = { year: number; timezone: string; emergency_phone: string | null };
+export function reportCsv(report: ReportKey, data: Data, edition: Ed): { header: string[]; rows: (string | number | null)[][] } {
+  const legById = new Map(data.legs.map((l) => [l.id, l]));
+  const roomById = new Map(data.rooms.map((r) => [r.id, r]));
+  const facById = new Map(data.facilities.map((f) => [f.id, f]));
+  const codes = (p: Person, dir: Leg['direction']) => p.leg_assignments.map((a) => legById.get(a.leg_id)).filter((l) => l?.direction === dir).map((l) => l!.code).join(', ');
+  const house = (p: Person) => { const r = p.room_assignments ? roomById.get(p.room_assignments.room_id) : null; return r ? facById.get(r.facility_id)?.short_label ?? facById.get(r.facility_id)?.name ?? '' : ''; };
+  const room = (p: Person) => (p.room_assignments ? roomById.get(p.room_assignments.room_id)?.number ?? '' : '');
+  const person = (p: Person) => [p.last_name, p.first_name, p.title, t(`category.${p.category}`)];
+  const name = (id: string) => { const p = data.byId.get(id); return p ? `${p.last_name} ${p.first_name}` : ''; };
+  const when = (iso: string | null) => (iso ? `${fmtDay(iso, edition.timezone)} ${fmtTime(iso, edition.timezone)}` : '');
+  switch (report) {
+    case 'alpha':
+    case 'category': {
+      const people = report === 'alpha' ? data.people : (['malade', 'pilgrim', 'assistant', 'staff'] as Category[]).flatMap((c) => data.people.filter((p) => p.category === c));
+      return { header: ['Příjmení', 'Jméno', 'Titul', 'Kategorie', 'Tam', 'Zpět', 'Ubytování', 'Pokoj'],
+        rows: people.map((p) => [...person(p), codes(p, 'outbound'), codes(p, 'return'), house(p), room(p)]) };
+    }
+    case 'manifest':
+      return { header: ['Spoj', 'Druh', 'Směr', 'Odjezd', 'Odkud', 'Kam', 'Příjmení', 'Jméno', 'Titul', 'Kategorie', 'Pohyblivost', 'Telefon', 'Nastoupil(a)'],
+        rows: data.legs.flatMap((l) => data.people.filter((p) => p.leg_assignments.some((a) => a.leg_id === l.id)).map((p) => [
+          l.code, t(`leg.${l.kind}`), t(`direction.${l.direction}`), when(l.departs_at), l.origin, l.destination, ...person(p), t(`mobility.${p.mobility}`), p.phone,
+          p.leg_assignments.find((a) => a.leg_id === l.id)?.boarded_at ? 'ano' : ''])) };
+    case 'rooms':
+      return { header: ['Ubytování', 'Pokoj', 'Patro', 'Část', 'Kapacita', 'Příjmení', 'Jméno', 'Kategorie', 'Lůžko', 'Odpovídá (služba)'],
+        rows: data.rooms.flatMap((r) => {
+          const f = facById.get(r.facility_id), occ = data.people.filter((p) => p.room_assignments?.room_id === r.id);
+          const base = [f?.short_label ?? f?.name ?? '', r.number, r.floor, r.zone, r.capacity];
+          const resp = r.responsible_id ? name(r.responsible_id) : '';
+          return occ.length ? occ.map((p) => [...base, p.last_name, p.first_name, t(`category.${p.category}`), p.room_assignments?.bed ?? '', resp]) : [[...base, '', '', '', '', resp]];
+        }) };
+    case 'care':
+      return { header: ['Nemocný – příjmení', 'Jméno', 'Asistent', 'Druh', 'Od', 'Do'],
+        rows: data.people.filter((p) => p.category === 'malade').flatMap((m) => {
+          const mine = data.care.filter((c) => c.malade_id === m.id);
+          return mine.length ? mine.map((c) => [m.last_name, m.first_name, name(c.carer_id), t(`care.${c.kind}`),
+            c.starts_at ? fmtStamp(new Date(c.starts_at)) : '', c.ends_at ? fmtStamp(new Date(c.ends_at)) : '']) : [[m.last_name, m.first_name, '— chybí —', '', '', '']];
+        }) };
+    case 'programme':
+      return { header: ['Den', 'Čas', 'Do', 'Program', 'Místo', 'Pro koho'],
+        rows: data.events.map((e) => [fmtDay(e.starts_at, edition.timezone), fmtTime(e.starts_at, edition.timezone), e.ends_at ? fmtTime(e.ends_at, edition.timezone) : '',
+          e.title, e.location, e.audiences.length === 0 ? 'všichni' : e.audiences.map((c) => t(`category.${c}`)).join(', ')]) };
+    case 'contacts':
+      return { header: ['Kontakt', 'Jméno', 'Telefon', 'Nouzový'],
+        rows: [...[...data.contacts].sort((a, b) => Number(b.is_emergency) - Number(a.is_emergency)).map((c) => [c.label, c.name, c.phone, c.is_emergency ? 'ano' : '']),
+          ...(edition.emergency_phone ? [['Nouzová linka pouti', '', edition.emergency_phone, 'ano']] : []), ['Tísňové volání (EU)', '', '112', 'ano']] };
+  }
+}
+
+function downloadCsv(report: ReportKey, title: string, data: Data, edition: Ed) {
+  const { header, rows } = reportCsv(report, data, edition);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([toCsv(header, rows)], { type: 'text/csv;charset=utf-8' }));
+  a.download = `${title.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${edition.year}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
 }

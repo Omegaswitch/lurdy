@@ -27,7 +27,7 @@ test.afterAll(async () => {
 
 const leg = (code: string) => page.locator('.timetable button').filter({ has: page.locator('.code', { hasText: new RegExp(`^${code}$`) }) });
 
-test('organiser signs in with code + event code + authenticator (enrols the first time)', async () => {
+test('organiser signs in with e-mail, password and authenticator (sets them up the first time)', async () => {
   mfaSecret = await adminLogin(page);
   expect(mfaSecret).toMatch(/^[A-Z2-7]{16,}$/);
 });

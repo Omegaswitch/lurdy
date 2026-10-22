@@ -2,11 +2,13 @@ import { t } from '@lurdy/shared';
 import { useEffect, useState } from 'react';
 import { Icon, Notice, type IconName } from './icons';
 import { Accommodation } from './pages/Accommodation';
+import { Archive } from './pages/Archive';
 import { Badges } from './pages/Badges';
 import { Care } from './pages/Care';
 import { Communication } from './pages/Communication';
 import { Edition } from './pages/Edition';
 import { Login } from './pages/Login';
+import { ResetPassword, SetupLogin } from './pages/SetupLogin';
 import { Mfa } from './pages/Mfa';
 import { Overview } from './pages/Overview';
 import { Participants } from './pages/Participants';
@@ -26,6 +28,7 @@ const routes: { path: string; label: string; icon: IconName; page: () => React.R
   { path: 'jmenovky', label: t('admin.badges'), icon: 'badge', page: Badges },
   { path: 'tisk', label: 'Tisk', icon: 'printer', page: Reports },
   { path: 'rocnik', label: t('admin.edition'), icon: 'flag', page: Edition },
+  { path: 'archiv', label: 'Archiv', icon: 'text', page: Archive },
 ];
 
 function useHashPath() {
@@ -104,7 +107,9 @@ export function App() {
   const { state, signOut, refresh } = useAuth();
   if (state.status === 'loading') return <div className="login" aria-busy="true" />;
   if (state.status === 'signedOut') return <Login />;
+  if (state.status === 'recovery') return <ResetPassword />;
   if (state.status === 'needsMfa') return <Mfa enrolled={state.enrolled} />;
+  if (state.status === 'setup') return <SetupLogin />;
   if (state.status === 'noAccess' || state.status === 'codeExpired' || state.status === 'error')
     return (
       <div className="login">

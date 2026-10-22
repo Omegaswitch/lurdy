@@ -15,6 +15,63 @@ export type Database = {
   }
   public: {
     Tables: {
+      archive_people: {
+        Row: {
+          address: string | null
+          birth_date: string | null
+          created_at: string
+          created_by: string | null
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string
+          list: Database["public"]["Enums"]["archive_list"]
+          note: string | null
+          parish: string | null
+          phone: string | null
+          role: string | null
+          source_file: string | null
+          title: string | null
+          year: number
+        }
+        Insert: {
+          address?: string | null
+          birth_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          list: Database["public"]["Enums"]["archive_list"]
+          note?: string | null
+          parish?: string | null
+          phone?: string | null
+          role?: string | null
+          source_file?: string | null
+          title?: string | null
+          year: number
+        }
+        Update: {
+          address?: string | null
+          birth_date?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          list?: Database["public"]["Enums"]["archive_list"]
+          note?: string | null
+          parish?: string | null
+          phone?: string | null
+          role?: string | null
+          source_file?: string | null
+          title?: string | null
+          year?: number
+        }
+        Relationships: []
+      }
       announcement_acks: {
         Row: {
           acked_at: string
@@ -1643,6 +1700,7 @@ export type Database = {
     }
     Enums: {
       app_role: "organizer" | "medical" | "staff" | "assistant"
+      archive_list: "pilgrim" | "malade" | "team"
       care_kind: "primary" | "backup" | "temporary"
       credential_kind: "card" | "digital"
       edition_status: "draft" | "active" | "archived"
@@ -1788,6 +1846,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["organizer", "medical", "staff", "assistant"],
+      archive_list: ["pilgrim", "malade", "team"],
       care_kind: ["primary", "backup", "temporary"],
       credential_kind: ["card", "digital"],
       edition_status: ["draft", "active", "archived"],

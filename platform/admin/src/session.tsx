@@ -8,6 +8,8 @@ export type AuthState =
   | { status: 'loading' }
   | { status: 'signedOut' }
   | { status: 'needsMfa'; enrolled: boolean }
+  | { status: 'setup' } // signed in with the codes + authenticator: choose the e-mail and password for the admin
+  | { status: 'recovery' } // opened from the "forgotten password" e-mail
   | { status: 'noAccess' }
   | { status: 'codeExpired' } // the event code used at sign-in no longer counts: rights lapsed
   | { status: 'error'; message: string }
@@ -41,6 +43,9 @@ async function resolve(): Promise<AuthState> {
   const privileged = superAdmin || granted.includes('organizer') || granted.includes('medical');
   if (!privileged) return { status: 'noAccess' };
   if (aal.data?.currentLevel !== 'aal2') return { status: 'needsMfa', enrolled: aal.data?.nextLevel === 'aal2' };
+  // The admin is for password sessions only (the database agrees): a code session here is the one-time setup.
+  const byPassword = (aal.data?.currentAuthenticationMethods ?? []).some((m) => (typeof m === 'string' ? m : m.method) === 'password');
+  if (!byPassword && !superAdmin) return { status: 'setup' };
   const editions = await supabase.from('editions').select('*').order('status').order('year', { ascending: false });
   if (editions.error) return { status: 'error', message: editions.error.message };
   const edition = editions.data.find((e) => e.status === 'active') ?? editions.data[0];
@@ -62,7 +67,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const lastActivity = useRef(Date.now());
   const refresh = useCallback(async () => {
     try {
-      setState(await resolve());
+      const next = await resolve();
+      setState((prev) => (prev.status === 'recovery' && next.status !== 'signedOut' ? prev : next));
     } catch (e) {
       setState({ status: 'error', message: (e as Error).message });
     }
@@ -77,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     refresh();
     const { data } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') setState({ status: 'signedOut' });
+      if (event === 'PASSWORD_RECOVERY') setState({ status: 'recovery' });
     });
     return () => data.subscription.unsubscribe();
   }, [refresh]);

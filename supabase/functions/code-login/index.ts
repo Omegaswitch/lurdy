@@ -2,7 +2,8 @@
 // code for team members).
 // The database decides (public.code_login_check: throttling, suspension, event-code validity);
 // this function only turns a positive answer into a normal Supabase Auth session.
-// Each participant gets one Auth user, created on first sign-in, with a synthetic address that never receives mail.
+// Each participant gets one Auth user, created on first sign-in, with a synthetic address that never receives mail
+// (an organiser who set up the admin sign-in has their own e-mail on that user instead; no mail is sent either way).
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 
 const url = Deno.env.get('SUPABASE_URL')!;
@@ -47,7 +48,12 @@ Deno.serve(async (req) => {
   if (checkError) return reply(500, { error: 'server' });
   if (!check?.ok) return reply(check?.reason === 'throttled' ? 429 : 401, { error: check?.reason ?? 'invalid' });
 
-  const email = `${check.participant_id}@login.lurdy.eu`;
+  // An organiser who set up the admin sign-in has a real e-mail on the same user; the one-time link must use it.
+  let email = `${check.participant_id}@login.lurdy.eu`;
+  if (check.user_id) {
+    const { data: existing } = await admin.auth.admin.getUserById(check.user_id);
+    if (existing?.user?.email) email = existing.user.email;
+  }
   if (!check.user_id) {
     const { error } = await admin.auth.admin.createUser({ email, email_confirm: true });
     // A previous attempt may have created the user but failed before linking; generateLink below finds it.

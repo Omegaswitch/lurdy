@@ -6,3 +6,4 @@ export * from './codeLogin';
 export * from './icons';
 export * from './shield';
 export * from './csv';
+export * from './archive';

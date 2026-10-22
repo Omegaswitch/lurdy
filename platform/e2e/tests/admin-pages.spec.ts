@@ -38,6 +38,7 @@ test.afterAll(async () => {
   await org.from('rooms').delete().like('number', 'T%').eq('capacity', 0);
   await org.from('transport_legs').delete().like('code', 'T%').like('destination', 'Testovací cíl%');
   await org.from('participants').delete().like('last_name', 'Importovaný%');
+  await org.from('archive_people').delete().like('last_name', 'Archivní%');
 });
 
 test('edition: add an event code, then end it', async () => {
@@ -187,6 +188,42 @@ test('reports print with edition stamp; manifests one leg per page', async () =>
   const pages = (pdf.toString('latin1').match(/\/Type\s*\/Page[^s]/g) ?? []).length;
   expect(pages).toBe(legs); // one page per leg in the dev data (all fit on one page)
   if (process.env.SHOTS) writeFileSync(`${process.env.SHOTS}/manifests.pdf`, pdf);
+});
+
+test('reports download as CSV', async () => {
+  await page.getByLabel('Sestava').selectOption({ label: 'Manifesty spojů (autobusy, lety)' });
+  const [file] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Stáhnout CSV' }).click()]);
+  expect(file.suggestedFilename()).toMatch(/\.csv$/);
+  const csv = readFileSync((await file.path())!, 'utf8');
+  expect(csv).toContain('Vzorová');
+  for (const word of ['diagnó', 'alergi']) expect(csv.toLowerCase()).not.toContain(word);
+});
+
+test('archive: upload a list (health column skipped), duplicates skipped, export, delete', async () => {
+  const last = `Archivní${tag}`;
+  const csv = `Příjmení,Jméno,Datum narození,E-mail,Diagnóza\n${last},Anna,3.4.1950,anna@example.test,fiktivní\n${last},Karel,,,\n`;
+  const upload = async () => {
+    await page.getByRole('button', { name: 'Nahrát seznam (CSV, Excel)' }).click();
+    await page.getByRole('combobox', { name: 'Seznam' }).selectOption({ label: 'Nemocní' });
+    await page.getByLabel('Rok pouti').fill('2019');
+    await page.getByLabel('Soubor').setInputFiles({ name: 'archiv.csv', mimeType: 'text/csv', buffer: Buffer.from(csv) });
+  };
+  await go('Archiv');
+  await a11y();
+  await upload();
+  await expect(page.getByText('Sloupce se zdravotními údaji se do archivu nečtou a neukládají: Diagnóza.')).toBeVisible();
+  await page.getByRole('button', { name: 'Přidat do archivu (2)' }).click();
+  await expect(page.getByText('Do archivu přidáno 2 osob.')).toBeVisible();
+  await upload(); // the same file again: everyone is already archived
+  await expect(page.getByRole('button', { name: 'Přidat do archivu (0)' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Zavřít' }).click();
+  await page.getByLabel('Hledat').fill(last);
+  const [file] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Exportovat CSV' }).click()]);
+  const out = readFileSync((await file.path())!, 'utf8');
+  expect(out).toContain('anna@example.test');
+  expect(out).not.toContain('fiktivní');
+  for (const name of ['Anna', 'Karel']) await page.getByRole('button', { name: `Smazat ${last} ${name} (2019)` }).click();
+  await expect(page.getByRole('button', { name: new RegExp(`Smazat ${last}`) })).toHaveCount(0);
 });
 
 test('CSV import flags exactly the planted duplicates and errors; export contains the result', async () => {
