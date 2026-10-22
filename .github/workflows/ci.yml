@@ -32,7 +32,7 @@ jobs:
         continue-on-error: true # Expo build tooling carries known advisories (docs/STATUS.md); shipped bundles are unaffected
 
   database:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04 # ubuntu-latest (26.04) no longer packages postgresql-16
     steps:
       - uses: actions/checkout@v4
       - run: sudo apt-get update && sudo apt-get install -y postgresql-16
