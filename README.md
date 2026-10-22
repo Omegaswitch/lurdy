@@ -58,6 +58,10 @@ Set these environment variables in Vercel (Project → Settings → Environment 
 | `RESEND_API_KEY` | the Resend API key (secret, never in the repo) |
 | `MAIL_TO` | where applications go (default `lurdy@lurdy.eu`) |
 | `MAIL_FROM` | sender, on a domain verified in Resend (default `Pouť do Lurd <prihlasky@lurdy.eu>`) |
+| `LURDY_INTAKE_URL` | optional: the management platform's `application-intake` function, e.g. `https://<project>.supabase.co/functions/v1/application-intake` |
+| `LURDY_INTAKE_SECRET` | optional: the same long random value as the function's `INTAKE_SECRET` secret in Supabase (Edge Functions → Secrets) |
+
+With the two `LURDY_INTAKE_*` variables set, each application also lands in the management platform (admin → Přihlášky) for the organisers to accept or decline. Only identity, contact and emergency contact go there; health answers, the ID-card number and attachments stay in the e-mail. If the platform is unreachable, the application is still e-mailed and the e-mail says it was not filed. Connect it only to a Supabase project approved for real personal data, not to the development project.
 
 In Resend, verify the `lurdy.eu` domain: add the DNS records that Resend gives you at the lurdy.eu DNS host. Until the domain is verified, Resend refuses the sender address.
 

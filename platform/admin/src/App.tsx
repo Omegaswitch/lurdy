@@ -2,6 +2,7 @@ import { t } from '@lurdy/shared';
 import { useEffect, useState } from 'react';
 import { Icon, Notice, type IconName } from './icons';
 import { Accommodation } from './pages/Accommodation';
+import { Applications } from './pages/Applications';
 import { Archive } from './pages/Archive';
 import { Badges } from './pages/Badges';
 import { Care } from './pages/Care';
@@ -20,6 +21,7 @@ import { useAuth, useReady } from './session';
 const routes: { path: string; label: string; icon: IconName; page: () => React.ReactElement }[] = [
   { path: '', label: t('admin.overview'), icon: 'home', page: Overview },
   { path: 'ucastnici', label: t('admin.participants'), icon: 'users', page: Participants },
+  { path: 'prihlasky', label: 'Přihlášky', icon: 'download', page: Applications },
   { path: 'doprava', label: t('admin.transport'), icon: 'bus', page: Transport },
   { path: 'ubytovani', label: 'Ubytování', icon: 'bed', page: Accommodation },
   { path: 'pece', label: 'Péče', icon: 'heart', page: Care },

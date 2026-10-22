@@ -3,7 +3,12 @@ const assert = require("assert");
 const SITE = require("../content/site.json");
 SITE.registrationOpen = true; // the cached module object is the one the handler sees
 const sent = [];
-global.fetch = async (url, o) => { sent.push(JSON.parse(o.body)); return { ok: true, text: async () => "" }; };
+const intakes = [];
+let intakeOk = true;
+global.fetch = async (url, o) => {
+  if (url.includes("intake")) { intakes.push({ headers: o.headers, body: JSON.parse(o.body) }); return { ok: intakeOk, status: intakeOk ? 201 : 500, text: async () => "" }; }
+  sent.push(JSON.parse(o.body)); return { ok: true, text: async () => "" };
+};
 process.env.RESEND_API_KEY = "test";
 const handler = require("../api/prihlaska.js");
 
@@ -67,8 +72,29 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   assert.equal((await multipart(good, [["virus.pdf", Buffer.from("MZ\x90")]])).status, 400, "file checked by content, not name");
   assert.equal((await multipart(good, Array(6).fill(["a.pdf", Buffer.from("%PDF")]))).status, 400, "at most 5 files");
   assert.equal(sent.length, 0);
+  // connected to the management platform: identity, contact and emergency contact only
+  assert.equal(intakes.length, 0, "not connected: nothing leaves but the e-mail");
+  process.env.LURDY_INTAKE_URL = "https://x.supabase.co/functions/v1/application-intake";
+  process.env.LURDY_INTAKE_SECRET = "s".repeat(40);
+  sent.length = 0;
+  const sick = { ...good, form: "nemocni", diagnoses: "fiktivní diagnóza", meds: "fiktivní lék", hygiene: "self", allergy: "no", doctor: "MUDr. Test", relphone: "555" };
+  assert.equal((await call(sick)).status, 303);
+  assert.equal(intakes.length, 1);
+  assert.equal(intakes[0].headers["x-intake-secret"], "s".repeat(40));
+  assert.deepEqual(Object.keys(intakes[0].body).sort(), ["address", "birth", "email", "form", "lang", "mobile", "name", "relmobile", "relname", "relphone"].sort(),
+    "only identity, contact and emergency contact: no health answers, no ID number");
+  assert.equal(intakes[0].body.form, "malade");
+  assert.equal(intakes[0].body.birth, "1950-01-01");
+  assert.ok(sent[0].text.includes("uloženo ve správě pouti"), "the organisers see it was filed");
+  intakeOk = false;
+  sent.length = 0;
+  assert.equal((await call(sick)).status, 303, "the platform being down does not fail the applicant");
+  assert.ok(sent[0].text.includes("NEULOŽENO ve správě pouti"), "the organisers see it was not filed");
+  delete process.env.LURDY_INTAKE_URL;
+  intakes.length = 0;
+  sent.length = 0;
   SITE.registrationOpen = false;
   assert.equal((await call(good)).status, 403, "closed registration");
-  assert.equal(sent.length, 0, "nothing sent for rejected submissions");
+  assert.equal(sent.length + intakes.length, 0, "nothing sent for rejected submissions");
   console.log("api ok");
 })().catch((e) => { console.error(e); process.exit(1); });

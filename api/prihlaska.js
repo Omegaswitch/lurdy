@@ -1,5 +1,7 @@
 // Online application for the pilgrimage: validates the form against content/forms.json and emails it
-// to the organisers through Resend. Nothing is stored. Env: RESEND_API_KEY, MAIL_TO, MAIL_FROM.
+// to the organisers through Resend. Env: RESEND_API_KEY, MAIL_TO, MAIL_FROM.
+// With LURDY_INTAKE_URL + LURDY_INTAKE_SECRET set, the identity, contact and emergency-contact fields also go to the
+// management platform (admin → Přihlášky); health answers, the ID-card number and attachments never do.
 const FORMS = require("../content/forms.json");
 const SITE = require("../content/site.json");
 // listed one by one so the bundler sees every file the function needs
@@ -50,6 +52,25 @@ async function send(mail) {
     body: JSON.stringify({ from: process.env.MAIL_FROM || "Pouť do Lurd <prihlasky@lurdy.eu>", ...mail }),
   });
   if (!r.ok) throw new Error(`Resend ${r.status}: ${(await r.text()).slice(0, 300)}`);
+}
+
+// what the platform receives: identity, contact, emergency contact (nothing about health, no ID number, no files)
+const INTAKE_FORM = { poutnici: "pilgrim", nemocni: "malade", tym: "team" };
+const INTAKE_FIELDS = ["name", "email", "mobile", "phone", "address", "relname", "relmobile", "relphone", "times"];
+async function intake(form, lang, body) {
+  const url = process.env.LURDY_INTAKE_URL, secret = process.env.LURDY_INTAKE_SECRET;
+  if (!url || !secret) return null;  // not connected: e-mail only
+  const [d, m, y] = ["d", "m", "y"].map((p) => Number(body[`birth_${p}`]) || 0);
+  const payload = { form: INTAKE_FORM[form], lang, birth: d && m && y ? `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}` : null };
+  for (const k of INTAKE_FIELDS) if (typeof body[k] === "string") payload[k] = body[k];
+  try {
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "x-intake-secret": secret }, body: JSON.stringify(payload), signal: AbortSignal.timeout(8000) });
+    if (!r.ok) throw new Error(`intake ${r.status}: ${(await r.text()).slice(0, 200)}`);
+    return true;
+  } catch (e) {
+    console.error(e.message);
+    return false;  // the e-mail still goes out: it is the record, the organisers re-enter the person by hand
+  }
 }
 
 function fail(res, lang, form, status) {
@@ -130,7 +151,9 @@ module.exports = async (req, res) => {
     html += `<tr><th colspan="2" style="text-align:left;padding:12px 0 4px">${esc(CS.fields.attachments)}</th></tr><tr><td colspan="2">${attached.map((a) => esc(a.filename)).join("<br>")}</td></tr>`;
     text += `\n== ${CS.fields.attachments} ==\n${attached.map((a) => a.filename).join("\n")}\n`;
   }
-  const stamp = `Prohlášení a souhlas se zpracováním osobních a zdravotních údajů: ano · jazyk webu: ${lang} · odesláno ${new Date().toISOString()}`;
+  const filed = await intake(form, lang, body);
+  const stamp = `Prohlášení a souhlas se zpracováním osobních a zdravotních údajů: ano · jazyk webu: ${lang} · odesláno ${new Date().toISOString()}` +
+    (filed === null ? "" : filed ? " · uloženo ve správě pouti (Přihlášky)" : " · NEULOŽENO ve správě pouti – zadejte ručně");
   html += `</table><p style="font:13px sans-serif;color:#555">${esc(stamp)}</p>`;
   text += `\n${stamp}\n`;
 

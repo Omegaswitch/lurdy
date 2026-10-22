@@ -20,3 +20,7 @@ verify_jwt = true
 
 [functions.admin-login-setup]
 verify_jwt = true
+
+# called by the public website's server (shared secret in x-intake-secret), not by a signed-in user
+[functions.application-intake]
+verify_jwt = false

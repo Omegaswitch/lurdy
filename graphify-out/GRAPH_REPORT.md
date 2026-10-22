@@ -1,17 +1,17 @@
 # Graph Report - lurdy  (2026-10-22)
 
 ## Corpus Check
-- 171 files · ~447,485 words
+- 176 files · ~450,938 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 40 file(s) not represented in the graph (top: .woff2 24, (none) 5, .example 2)
 
 ## Summary
-- 1381 nodes · 2838 edges · 92 communities (64 shown, 28 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 28 edges (avg confidence: 0.86)
+- 1423 nodes · 2919 edges · 96 communities (65 shown, 31 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 29 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4122561f`
+- Built from commit: `addb96af`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -52,7 +52,7 @@
 - platform/package.json
 - B. Product requirements
 - E. Database architecture
-- Project status
+- STATUS.md
 - AGENTS.md
 - devDependencies
 - Archive.tsx
@@ -62,7 +62,7 @@
 - shim.sql
 - public.code_login_check
 - shared/tsconfig.json
-- App Store and Google Play checklist
+- Applications.tsx
 - code-login/index.ts
 - 04_concurrency.sh
 - 06_seed_dev.sh
@@ -76,10 +76,10 @@
 - 20261019150000_advisor_followup.sql
 - 20261019130248_hardening.sql
 - t
-- src/index.ts
+- t
 - Audit of the whole platform — 2026-10-19
 - t
-- Notice
+- src/index.ts
 - Module
 - Badges.tsx
 - admin/vercel.json
@@ -89,17 +89,20 @@
 - 20261022120000_archive.sql
 - app.has_role
 - 09_remediation.sql
-- Edition.tsx
+- Notice
 - Transport.tsx
 - lurdy.eu
 - app.is_super_admin
+- session.tsx
+- public.applications
+- app.edition_ids
 
 ## God Nodes (most connected - your core abstractions)
-1. `t()` - 59 edges
-2. `friendlyError()` - 58 edges
-3. `Module()` - 51 edges
-4. `Notice()` - 48 edges
-5. `useReady()` - 38 edges
+1. `friendlyError()` - 64 edges
+2. `t()` - 62 edges
+3. `Notice()` - 52 edges
+4. `Module()` - 51 edges
+5. `useReady()` - 40 edges
 6. `T()` - 37 edges
 7. `useStore()` - 33 edges
 8. `Icon()` - 32 edges
@@ -111,25 +114,25 @@
   docs/audits/2026-10-19-audit.md → platform/shared/src/csv.ts
 - `7. Changes made` --references--> `encryptedStorage()`  [INFERRED]
   docs/audits/2026-10-19-remediation.md → platform/shared/src/encryptedStorage.ts
+- `accept()` --calls--> `friendlyError()`  [EXTRACTED]
+  platform/admin/src/pages/Applications.tsx → platform/admin/src/errors.ts
+- `decline()` --calls--> `friendlyError()`  [EXTRACTED]
+  platform/admin/src/pages/Applications.tsx → platform/admin/src/errors.ts
 - `remove()` --calls--> `friendlyError()`  [EXTRACTED]
-  platform/admin/src/pages/Archive.tsx → platform/admin/src/errors.ts
-- `run()` --calls--> `friendlyError()`  [EXTRACTED]
-  platform/admin/src/pages/Archive.tsx → platform/admin/src/errors.ts
-- `endNow()` --calls--> `friendlyError()`  [EXTRACTED]
-  platform/admin/src/pages/Edition.tsx → platform/admin/src/errors.ts
+  platform/admin/src/pages/Applications.tsx → platform/admin/src/errors.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (92 total, 28 thin omitted)
+## Communities (96 total, 31 thin omitted)
 
 ### Community 0 - "Reports.tsx"
-Cohesion: 0.17
-Nodes (18): fmtDay(), fmtStamp(), fmtTime(), Care, Contact, Data, downloadCsv(), Ed (+10 more)
+Cohesion: 0.16
+Nodes (17): fmtDay(), Care, Contact, Data, downloadCsv(), Ed, Event, Facility (+9 more)
 
 ### Community 1 - "ui.tsx"
 Cohesion: 0.07
-Nodes (87): Account(), Badge(), useMaxBrightness(), Duty(), MyLeg, call(), Help(), Home() (+79 more)
+Nodes (88): Account(), Badge(), useMaxBrightness(), Duty(), MyLeg, call(), Help(), Home() (+80 more)
 
 ### Community 2 - "build.py"
 Cohesion: 0.05
@@ -141,7 +144,7 @@ Nodes (44): a_inherit, app.check_care_roles(), app.check_leg_capacity(), app.che
 
 ### Community 4 - "admin/package.json"
 Cohesion: 0.05
-Nodes (39): dependencies, @lurdy/shared, qrcode, react, react-dom, read-excel-file, @supabase/supabase-js, write-excel-file (+31 more)
+Nodes (38): dependencies, @lurdy/shared, qrcode, react, react-dom, read-excel-file, @supabase/supabase-js, write-excel-file (+30 more)
 
 ### Community 5 - "helpers.ts"
 Cohesion: 0.07
@@ -161,7 +164,7 @@ Nodes (34): backgroundColor, backgroundImage, foregroundImage, monochromeImage, 
 
 ### Community 9 - "app/package.json"
 Cohesion: 0.07
-Nodes (28): aes-js, @lurdy/shared, react, react-dom, @supabase/supabase-js, @types/react, typescript, main (+20 more)
+Nodes (27): aes-js, @lurdy/shared, react, react-dom, @supabase/supabase-js, @types/react, typescript, main (+19 more)
 
 ### Community 10 - "dependencies"
 Cohesion: 0.07
@@ -172,8 +175,8 @@ Cohesion: 0.11
 Nodes (17): CompositeTypes, Constants, Database, DatabaseWithoutInternals, DefaultSchema, Enums, Json, Tables (+9 more)
 
 ### Community 12 - "prihlaska.js"
-Cohesion: 0.10
-Nodes (14): esc(), fail(), FORMS, MAGIC, SITE, TEXT, assert, call() (+6 more)
+Cohesion: 0.08
+Nodes (17): esc(), fail(), FORMS, INTAKE_FIELDS, INTAKE_FORM, MAGIC, SITE, TEXT (+9 more)
 
 ### Community 13 - "20261018213424_code_login.sql"
 Cohesion: 0.20
@@ -186,10 +189,6 @@ Nodes (15): 10. Night shifts, meal service, cleaning (doc 2), 11. Team meals and
 ### Community 15 - "D. Architecture decision record"
 Cohesion: 0.12
 Nodes (16): ADR-10 Brand — accepted, ADR-11 Sign-in by personal code — accepted (organisers' decision), ADR-12 Field app is big-button, edits happen on the web — accepted (organisers' decision), ADR-13 Map: Leaflet + OpenStreetMap as an Expo DOM component — accepted, ADR-1 Backend: Supabase (mandated) — accepted, ADR-2 Authorisation lives in the database — accepted, ADR-3 Medical data in a separate, unexposed schema — accepted, ADR-4 Two clients, one shared package — accepted (+8 more)
-
-### Community 16 - "ROADMAP.md"
-Cohesion: 0.18
-Nodes (3): I. Testing strategy, DPIA outline (to be completed by the data controller), Pilgrimage platform
 
 ### Community 17 - "shared/package.json"
 Cohesion: 0.11
@@ -236,8 +235,8 @@ Cohesion: 0.29
 Nodes (7): CENTER, esc(), LourdesMap(), MapPlace, Props, expo, leaflet
 
 ### Community 28 - "i18n.ts"
-Cohesion: 0.07
-Nodes (20): 1. Issues resolved, 2. Test results (final run, this branch), 3. Blocked — not done, and why, 4. Remaining issues (open, with owner), 5. Readiness, 6. Health score: 88 / 100, 7. Changes made, Remediation of the audit findings — 2026-10-19 (+12 more)
+Cohesion: 0.06
+Nodes (27): 1. Issues resolved, 2. Test results (final run, this branch), 3. Blocked — not done, and why, 4. Remaining issues (open, with owner), 5. Readiness, 6. Health score: 88 / 100, 7. Changes made, Remediation of the audit findings — 2026-10-19 (+19 more)
 
 ### Community 30 - "C. Feature prioritisation"
 Cohesion: 0.29
@@ -267,9 +266,9 @@ Nodes (6): B. Product requirements, Core use cases, Functional requirements (sum
 Cohesion: 0.33
 Nodes (6): E. Database architecture, Entities, Functions (RPC), Integrity and concurrency, Migration strategy, Schemas
 
-### Community 37 - "Project status"
-Cohesion: 0.33
-Nodes (6): Blockers, By area, Housekeeping on the development project, Open questions for the organisers, Project status, What works today (development project, fictional data)
+### Community 37 - "STATUS.md"
+Cohesion: 0.14
+Nodes (10): App Store and Google Play checklist, Before submission (organisers / store accounts), Done in the code, Blockers, By area, Housekeeping on the development project, Open questions for the organisers, Project status (+2 more)
 
 ### Community 38 - "AGENTS.md"
 Cohesion: 0.33
@@ -280,8 +279,8 @@ Cohesion: 0.33
 Nodes (6): devDependencies, eslint, eslint-config-expo, @types/leaflet, @types/react, typescript
 
 ### Community 40 - "Archive.tsx"
-Cohesion: 0.06
-Nodes (57): RFC-4180, Archive(), exportCsv(), remove(), czDate(), download(), downloadTemplate(), fold() (+49 more)
+Cohesion: 0.07
+Nodes (48): RFC-4180, exportCsv(), czDate(), download(), downloadTemplate(), fold(), loadAll(), Person (+40 more)
 
 ### Community 41 - "Aplikace Pouť do Lurd – návod pro poutníky a nemocné"
 Cohesion: 0.40
@@ -299,13 +298,13 @@ Nodes (4): compilerOptions, strict, extends, expo/tsconfig.base
 Cohesion: 0.50
 Nodes (3): extends, include, ../tsconfig.base.json
 
-### Community 47 - "App Store and Google Play checklist"
-Cohesion: 0.50
-Nodes (3): App Store and Google Play checklist, Before submission (organisers / store accounts), Done in the code
+### Community 47 - "Applications.tsx"
+Cohesion: 0.20
+Nodes (13): fmtStamp(), Application, czDate(), Decide(), accept(), decline(), Decided(), remove() (+5 more)
 
 ### Community 48 - "code-login/index.ts"
-Cohesion: 0.20
-Nodes (3): cors, cors, cors
+Cohesion: 0.11
+Nodes (6): cors, admin, FORMS, LANGS, cors, cors
 
 ### Community 49 - "04_concurrency.sh"
 Cohesion: 1.00
@@ -328,32 +327,32 @@ Cohesion: 0.13
 Nodes (14): a_guard_user, app.guard_participant_user(), participants_access_code_lookup, public.code_login_check(), public.find_participants(), public.my_digital_credential(), public.my_digital_credential_valid(), public.participant_access_code() (+6 more)
 
 ### Community 67 - "t"
-Cohesion: 0.10
-Nodes (34): friendlyError(), activate(), discard(), Announcement, Announcements(), create(), edit(), publish() (+26 more)
+Cohesion: 0.12
+Nodes (29): friendlyError(), Icon(), save(), Archive(), remove(), create(), publish(), AiPrompt() (+21 more)
 
-### Community 68 - "src/index.ts"
-Cohesion: 0.11
-Nodes (23): App(), CodeLogin(), submit(), Login(), messages, setLoginFlash(), Mfa(), ResetPassword() (+15 more)
+### Community 68 - "t"
+Cohesion: 0.18
+Nodes (22): App(), CodeExpiryNotice(), routes, Shell(), useHashPath(), Edition(), save(), CodeLogin() (+14 more)
 
 ### Community 69 - "Audit of the whole platform — 2026-10-19"
 Cohesion: 0.17
 Nodes (12): 1. Findings by severity, 2. Issues verified as not exploitable, 3. Database and security assessment, 4. UI/UX and accessibility assessment, 5. Test coverage and limitations, 6. Prioritised recommendations, 7. Changes made during the audit, Audit of the whole platform — 2026-10-19 (+4 more)
 
 ### Community 70 - "t"
-Cohesion: 0.19
-Nodes (17): fromLocalInput(), toLocalInput(), save(), saveConfig(), save(), submit(), audienceLabel(), categories (+9 more)
+Cohesion: 0.16
+Nodes (20): fmtTime(), fromLocalInput(), toLocalInput(), Code, EventCodes(), add(), endNow(), randomEventCode() (+12 more)
 
-### Community 71 - "Notice"
-Cohesion: 0.17
-Nodes (28): CodeExpiryNotice(), routes, Shell(), useHashPath(), Icon(), Notice(), affected(), Accommodation() (+20 more)
+### Community 71 - "src/index.ts"
+Cohesion: 0.13
+Nodes (18): fullName(), Affecting, Facility, fold(), kindLabel, kinds, Occupant, Person (+10 more)
 
 ### Community 72 - "Module"
 Cohesion: 0.06
 Nodes (32): Module(), a(), Aa(), bb(), c(), cc(), a(), d() (+24 more)
 
 ### Community 73 - "Badges.tsx"
-Cohesion: 0.16
-Nodes (19): Badge(), Badges(), print(), Batch, batchKey(), Config, CropMarks(), Pending (+11 more)
+Cohesion: 0.15
+Nodes (15): Badge(), Badges(), activate(), discard(), print(), saveConfig(), Batch, batchKey() (+7 more)
 
 ### Community 74 - "admin/vercel.json"
 Cohesion: 0.29
@@ -367,36 +366,44 @@ Nodes (5): app.is_any_organizer(), archive_people_once, archive_people_year, pub
 Cohesion: 0.50
 Nodes (3): c, newsecret, qr
 
-### Community 88 - "Edition.tsx"
-Cohesion: 0.24
-Nodes (13): activeNow(), must(), useLive(), Code, EventCodes(), add(), endNow(), randomEventCode() (+5 more)
+### Community 88 - "Notice"
+Cohesion: 0.31
+Nodes (16): activeNow(), Notice(), must(), useLive(), Accommodation(), FacilityForm(), remove(), save() (+8 more)
 
 ### Community 89 - "Transport.tsx"
-Cohesion: 0.16
-Nodes (14): fullName(), AddCarer(), submit(), Affecting, Assignment, Person, Affecting, Assignment (+6 more)
+Cohesion: 0.11
+Nodes (24): affected(), Announcement, Announcements(), edit(), remove(), unpublish(), audienceOptions, Communication() (+16 more)
 
 ### Community 90 - "lurdy.eu"
 Cohesion: 0.50
 Nodes (4): Content, Hosting, lurdy.eu, Online applications (`api/prihlaska.js`)
 
+### Community 92 - "session.tsx"
+Cohesion: 0.19
+Nodes (8): AuthContext, AuthProvider(), AuthState, Ctx, Edition, participantColumns, resolve(), Role
+
+### Community 93 - "public.applications"
+Cohesion: 0.33
+Nodes (5): applications_edition, applications_participant, public.accept_application(), public.applications, z_audit
+
 ## Knowledge Gaps
 - **44 isolated node(s):** `@lurdy/shared`, `@supabase/supabase-js`, `react`, `react-dom`, `read-excel-file` (+39 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 639 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **28 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 663 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **31 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `encryptedStorage()` connect `i18n.ts` to `ui.tsx`?**
-  _High betweenness centrality (0.083) - this node is a cross-community bridge._
+  _High betweenness centrality (0.080) - this node is a cross-community bridge._
 - **Are the 6 inferred relationships involving `Module()` (e.g. with `ac()` and `$b()`) actually correct?**
   _`Module()` has 6 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `@lurdy/shared`, `@supabase/supabase-js`, `react` to the rest of the system?**
   _44 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `ui.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.06988795518207283 - nodes in this community are weakly interconnected._
-- **Why does `Remediation of the audit findings — 2026-10-19` connect `i18n.ts` to `ROADMAP.md`?**
-  _High betweenness centrality (0.079) - this node is a cross-community bridge._
+  _Cohesion score 0.06887052341597796 - nodes in this community are weakly interconnected._
+- **Why does `Remediation of the audit findings — 2026-10-19` connect `i18n.ts` to `STATUS.md`?**
+  _High betweenness centrality (0.080) - this node is a cross-community bridge._
 - **Should `build.py` be split into smaller, more focused modules?**
   _Cohesion score 0.054244306418219465 - nodes in this community are weakly interconnected._
 - **Should `20261018211334_operations.sql` be split into smaller, more focused modules?**

@@ -15,6 +15,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      applications: {
+        Row: {
+          id: string
+          edition_id: string
+          form: Database["public"]["Enums"]["application_form"]
+          status: Database["public"]["Enums"]["application_status"]
+          full_name: string
+          first_name: string
+          last_name: string
+          birth_date: string | null
+          email: string | null
+          phone: string | null
+          phone2: string | null
+          address: string | null
+          emergency_name: string | null
+          emergency_phone: string | null
+          times: string | null
+          language: string
+          participant_id: string | null
+          submitted_at: string
+          decided_at: string | null
+          decided_by: string | null
+        }
+        Insert: {
+          id?: string
+          edition_id: string
+          form: Database["public"]["Enums"]["application_form"]
+          status?: Database["public"]["Enums"]["application_status"]
+          full_name: string
+          first_name: string
+          last_name: string
+          birth_date?: string | null
+          email?: string | null
+          phone?: string | null
+          phone2?: string | null
+          address?: string | null
+          emergency_name?: string | null
+          emergency_phone?: string | null
+          times?: string | null
+          language?: string
+          participant_id?: string | null
+          submitted_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+        }
+        Update: {
+          id?: string
+          edition_id?: string
+          form?: Database["public"]["Enums"]["application_form"]
+          status?: Database["public"]["Enums"]["application_status"]
+          full_name?: string
+          first_name?: string
+          last_name?: string
+          birth_date?: string | null
+          email?: string | null
+          phone?: string | null
+          phone2?: string | null
+          address?: string | null
+          emergency_name?: string | null
+          emergency_phone?: string | null
+          times?: string | null
+          language?: string
+          participant_id?: string | null
+          submitted_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+        }
+        Relationships: []
+      }
       archive_people: {
         Row: {
           address: string | null
@@ -1665,6 +1734,10 @@ export type Database = {
       }
       activate_batch: { Args: { p_batch: string }; Returns: number }
       discard_batch: { Args: { p_batch: string }; Returns: number }
+      accept_application: {
+        Args: { p_application: string; p_category: Database["public"]["Enums"]["participant_category"]; p_first_name: string; p_last_name: string }
+        Returns: string
+      }
       participant_access_codes: {
         Args: { p_edition: string }
         Returns: { participant_id: string; access_code: string }[]
@@ -1700,6 +1773,8 @@ export type Database = {
     }
     Enums: {
       app_role: "organizer" | "medical" | "staff" | "assistant"
+      application_form: "pilgrim" | "malade" | "team"
+      application_status: "new" | "accepted" | "declined"
       archive_list: "pilgrim" | "malade" | "team"
       care_kind: "primary" | "backup" | "temporary"
       credential_kind: "card" | "digital"
@@ -1846,6 +1921,8 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["organizer", "medical", "staff", "assistant"],
+      application_form: ["pilgrim", "malade", "team"],
+      application_status: ["new", "accepted", "declined"],
       archive_list: ["pilgrim", "malade", "team"],
       care_kind: ["primary", "backup", "temporary"],
       credential_kind: ["card", "digital"],
