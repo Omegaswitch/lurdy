@@ -13,6 +13,15 @@
    "ac": "bday"
   },
   {
+   "k": "gender",
+   "t": "radio",
+   "r": 1,
+   "o": [
+    "male",
+    "female"
+   ]
+  },
+  {
    "k": "email",
    "t": "email",
    "r": 1,
@@ -207,6 +216,15 @@
    "ac": "bday"
   },
   {
+   "k": "gender",
+   "t": "radio",
+   "r": 1,
+   "o": [
+    "male",
+    "female"
+   ]
+  },
+  {
    "k": "email",
    "t": "email",
    "r": 1,
@@ -343,6 +361,15 @@
    "t": "date",
    "r": 1,
    "ac": "bday"
+  },
+  {
+   "k": "gender",
+   "t": "radio",
+   "r": 1,
+   "o": [
+    "male",
+    "female"
+   ]
   },
   {
    "k": "email",

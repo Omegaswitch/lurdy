@@ -20,7 +20,7 @@ type Ctx = { state: AuthState; refresh: () => Promise<void>; signOut: () => Prom
 const AuthContext = createContext<Ctx | null>(null);
 
 // access_code is withheld from the API (sign-in codes are credentials), so participant queries name their columns.
-export const participantColumns = 'id, edition_id, user_id, category, title, first_name, last_name, preferred_name, phone, email, language, mobility, logistics_note, staff_note, photo_path, account_deleted_at, version, created_at, updated_at, updated_by';
+export const participantColumns = 'id, edition_id, user_id, category, title, first_name, last_name, preferred_name, phone, email, language, mobility, logistics_note, staff_note, photo_path, account_deleted_at, version, created_at, updated_at, updated_by, varsym, waiting, cancelled, confirmed, mail_sent, gender, birth_year, previous_count, registered_on, stays, travels_with, room_no, is_nurse, is_doctor, is_priest, is_smom, is_lead, luggage_team, plane_to_accueil, truck_driver, no_flight';
 
 // The session stays until the user signs out (no idle sign-out, owner's decision 2026-10-22): the authenticator is
 // asked once per sign-in on each device, not again while the session lasts.

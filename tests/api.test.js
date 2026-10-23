@@ -37,7 +37,7 @@ function call(body, headers = {}) {
   });
 }
 
-const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d: "1", birth_m: "1", birth_y: "1950", email: "jan@example.com", address: "Praha", idnum: "123",
+const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d: "1", birth_m: "1", birth_y: "1950", gender: "male", email: "jan@example.com", address: "Praha", idnum: "123",
   idvalid_d: "31", idvalid_m: "12", idvalid_y: "2030", mobile: "777", relname: "Eva", relmobile: "666", diet: "yes", dietkind: ["diabetic", "nosalt"], declaration: "yes", consent: "yes" };
 
 (async () => {
@@ -56,6 +56,7 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   sent.length = 0;
   assert.equal((await call({ ...good, consent: "" })).status, 400, "consent is required");
   assert.equal((await call({ ...good, diet: "maybe" })).status, 400, "unknown option");
+  assert.equal((await call({ ...good, gender: "" })).status, 400, "gender is required");
   assert.equal((await call({ ...good, name: "x".repeat(201) })).status, 400, "length limit");
   assert.equal((await call({ ...good, email: "nope" })).status, 400, "email format");
   assert.equal((await call({ ...good, birth_d: "31", birth_m: "2" })).status, 400, "31 February is not a date");
@@ -88,8 +89,8 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   assert.equal((await call(sick)).status, 303);
   assert.equal(intakes.length, 1);
   assert.equal(intakes[0].headers["x-intake-secret"], "s".repeat(40));
-  assert.deepEqual(Object.keys(intakes[0].body).sort(), ["address", "birth", "email", "form", "lang", "mobile", "name", "relmobile", "relname", "relphone"].sort(),
-    "only identity, contact and emergency contact: no health answers, no ID number");
+  assert.deepEqual(Object.keys(intakes[0].body).sort(), ["address", "birth", "email", "form", "gender", "idnum", "lang", "mobile", "name", "relmobile", "relname", "relphone"].sort(),
+    "identity, gender, contact, emergency contact, ID number: no health answers");
   assert.equal(intakes[0].body.form, "malade");
   assert.equal(intakes[0].body.birth, "1950-01-01");
   assert.ok(sent[0].text.includes("uloženo ve správě pouti"), "the organisers see it was filed");

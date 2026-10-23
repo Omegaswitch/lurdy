@@ -49,7 +49,7 @@ select tests.throws($$select * from public.applications$$, 'anon cannot read app
 select tests.throws($$select public.accept_application(tests.id('x3'), 'pilgrim', 'Ota', 'Jinýročník')$$, 'anon cannot accept', '42501');
 reset role;
 
--- no column for health data or the ID-card number
+-- no column for health data (the ID-card / passport number is kept: the flight manifest needs it, organisers only)
 select tests.eq((select count(*) from information_schema.columns where table_schema = 'public' and table_name = 'applications'
-                 and column_name ~ '(diagn|medic|health|allerg|drug|lek|idnum|passport|doctor)'), 0::bigint, 'applications have no health or ID-number column');
+                 and column_name ~ '(diagn|medic|health|allerg|drug|lek|doctor)'), 0::bigint, 'applications have no health column');
 rollback;

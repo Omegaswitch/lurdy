@@ -1,4 +1,4 @@
-import { t, toCsv, type Category } from '@lurdy/shared';
+import { busPlan, fee, nextLetter, t, toCsv, typeCode, type Category, type RegFees, type RegPerson } from '@lurdy/shared';
 import { useState, type ReactNode } from 'react';
 import { fmtDay, fmtStamp, fmtTime, fullName } from '../format';
 import { Icon, Notice } from '../icons';
@@ -8,8 +8,8 @@ import { supabase } from '../supabase';
 
 // Paper fallback. Operational fields only — no health data is ever loaded here.
 type Leg = { id: string; code: string; kind: 'flight' | 'bus' | 'truck' | 'other'; direction: 'outbound' | 'return' | 'local'; label: string | null; departs_at: string | null; origin: string | null; destination: string | null; capacity: number | null; responsible_id: string | null };
-type Person = {
-  id: string; title: string | null; first_name: string; last_name: string; category: Category; mobility: 'walks' | 'assisted' | 'wheelchair'; phone: string | null;
+type Person = RegPerson & {
+  id: string; title: string | null; first_name: string; last_name: string; category: Category; mobility: 'walks' | 'assisted' | 'wheelchair'; phone: string | null; room_no: string | null;
   leg_assignments: { leg_id: string; boarded_at: string | null }[];
   room_assignments: { bed: string | null; room_id: string } | null;
 };
@@ -27,7 +27,15 @@ const reports = [
   ['care', 'Péče – nemocní a asistenti'],
   ['programme', 'Program'],
   ['contacts', 'Kontakty'],
+  ['buses', 'Autobusy podle tabulky (A, B hotel · C, D Accueil · kamion)'],
+  ['letters', 'Dopisy k odeslání (w, x, o)'],
+  ['roomlist', 'Pokoje podle registru (hotel, Accueil)'],
 ] as const;
+// the register's columns (the organisers' sheet), loaded with every person
+const regCols = 'email, varsym, waiting, cancelled, confirmed, mail_sent, gender, birth_year, stays, room_no, is_nurse, is_doctor, is_priest, is_smom, is_lead, luggage_team, plane_to_accueil, truck_driver, no_flight';
+const busSections = [['A', 'Autobus A do hotelu'], ['B', 'Autobus B do hotelu'], ['C', 'Autobus C do Accueil (tým)'], ['D', 'Autobusy D do Accueil (nemocní a doprovod z letadla)'], ['truck', 'Nákladní auto se zavazadly']] as const;
+const letterGroups = [['w', 'Dopis čekací listině (w)'], ['xT', 'Dopis týmu – potvrzení účasti (x)'], ['xPM', 'Dopis poutníkům a nemocným – potvrzení účasti (x)'], ['o', 'Potvrzení platby (o)'], ['nomail', 'Chybí platný e-mail']] as const;
+type LetterGroup = (typeof letterGroups)[number][0];
 type ReportKey = (typeof reports)[number][0];
 
 export function Reports() {
@@ -36,23 +44,24 @@ export function Reports() {
   const { data, error } = useLive(
     async () => {
       const q = (table: string, select: string) => must(supabase.from(table as 'participants').select(select).eq('edition_id', edition.id));
-      const [people, legs, rooms, facilities, care, events, contacts] = await Promise.all([
-        q('participants', 'id, title, first_name, last_name, category, mobility, phone, leg_assignments(leg_id, boarded_at), room_assignments(bed, room_id)') as unknown as Promise<Person[]>,
+      const [people, legs, rooms, facilities, care, events, contacts, priv] = await Promise.all([
+        q('participants', `id, title, first_name, last_name, category, mobility, phone, ${regCols}, leg_assignments(leg_id, boarded_at), room_assignments(bed, room_id)`) as unknown as Promise<Person[]>,
         q('transport_legs', 'id, code, kind, direction, label, departs_at, origin, destination, capacity, responsible_id') as unknown as Promise<Leg[]>,
         q('rooms', 'id, number, floor, zone, capacity, responsible_id, facility_id') as unknown as Promise<Room[]>,
         q('facilities', 'id, name, short_label') as unknown as Promise<Facility[]>,
         q('care_assignments', 'malade_id, carer_id, kind, starts_at, ends_at') as unknown as Promise<Care[]>,
         q('events', 'id, starts_at, ends_at, title, location, audiences') as unknown as Promise<Event[]>,
         q('contacts', 'id, label, name, phone, is_emergency') as unknown as Promise<Contact[]>,
+        q('participant_private', 'participant_id, paid_czk') as unknown as Promise<{ participant_id: string; paid_czk: number }[]>,
       ]);
       const cs = (a: string, b: string) => a.localeCompare(b, 'cs');
       people.sort((a, b) => cs(a.last_name, b.last_name) || cs(a.first_name, b.first_name));
       legs.sort((a, b) => (a.departs_at ?? '').localeCompare(b.departs_at ?? '') || cs(a.code, b.code));
       rooms.sort((a, b) => a.number.localeCompare(b.number, 'cs', { numeric: true }));
       events.sort((a, b) => a.starts_at.localeCompare(b.starts_at));
-      return { people, legs, rooms, facilities, care, events, contacts, byId: new Map(people.map((p) => [p.id, p])) };
+      return { people, legs, rooms, facilities, care, events, contacts, byId: new Map(people.map((p) => [p.id, p])), paid: new Map(priv.map((r) => [r.participant_id, r.paid_czk])) };
     },
-    ['participants', 'leg_assignments', 'room_assignments', 'transport_legs', 'rooms', 'care_assignments', 'events', 'contacts'],
+    ['participants', 'leg_assignments', 'room_assignments', 'transport_legs', 'rooms', 'care_assignments', 'events', 'contacts', 'participant_private'],
     edition.id,
     [edition.id],
   );
@@ -171,9 +180,63 @@ export function Reports() {
               </tbody>
             </table>
           )}
+          {report === 'buses' && (() => {
+            const plan = busPlan(data.people);
+            return busSections.map(([k, label]) => (
+              <Section key={k} title={`${label} (${plan[k].length})`} pageBreak>
+                <RegTable people={plan[k]} />
+              </Section>
+            ));
+          })()}
+          {report === 'letters' && (() => {
+            const groups = lettersDue(data, edition);
+            return (
+              <>
+                <p className="print-note">Kdo má příště dostat který dopis, stejně jako barvy sloupce „mail sent“. Po odeslání označte dopis v Registru.</p>
+                {letterGroups.map(([k, label]) => (
+                  <Section key={k} title={`${label} (${groups[k].length})`}>
+                    <RegTable people={groups[k]} email />
+                  </Section>
+                ))}
+              </>
+            );
+          })()}
+          {report === 'roomlist' && ([['H', 'Hotel'], ['A', 'Accueil']] as const).map(([k, label]) => (
+            <Section key={k} title={`${label} – podle čísla pokoje`} pageBreak>
+              <RegTable people={roomList(data.people, k)} room />
+            </Section>
+          ))}
         </article>
       )}
     </>
+  );
+}
+
+const activeReg = (p: Person) => !p.waiting && !p.cancelled;
+function roomList(people: Person[], stays: 'H' | 'A') {
+  return people.filter((p) => activeReg(p) && p.stays === stays)
+    .sort((a, b) => (a.room_no ?? '~').localeCompare(b.room_no ?? '~', 'cs', { numeric: true }) || a.last_name.localeCompare(b.last_name, 'cs'));
+}
+function lettersDue(data: Data, edition: RegFees): Record<LetterGroup, Person[]> {
+  const out: Record<LetterGroup, Person[]> = { w: [], xT: [], xPM: [], o: [], nomail: [] };
+  for (const p of data.people) {
+    const d = nextLetter(p, data.paid.get(p.id) ?? 0, fee(p, edition));
+    if (d === 'w' || d === 'o' || d === 'nomail') out[d].push(p);
+    else if (d === 'x') out[typeCode(p.category) === 'T' ? 'xT' : 'xPM'].push(p);
+  }
+  return out;
+}
+function RegTable({ people, email, room }: { people: Person[]; email?: boolean; room?: boolean }) {
+  return (
+    <table className="print-table">
+      <thead><tr><th className="num">#</th>{room && <th>Pokoj</th>}<th>Příjmení a jméno</th><th>Typ</th><th>VarSym</th>{email ? <th>E-mail</th> : <th>Telefon</th>}</tr></thead>
+      <tbody>
+        {people.map((p, i) => (
+          <tr key={p.id}><td className="num">{i + 1}</td>{room && <td><strong>{p.room_no ?? '—'}</strong></td>}<td><strong>{p.last_name}</strong> {p.first_name}</td>
+            <td>{typeCode(p.category)}</td><td className="mono">{p.varsym}</td><td>{email ? p.email : p.phone}</td></tr>
+        ))}
+      </tbody>
+    </table>
   );
 }
 
@@ -211,8 +274,8 @@ function PeopleTable({ people, legs, rooms, facilities }: { people: Person[]; le
 
 // The same report as a CSV file for Excel (UTF-8 with BOM, ';'): one row per line of the printed table, plus the
 // section (bus, house, day) as a column where the printout groups by it.
-type Data = { people: Person[]; legs: Leg[]; rooms: Room[]; facilities: Facility[]; care: Care[]; events: Event[]; contacts: Contact[]; byId: Map<string, Person> };
-type Ed = { year: number; timezone: string; emergency_phone: string | null };
+type Data = { people: Person[]; legs: Leg[]; rooms: Room[]; facilities: Facility[]; care: Care[]; events: Event[]; contacts: Contact[]; byId: Map<string, Person>; paid: Map<string, number> };
+type Ed = RegFees & { year: number; timezone: string; emergency_phone: string | null };
 export function reportCsv(report: ReportKey, data: Data, edition: Ed): { header: string[]; rows: (string | number | null)[][] } {
   const legById = new Map(data.legs.map((l) => [l.id, l]));
   const roomById = new Map(data.rooms.map((r) => [r.id, r]));
@@ -258,6 +321,19 @@ export function reportCsv(report: ReportKey, data: Data, edition: Ed): { header:
       return { header: ['Kontakt', 'Jméno', 'Telefon', 'Nouzový'],
         rows: [...[...data.contacts].sort((a, b) => Number(b.is_emergency) - Number(a.is_emergency)).map((c) => [c.label, c.name, c.phone, c.is_emergency ? 'ano' : '']),
           ...(edition.emergency_phone ? [['Nouzová linka pouti', '', edition.emergency_phone, 'ano']] : []), ['Tísňové volání (EU)', '', '112', 'ano']] };
+    case 'buses': {
+      const plan = busPlan(data.people);
+      return { header: ['Autobus', 'Příjmení', 'Jméno', 'Typ', 'VarSym', 'Telefon'],
+        rows: busSections.flatMap(([k, label]) => plan[k].map((p) => [label, p.last_name, p.first_name, typeCode(p.category), p.varsym, p.phone])) };
+    }
+    case 'letters': {
+      const groups = lettersDue(data, edition);
+      return { header: ['Dopis', 'Příjmení', 'Jméno', 'Typ', 'VarSym', 'E-mail'],
+        rows: letterGroups.flatMap(([k, label]) => groups[k].map((p) => [label, p.last_name, p.first_name, typeCode(p.category), p.varsym, p.email])) };
+    }
+    case 'roomlist':
+      return { header: ['Bydlí', 'Pokoj', 'Příjmení', 'Jméno', 'Typ', 'VarSym'],
+        rows: (['H', 'A'] as const).flatMap((k) => roomList(data.people, k).map((p) => [k === 'H' ? 'Hotel' : 'Accueil', p.room_no, p.last_name, p.first_name, typeCode(p.category), p.varsym])) };
   }
 }
 

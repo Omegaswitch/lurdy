@@ -3,3 +3,9 @@ __pycache__/
 node_modules/
 .vercel/
 graphify-out/cache/
+
+# design skill installed for local use (npx skills add Leonxlnx/taste-skill) and its working files
+.agents/
+.claude/skills/design-taste-frontend
+.taste-skill/
+skills-lock.json

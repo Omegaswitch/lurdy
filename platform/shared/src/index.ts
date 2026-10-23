@@ -7,3 +7,4 @@ export * from './icons';
 export * from './shield';
 export * from './csv';
 export * from './archive';
+export * from './register';

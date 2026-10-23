@@ -2,7 +2,7 @@
 // to the organisers through Resend; the applicant gets a confirmation in their language (no application data in it).
 // Env: RESEND_API_KEY, MAIL_TO, MAIL_FROM, LURDY_ADMIN_URL (default https://lurdy.vercel.app).
 // With LURDY_INTAKE_URL + LURDY_INTAKE_SECRET set, the identity, contact and emergency-contact fields also go to the
-// management platform (admin → Přihlášky); health answers, the ID-card number and attachments never do. The platform
+// management platform (admin → Přihlášky); health answers and attachments never do. The platform
 // replies with the addresses chosen to be told about new applications, and they get a short notice.
 const FORMS = require("../content/forms.json");
 const SITE = require("../content/site.json");
@@ -60,9 +60,10 @@ async function send(mail) {
   if (!r.ok) throw new Error(`Resend ${r.status}: ${(await r.text()).slice(0, 300)}`);
 }
 
-// what the platform receives: identity, contact, emergency contact (nothing about health, no ID number, no files)
+// what the platform receives: identity, gender, contact, emergency contact, the ID / passport number (for the flight
+// list), who they travel with, earlier pilgrimages; never health answers or files
 const INTAKE_FORM = { poutnici: "pilgrim", nemocni: "malade", tym: "team" };
-const INTAKE_FIELDS = ["name", "email", "mobile", "phone", "address", "relname", "relmobile", "relphone", "times"];
+const INTAKE_FIELDS = ["name", "gender", "email", "mobile", "phone", "address", "idnum", "relname", "relmobile", "relphone", "times", "companion"];
 async function intake(form, lang, body) {
   const url = process.env.LURDY_INTAKE_URL, secret = process.env.LURDY_INTAKE_SECRET;
   if (!url || !secret) return null;  // not connected: e-mail only

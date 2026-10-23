@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Icon, Notice, type IconName } from './icons';
 import { Accommodation } from './pages/Accommodation';
 import { Applications } from './pages/Applications';
+import { Register } from './pages/Register';
 import { Archive } from './pages/Archive';
 import { Badges } from './pages/Badges';
 import { Care } from './pages/Care';
@@ -22,6 +23,7 @@ const routes: { path: string; label: string; icon: IconName; page: () => React.R
   { path: '', label: t('admin.overview'), icon: 'home', page: Overview },
   { path: 'ucastnici', label: t('admin.participants'), icon: 'users', page: Participants },
   { path: 'prihlasky', label: 'Přihlášky', icon: 'download', page: Applications },
+  { path: 'registr', label: 'Registr', icon: 'text', page: Register },
   { path: 'doprava', label: t('admin.transport'), icon: 'bus', page: Transport },
   { path: 'ubytovani', label: 'Ubytování', icon: 'bed', page: Accommodation },
   { path: 'pece', label: 'Péče', icon: 'heart', page: Care },

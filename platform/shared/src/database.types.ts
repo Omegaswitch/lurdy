@@ -43,6 +43,9 @@ export type Database = {
           submitted_at: string
           decided_at: string | null
           decided_by: string | null
+          gender: string | null
+          passport: string | null
+          travels_with: string | null
         }
         Insert: {
           id?: string
@@ -65,6 +68,9 @@ export type Database = {
           submitted_at?: string
           decided_at?: string | null
           decided_by?: string | null
+          gender?: string | null
+          passport?: string | null
+          travels_with?: string | null
         }
         Update: {
           id?: string
@@ -87,6 +93,9 @@ export type Database = {
           submitted_at?: string
           decided_at?: string | null
           decided_by?: string | null
+          gender?: string | null
+          passport?: string | null
+          travels_with?: string | null
         }
         Relationships: []
       }
@@ -541,6 +550,17 @@ export type Database = {
           updated_by: string | null
           version: number
           year: number
+          cap_plane: number | null
+          cap_extra_hotel: number | null
+          cap_team: number | null
+          cap_malades: number | null
+          caregiver_goal: number | null
+          fee_pilgrim: number
+          fee_team: number
+          fee_malade: number
+          fee_pilgrim_nf: number
+          fee_team_nf: number
+          fee_malade_nf: number
         }
         Insert: {
           badge_config?: Json
@@ -556,6 +576,17 @@ export type Database = {
           updated_by?: string | null
           version?: number
           year: number
+          cap_plane?: number | null
+          cap_extra_hotel?: number | null
+          cap_team?: number | null
+          cap_malades?: number | null
+          caregiver_goal?: number | null
+          fee_pilgrim?: number
+          fee_team?: number
+          fee_malade?: number
+          fee_pilgrim_nf?: number
+          fee_team_nf?: number
+          fee_malade_nf?: number
         }
         Update: {
           badge_config?: Json
@@ -571,6 +602,17 @@ export type Database = {
           updated_by?: string | null
           version?: number
           year?: number
+          cap_plane?: number | null
+          cap_extra_hotel?: number | null
+          cap_team?: number | null
+          cap_malades?: number | null
+          caregiver_goal?: number | null
+          fee_pilgrim?: number
+          fee_team?: number
+          fee_malade?: number
+          fee_pilgrim_nf?: number
+          fee_team_nf?: number
+          fee_malade_nf?: number
         }
         Relationships: []
       }
@@ -961,6 +1003,12 @@ export type Database = {
           },
         ]
       }
+      participant_private: {
+        Row: { participant_id: string; edition_id: string; passport: string | null; paid_czk: number; payment_note: string | null; updated_at: string }
+        Insert: { participant_id: string; edition_id: string; passport?: string | null; paid_czk?: number; payment_note?: string | null; updated_at?: string }
+        Update: { participant_id?: string; edition_id?: string; passport?: string | null; paid_czk?: number; payment_note?: string | null; updated_at?: string }
+        Relationships: []
+      }
       participants: {
         Row: {
           access_code: string | null
@@ -984,6 +1032,27 @@ export type Database = {
           updated_by: string | null
           user_id: string | null
           version: number
+          varsym: number | null
+          waiting: boolean
+          cancelled: boolean
+          confirmed: boolean
+          mail_sent: string | null
+          gender: string | null
+          birth_year: number | null
+          previous_count: number | null
+          registered_on: string | null
+          stays: string
+          travels_with: string | null
+          room_no: string | null
+          is_nurse: boolean
+          is_doctor: boolean
+          is_priest: boolean
+          is_smom: boolean
+          is_lead: boolean
+          luggage_team: boolean
+          plane_to_accueil: boolean
+          truck_driver: boolean
+          no_flight: boolean
         }
         Insert: {
           access_code?: string | null
@@ -1007,6 +1076,27 @@ export type Database = {
           updated_by?: string | null
           user_id?: string | null
           version?: number
+          varsym?: number | null
+          waiting?: boolean
+          cancelled?: boolean
+          confirmed?: boolean
+          mail_sent?: string | null
+          gender?: string | null
+          birth_year?: number | null
+          previous_count?: number | null
+          registered_on?: string | null
+          stays?: string
+          travels_with?: string | null
+          room_no?: string | null
+          is_nurse?: boolean
+          is_doctor?: boolean
+          is_priest?: boolean
+          is_smom?: boolean
+          is_lead?: boolean
+          luggage_team?: boolean
+          plane_to_accueil?: boolean
+          truck_driver?: boolean
+          no_flight?: boolean
         }
         Update: {
           access_code?: string | null
@@ -1030,6 +1120,27 @@ export type Database = {
           updated_by?: string | null
           user_id?: string | null
           version?: number
+          varsym?: number | null
+          waiting?: boolean
+          cancelled?: boolean
+          confirmed?: boolean
+          mail_sent?: string | null
+          gender?: string | null
+          birth_year?: number | null
+          previous_count?: number | null
+          registered_on?: string | null
+          stays?: string
+          travels_with?: string | null
+          room_no?: string | null
+          is_nurse?: boolean
+          is_doctor?: boolean
+          is_priest?: boolean
+          is_smom?: boolean
+          is_lead?: boolean
+          luggage_team?: boolean
+          plane_to_accueil?: boolean
+          truck_driver?: boolean
+          no_flight?: boolean
         }
         Relationships: [
           {
