@@ -660,9 +660,9 @@
     "semantic_hash": ""
   },
   "docs/STATUS.md": {
-    "mtime": 1792770504.1716115,
-    "seen": 1792770510.8824348,
-    "ast_hash": "799006e5375a326f8d6786d6f13f4771",
+    "mtime": 1792773964.922126,
+    "seen": 1792773968.037174,
+    "ast_hash": "9bb2eb536dd074848b3194b73151c713",
     "semantic_hash": ""
   },
   "docs/guides/organizator.md": {
@@ -1116,9 +1116,9 @@
     "semantic_hash": ""
   },
   "platform/admin/src/pages/Reports.tsx": {
-    "mtime": 1792765900.998841,
-    "seen": 1792770510.8822575,
-    "ast_hash": "39f4f78e2924e32a1334eec02f047bf1",
+    "mtime": 1792771069.4553132,
+    "seen": 1792773968.036951,
+    "ast_hash": "ecbf81b953602d8af8ae7eb10c3b9318",
     "semantic_hash": ""
   },
   "platform/app/src/app/account.tsx": {
@@ -1644,21 +1644,21 @@
     "semantic_hash": ""
   },
   "platform/admin/src/pages/Register.tsx": {
-    "mtime": 1792770063.875509,
-    "seen": 1792770510.8822558,
-    "ast_hash": "14095fa8d91fb58f35bc2e5109debd3d",
+    "mtime": 1792771069.4546988,
+    "seen": 1792773968.0369477,
+    "ast_hash": "17720bdb813a347460fced5ecf96df91",
     "semantic_hash": ""
   },
   "platform/shared/src/register.test.ts": {
-    "mtime": 1792765736.4314206,
-    "seen": 1792770510.8823485,
-    "ast_hash": "b863120e9c2d77abab092530483ceb7c",
+    "mtime": 1792771069.4537704,
+    "seen": 1792773968.0370586,
+    "ast_hash": "95afcbf2099919e9262246af1776e5ea",
     "semantic_hash": ""
   },
   "platform/shared/src/register.ts": {
-    "mtime": 1792765911.9082284,
-    "seen": 1792770510.8823504,
-    "ast_hash": "d9aa006055977ea7f9e3d930f88cb004",
+    "mtime": 1792771069.4528685,
+    "seen": 1792773968.0370612,
+    "ast_hash": "bb19b181ec9edd9d5240d59fd2878d7f",
     "semantic_hash": ""
   },
   "supabase/migrations/20261023100000_registration_register.sql": {
@@ -1668,9 +1668,15 @@
     "semantic_hash": ""
   },
   "supabase/tests/14_register.sql": {
-    "mtime": 1792765364.2640498,
-    "seen": 1792770510.8824105,
-    "ast_hash": "22f809a9260dcd00969806b7d180f907",
+    "mtime": 1792770919.06389,
+    "seen": 1792773968.0371459,
+    "ast_hash": "045dfae1494758b0861801d81e4fc6c7",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20261023110000_register_hardening.sql": {
+    "mtime": 1792771023.4041855,
+    "seen": 1792773968.0371213,
+    "ast_hash": "f3830e7841c9152ecd0532b047c52f16",
     "semantic_hash": ""
   }
 }

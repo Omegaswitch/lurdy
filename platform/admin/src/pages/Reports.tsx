@@ -215,7 +215,8 @@ export function Reports() {
 const activeReg = (p: Person) => !p.waiting && !p.cancelled;
 function roomList(people: Person[], stays: 'H' | 'A') {
   return people.filter((p) => activeReg(p) && p.stays === stays)
-    .sort((a, b) => (a.room_no ?? '~').localeCompare(b.room_no ?? '~', 'cs', { numeric: true }) || a.last_name.localeCompare(b.last_name, 'cs'));
+    .sort((a, b) => Number(a.room_no == null) - Number(b.room_no == null) // people without a room come last
+      || (a.room_no ?? '').localeCompare(b.room_no ?? '', 'cs', { numeric: true }) || a.last_name.localeCompare(b.last_name, 'cs'));
 }
 function lettersDue(data: Data, edition: RegFees): Record<LetterGroup, Person[]> {
   const out: Record<LetterGroup, Person[]> = { w: [], xT: [], xPM: [], o: [], nomail: [] };

@@ -9,6 +9,11 @@ select tests.eq((select varsym from public.participants where id = tests.id('r1'
                 (select max(varsym) from public.participants where edition_id = tests.id('e1')), 'a new person gets the next number');
 select tests.throws($$insert into public.participants (edition_id, category, first_name, last_name, varsym)
   select tests.id('e1'), 'pilgrim', 'Dvojí', 'Číslo', varsym from public.participants where id = tests.id('r1')$$, 'a number is used once', '23505');
+select tests.login('a1', 'aal2', 60);
+select tests.throws($$insert into public.participants (edition_id, category, first_name, last_name, varsym) values (tests.id('e1'), 'pilgrim', 'Vlastní', 'Číslo', 999999)$$,
+  'an organiser cannot pick the personal number', '42501');
+select tests.throws($$update public.participants set varsym = 1 where id = tests.id('r1')$$, 'nor change it', '42501');
+reset role;
 insert into public.participant_private (participant_id, edition_id, passport, paid_czk) values (tests.id('r1'), tests.id('e1'), 'X000000', 18000);
 select tests.throws($$insert into public.participant_private (participant_id, edition_id) values (tests.id('p1'), tests.id('e2'))$$,
   'a payment row belongs to the participant''s own edition', '23514');
@@ -46,5 +51,13 @@ select tests.eq((select gender || ' ' || birth_year || ' ' || previous_count || 
                  from public.participants where last_name = 'Webová'), 'F 1951 3 2099-01-13 A dcera', 'type, gender, birth year, earlier pilgrimages, date, Accueil, travels with');
 select tests.eq((select pp.passport from public.participant_private pp join public.participants p on p.id = pp.participant_id where p.last_name = 'Webová'),
                 'P1234567', 'passport goes to the organisers-only table');
+-- erasure: once the person is deleted, no passport, payment, address or birth date remains anywhere in the history
+update public.participant_private set paid_czk = 5000 where participant_id = (select id from public.participants where last_name = 'Webová');
+delete from public.participants where last_name = 'Webová';
 reset role;
+select tests.ok(not exists (select 1 from audit.log where old::text ~ 'P1234567' or new::text ~ 'P1234567'), 'the passport is gone from the audit log');
+select tests.ok(not exists (select 1 from audit.log where (old ? 'paid_czk' or new ? 'paid_czk' or old ? 'birth_date' or new ? 'address')
+                            and (old::text ~ 'Webová' or new::text ~ 'Webová' or old::text ~ 'anna@example' or new::text ~ 'anna@example')), 'nor payments, address or birth date of the erased person');
+select tests.eq((select full_name || coalesce(email, '') || coalesce(passport, '') from public.applications where id = tests.id('x9')), '–', 'the application keeps nothing personal');
+select tests.ok(exists (select 1 from audit.log where table_name = 'participant_private' and op = 'DELETE'), 'the operational trail stays');
 rollback;

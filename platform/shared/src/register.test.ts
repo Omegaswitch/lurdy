@@ -23,6 +23,7 @@ describe('register (the organisers\' sheet)', () => {
   it('next letter: waiting list (w), confirmation (x), payment (o), no address', () => {
     expect(nextLetter(person({ waiting: true }), 0, 0)).toBe('w');
     expect(nextLetter(person({ waiting: true, mail_sent: 'w' }), 0, 0)).toBe(null);
+    expect(nextLetter(person({ waiting: true, mail_sent: 'x' }), 0, 0)).toBe('w'); // moved to the waiting list after a confirmation
     expect(nextLetter(person({}), 0, 18000)).toBe('x');
     expect(nextLetter(person({ mail_sent: 'x' }), 0, 18000)).toBe(null);
     expect(nextLetter(person({ mail_sent: 'x' }), 18000, 18000)).toBe('o');      // "a blue x on green: next time, a payment confirmation"
@@ -60,24 +61,29 @@ describe('register (the organisers\' sheet)', () => {
     expect(b.D).toEqual([toA, ma]);
     expect(b.truck).toEqual([truck]);
     for (const list of Object.values(b)) expect(list).not.toContain(own), expect(list).not.toContain(out);
+    // nobody twice: a pilgrim on the luggage team and a team member with both flags
+    const twice = busPlan([person({ luggage_team: true }), person({ category: 'assistant', luggage_team: true, plane_to_accueil: true }), ma]);
+    const all = Object.values(twice).flat();
+    expect(new Set(all.map((p) => p.id)).size).toBe(all.length);
   });
   it('overview: counts, caregivers by gender and age, money', () => {
     const ps = [
       person({ category: 'assistant', gender: 'M', birth_year: 1980, mail_sent: 'o' }),
       person({ category: 'assistant', gender: 'F', birth_year: 1990, confirmed: true }),
       person({ category: 'assistant', is_priest: true, gender: 'M' }),
+      person({ category: 'assistant', gender: 'F', birth_year: null }), // added by hand, no birth year yet
       person({ category: 'malade', stays: 'A' }),
       person({ waiting: true }),
       person({ cancelled: true }),
     ];
-    const o = overview(ps, (p) => (p === ps[0] ? 18000 : 0), fees, 2026);
-    expect(o.team.participants).toBe(3);
-    expect(o.caregivers).toMatchObject({ men: 1, women: 1, menAge: 46, womenAge: 36, total: 2 });
+    const o = overview(ps, (p) => (p === ps[0] ? 18000 : p === ps[5] ? 18000 : 0), fees, 2026); // ps[5] is cancelled and had paid
+    expect(o.team.participants).toBe(4);
+    expect(o.caregivers).toMatchObject({ men: 1, women: 2, menAge: 46, womenAge: 36, total: 3 });
     expect(o.priests).toBe(1);
     expect(o.waiting).toBe(1);
     expect(o.cancelled).toBe(1);
     expect(o.maladesAccueil).toBe(1);
-    expect(o.money).toEqual({ planned: 4 * 18000, paid: 18000, unpaid: 3 * 18000, paidCount: 1 });
+    expect(o.money).toEqual({ planned: 5 * 18000, paid: 18000, unpaid: 4 * 18000, paidCount: 1 }); // the cancelled person's money covers nobody
     expect(o.team.payConfirmed).toBe(1);
     expect(o.team.partConfirmed).toBe(1);
   });

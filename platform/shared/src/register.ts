@@ -52,7 +52,7 @@ export type Due = 'w' | 'x' | 'o' | 'nomail' | null;
 export function nextLetter(p: RegPerson, paid: number, price: number): Due {
   if (p.cancelled) return null;
   if (!validEmail(p.email)) return 'nomail';
-  if (p.waiting) return p.mail_sent ? null : 'w';
+  if (p.waiting) return p.mail_sent === 'w' ? null : 'w';
   if (price > 0 && paid >= price) return p.mail_sent === 'o' ? null : 'o';
   return p.mail_sent === 'x' || p.mail_sent === 'o' ? null : 'x';
 }
@@ -96,15 +96,16 @@ const halves = <T,>(xs: T[], extra = true): [T[], T[]] => {
 // the Accueil and the "plane → Accueil" team), the truck. Nobody on the waiting list, cancelled or not flying.
 export function busPlan<P extends RegPerson>(people: P[]) {
   const flying = people.filter((p) => active(p) && !p.no_flight);
-  const hotel = flying.filter((p) => typeCode(p.category) === 'P' || (typeCode(p.category) === 'M' && p.stays === 'H')).sort(byName);
+  // the luggage team rides the hotel buses whatever else is ticked; nobody is seated twice
   const luggage = flying.filter((p) => p.luggage_team).sort(byName);
+  const hotel = flying.filter((p) => !p.luggage_team && (typeCode(p.category) === 'P' || (typeCode(p.category) === 'M' && p.stays === 'H'))).sort(byName);
   const [hotelA, hotelB] = halves(hotel);
   const [luggageA, luggageB] = halves(luggage, false);
   return {
     A: [...luggageA, ...hotelA],
     B: [...luggageB, ...hotelB],
     C: flying.filter((p) => typeCode(p.category) === 'T' && !p.luggage_team && !p.plane_to_accueil && !p.truck_driver).sort(byName),
-    D: [...flying.filter((p) => typeCode(p.category) === 'T' && p.plane_to_accueil).sort(byName),
+    D: [...flying.filter((p) => typeCode(p.category) === 'T' && p.plane_to_accueil && !p.luggage_team).sort(byName),
         ...flying.filter((p) => typeCode(p.category) === 'M' && p.stays === 'A').sort(byName)],
     truck: people.filter((p) => active(p) && p.truck_driver).sort(byName),
   };
@@ -131,7 +132,9 @@ export function overview(people: RegPerson[], paidOf: (p: RegPerson) => number, 
   const ages = (g: string) => care.filter((p) => p.gender === g && p.birth_year).map((p) => year - p.birth_year!);
   const avg = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : null);
   const planned = act.reduce((s, p) => s + fee(p, fees), 0);
-  const paid = people.reduce((s, p) => s + paidOf(p), 0);
+  // what counts towards the fees: active people only, each at most their own fee (an overpayment or a cancelled
+  // person's money never hides someone else's debt)
+  const paid = act.reduce((s, p) => s + Math.min(paidOf(p), fee(p, fees)), 0);
   return {
     team: row('T'), malades: row('M'), pilgrims: row('P'),
     smom: people.filter((p) => !p.cancelled && p.is_smom).length,
@@ -144,7 +147,7 @@ export function overview(people: RegPerson[], paidOf: (p: RegPerson) => number, 
     maladesHotel: act.filter((p) => typeCode(p.category) === 'M' && p.stays === 'H').length,
     maladesAccueil: act.filter((p) => typeCode(p.category) === 'M' && p.stays === 'A').length,
     ownWay: act.filter((p) => p.no_flight).length,
-    caregivers: { men: ages('M').length, women: ages('F').length, menAge: avg(ages('M')), womenAge: avg(ages('F')),
+    caregivers: { men: care.filter((p) => p.gender === 'M').length, women: care.filter((p) => p.gender === 'F').length, menAge: avg(ages('M')), womenAge: avg(ages('F')),
                   total: care.length },
     money: { planned, paid, unpaid: Math.max(0, planned - paid),
              paidCount: act.filter((p) => { const f = fee(p, fees); return f > 0 && paidOf(p) >= f; }).length },

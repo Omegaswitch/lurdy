@@ -1,5 +1,5 @@
 import { fee, inView, nextLetter, overview, regViews, typeCode, validEmail, type Due, type RegPerson, type RegView, type Tables } from '@lurdy/shared';
-import { useMemo, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { friendlyError } from '../errors';
 import { Icon, Notice } from '../icons';
 import { must, useLive } from '../live';
@@ -46,9 +46,10 @@ export function Register() {
     ]);
     return { people, priv: new Map(priv.map((p) => [p.participant_id, p])) };
   }, ['participants', 'participant_private'], edition.id, [edition.id]);
-  // edits show at once; the live reload then confirms them
+  // edits show at once; the live reload (triggered by the write itself) then carries them, so they are forgotten
   const [local, setLocal] = useState<Record<string, Partial<Row>>>({});
   const [localPriv, setLocalPriv] = useState<Record<string, Partial<Private>>>({});
+  useEffect(() => { setLocal({}); setLocalPriv({}); }, [data]);
 
   const people = useMemo(() => (data?.people ?? []).map((p) => ({ ...p, ...local[p.id] }) as Row), [data, local]);
   const priv = (id: string) => ({ ...data?.priv.get(id), ...localPriv[id] }) as Partial<Private>;
@@ -71,8 +72,9 @@ export function Register() {
   }
   async function savePriv(p: Row, patch: Partial<Private>) {
     setLocalPriv((l) => ({ ...l, [p.id]: { ...l[p.id], ...patch } }));
-    const { error: e } = await supabase.from('participant_private').upsert({ participant_id: p.id, edition_id: edition.id, ...priv(p.id), ...patch });
-    if (e) setMessage(friendlyError(e));
+    // only the changed column: a colleague's concurrent edit of another column stays
+    const { error: e } = await supabase.from('participant_private').upsert({ participant_id: p.id, edition_id: edition.id, ...patch });
+    if (e) { setMessage(friendlyError(e)); setLocalPriv((l) => { const n = { ...l }; delete n[p.id]; return n; }); }
   }
 
   const ov = overview(people, paidOf, edition, year);
@@ -217,8 +219,8 @@ function Detail({ p, price, priv, save, savePriv }: { p: Row; price: number; pri
     <div className="reg-detail">
       <fieldset>
         <legend>Osoba</legend>
-        <Text id={id('fn')} label="Jméno" value={p.first_name} onSave={(v) => v && save({ first_name: v })} />
-        <Text id={id('ln')} label="Příjmení" value={p.last_name} onSave={(v) => v && save({ last_name: v })} />
+        <Text id={id('fn')} label="Jméno" value={p.first_name} required onSave={(v) => save({ first_name: v! })} />
+        <Text id={id('ln')} label="Příjmení" value={p.last_name} required onSave={(v) => save({ last_name: v! })} />
         <div className="field"><label htmlFor={id('ty')}>Typ</label>
           <select id={id('ty')} value={code} onChange={(e) => save({ category: e.target.value === 'P' ? 'pilgrim' : e.target.value === 'M' ? 'malade' : p.category === 'staff' ? 'staff' : 'assistant' })}>
             <option value="P">Poutník</option><option value="M">Nemocný</option><option value="T">Tým</option>
@@ -274,15 +276,19 @@ function Detail({ p, price, priv, save, savePriv }: { p: Row; price: number; pri
 }
 
 // a field that saves when it loses focus
-function Text({ id, label, value, numeric, invalid, onSave }: { id: string; label: string; value: string | null; numeric?: boolean; invalid?: boolean; onSave: (v: string | null) => void }) {
+function Text({ id, label, value, numeric, invalid, required, onSave }: { id: string; label: string; value: string | null; numeric?: boolean; invalid?: boolean; required?: boolean; onSave: (v: string | null) => void }) {
   const [v, setV] = useState(value ?? '');
   const [prev, setPrev] = useState(value);
   if (prev !== value) { setPrev(value); setV(value ?? ''); }
   return (
     <div className="field"><label htmlFor={id}>{label}</label>
-      <input id={id} value={v} inputMode={numeric ? 'numeric' : undefined} aria-invalid={invalid || undefined}
+      <input id={id} value={v} inputMode={numeric ? 'numeric' : undefined} aria-invalid={invalid || undefined} required={required}
         onChange={(e) => setV(numeric ? e.target.value.replace(/\D/g, '') : e.target.value)}
-        onBlur={() => { const n = v.trim() || null; if (n !== (value ?? null)) onSave(n); }} /></div>
+        onBlur={() => {
+          const n = v.trim() || null;
+          if (required && !n) return setV(value ?? ''); // a name cannot be emptied: the field springs back
+          if (n !== (value ?? null)) onSave(n);
+        }} /></div>
   );
 }
 function Check({ label, hint, checked, onChange }: { label: string; hint?: string; checked: boolean; onChange: (v: boolean) => void }) {
