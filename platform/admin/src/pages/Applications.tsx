@@ -79,7 +79,7 @@ function Row({ a, open, onToggle, people }: { a: Application; open: boolean; onT
     <>
       <tr>
         <td>{fmtStamp(new Date(a.submitted_at))}</td>
-        <td><strong>{a.full_name}</strong>{a.times && <div style={{ color: 'var(--muted)' }}>Na pouti: {a.times}</div>}</td>
+        <td><strong>{[a.title, a.full_name].filter(Boolean).join(' ')}</strong>{a.subsidy && <span className="tag" style={{ marginLeft: 8 }}>žádá o příspěvek</span>}{a.times && <div style={{ color: 'var(--muted)' }}>Na pouti: {a.times}</div>}</td>
         <td>{forms[a.form].label}</td>
         <td>{czDate(a.birth_date)}</td>
         <td>{[a.phone, a.phone2, a.email].filter(Boolean).join(' · ')}{a.address && <div style={{ color: 'var(--muted)' }}>{a.address}</div>}</td>

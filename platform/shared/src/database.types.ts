@@ -38,9 +38,11 @@ export type Database = {
           emergency_name: string | null
           emergency_phone: string | null
           times: string | null
+          title: string | null
           language: string
           participant_id: string | null
           submitted_at: string
+          subsidy: boolean
           decided_at: string | null
           decided_by: string | null
           gender: string | null
@@ -63,9 +65,11 @@ export type Database = {
           emergency_name?: string | null
           emergency_phone?: string | null
           times?: string | null
+          title?: string | null
           language?: string
           participant_id?: string | null
           submitted_at?: string
+          subsidy?: boolean
           decided_at?: string | null
           decided_by?: string | null
           gender?: string | null
@@ -88,9 +92,11 @@ export type Database = {
           emergency_name?: string | null
           emergency_phone?: string | null
           times?: string | null
+          title?: string | null
           language?: string
           participant_id?: string | null
           submitted_at?: string
+          subsidy?: boolean
           decided_at?: string | null
           decided_by?: string | null
           gender?: string | null

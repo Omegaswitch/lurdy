@@ -4,6 +4,8 @@
 // With LURDY_INTAKE_URL + LURDY_INTAKE_SECRET set, the identity, contact and emergency-contact fields also go to the
 // management platform (admin → Přihlášky); health answers and attachments never do. The platform
 // replies with the addresses chosen to be told about new applications, and they get a short notice.
+// With GOOGLE_SHEETS_URL + GOOGLE_SHEETS_SECRET set, the whole application is also written to the organisers' Google
+// Sheet by the Apps Script in tools/google-sheets/ (setup: tools/google-sheets/README.md).
 const FORMS = require("../content/forms.json");
 const SITE = require("../content/site.json");
 // listed one by one so the bundler sees every file the function needs
@@ -21,14 +23,14 @@ const MAGIC = [[[0x25, 0x50, 0x44, 0x46], "application/pdf"], [[0xff, 0xd8, 0xff
 const EMAIL = /^[^\s@<>,;"]+@[^\s@<>,;"]+$/;  // what the browser's type=email accepts
 
 function clean(def, body) {
-  // returns [rows, applicantEmail] or null when anything is missing or out of range
+  // returns rows [group, label, value in Czech, key, raw value] or null when anything is missing or out of range
   const rows = [];
   let group = "";
   for (const f of def) {
     if (f.g) { group = CS.fields[f.g]; continue; }
-    let v = body[f.k];
+    let v = body[f.k], raw;
     if (f.t === "check") {
-      v = (Array.isArray(v) ? v : v ? [v] : []).map(String);
+      v = raw = (Array.isArray(v) ? v : v ? [v] : []).map(String);
       if (v.some((x) => !f.o.includes(x))) return null;
       v = v.map((x) => CS.opts[x]).join(", ");
     } else if (f.t === "date") {
@@ -40,13 +42,15 @@ function clean(def, body) {
     } else {
       v = typeof v === "string" ? v.replace(/\r\n?/g, "\n").trim() : "";  // browsers count a line break as 1, the post sends CRLF
       if (f.t !== "area") v = v.replace(/[\x00-\x1f\x7f]+/g, " ");  // single lines stay single (the name goes into the subject)
-      if (v.length > (f.t === "area" ? 2000 : 200)) return null;
+      if (v.length > (f.max || (f.t === "area" ? 2000 : 200))) return null;
+      if (f.pat && v && !new RegExp(`^(?:${f.pat})$`).test(v)) return null;
       if (f.t === "radio" && v && !f.o.includes(v)) return null;
       if (f.t === "email" && v && !EMAIL.test(v)) return null;
+      raw = v;
       if (f.t === "radio" && v) v = CS.opts[v];
     }
     if (f.r && !v) return null;
-    rows.push([group, CS.fields[f.k], v]);
+    rows.push([group, CS.fields[f.k], v, f.k, raw]);
   }
   return rows;
 }
@@ -63,13 +67,19 @@ async function send(mail) {
 // what the platform receives: identity, gender, contact, emergency contact, the ID / passport number (for the flight
 // list), who they travel with, earlier pilgrimages; never health answers or files
 const INTAKE_FORM = { poutnici: "pilgrim", nemocni: "malade", tym: "team" };
-const INTAKE_FIELDS = ["name", "gender", "email", "mobile", "phone", "address", "idnum", "relname", "relmobile", "relphone", "times", "companion"];
+const INTAKE_FIELDS = ["title", "name", "gender", "email", "mobile", "phone", "address", "idnum", "relname", "relmobile", "relphone", "times", "companion"];
+// the sick pilgrims' form names things its own way (as the organisers' paper form): the same facts under the platform's names;
+// its rodné číslo and every health answer stay out
+const both = (a, b) => [a, b].filter((x) => typeof x === "string" && x.trim()).map((x) => x.trim()).join(" ");
+const SICK = (b) => ({ first: b.firstname, last: b.lastname, name: both(b.firstname, b.lastname), mobile: b.telefon,
+  relname: both(b.rel_first, b.rel_last), relmobile: b.rel_phone, companion: b.escort, subsidy: b.subsidy === "sub_ask" });
 async function intake(form, lang, body) {
   const url = process.env.LURDY_INTAKE_URL, secret = process.env.LURDY_INTAKE_SECRET;
   if (!url || !secret) return null;  // not connected: e-mail only
   const [d, m, y] = ["d", "m", "y"].map((p) => Number(body[`birth_${p}`]) || 0);
   const payload = { form: INTAKE_FORM[form], lang, birth: d && m && y ? `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}` : null };
   for (const k of INTAKE_FIELDS) if (typeof body[k] === "string") payload[k] = body[k];
+  if (form === "nemocni") for (const [k, v] of Object.entries(SICK(body))) if (typeof v === "string" ? v : v === true) payload[k] = v;
   try {
     const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json", "x-intake-secret": secret }, body: JSON.stringify(payload), signal: AbortSignal.timeout(8000) });
     if (!r.ok) throw new Error(`intake ${r.status}: ${(await r.text()).slice(0, 200)}`);
@@ -78,6 +88,24 @@ async function intake(form, lang, body) {
   } catch (e) {
     console.error(e.message);
     return false;  // the e-mail still goes out: it is the record, the organisers re-enter the person by hand
+  }
+}
+
+// the organisers' Google Sheet (tools/google-sheets/prihlasky.gs): every answer, in Czech, with the option codes so the
+// script can tick the paper form's ano/ne cells; null when not connected, false when it did not take it
+async function sheets(form, lang, name, sent, rows) {
+  const url = process.env.GOOGLE_SHEETS_URL, secret = process.env.GOOGLE_SHEETS_SECRET;
+  if (!url || !secret) return null;
+  const fields = rows.map(([group, label, value, key, raw]) => ({ key, group, label, value, ...(raw !== undefined && raw !== value ? { codes: [].concat(raw) } : {}) }));
+  try {
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, redirect: "follow", signal: AbortSignal.timeout(15000),
+      body: JSON.stringify({ secret, form, title: CS.pages[form].title, lang, submitted: sent, name, fields }) });
+    const reply = await r.json().catch(() => ({}));
+    if (!r.ok || !reply.ok) throw new Error(`sheets ${r.status}: ${reply.error || ""}`);
+    return true;
+  } catch (e) {
+    console.error(e.message);
+    return false;  // the e-mail is the record either way
   }
 }
 
@@ -144,8 +172,9 @@ module.exports = async (req, res) => {
   const attached = await attachments(files);
   if (!rows || !attached || body.declaration !== "yes" || body.consent !== "yes") return fail(res, lang, form, 400);
 
-  const name = rows.find((r) => r[1] === CS.fields.name)[2];
-  const email = rows.find((r) => r[1] === CS.fields.email)[2];
+  const val = (k) => (rows.find((r) => r[3] === k) || [])[2] || "";
+  const name = val("name") || both(val("firstname"), val("lastname"));
+  const email = val("email");
   const formTitle = CS.pages[form].title;
   const title = `${formTitle}: ${name}`;
   const sent = new Date().toLocaleString("cs-CZ", { timeZone: "Europe/Prague", dateStyle: "short", timeStyle: "short" });
@@ -165,9 +194,10 @@ module.exports = async (req, res) => {
       `<tr><td colspan="2" style="font:14px/1.6 Asap,Arial,sans-serif">${attached.map((a) => esc(a.filename)).join("<br>")}</td></tr>`;
     text += `\n== ${CS.fields.attachments} ==\n${attached.map((a) => a.filename).join("\n")}\n`;
   }
-  const filed = await intake(form, lang, body);
+  const [filed, sheet] = await Promise.all([intake(form, lang, body), sheets(form, lang, name, sent, rows)]);
   const stamp = `Prohlášení a souhlas se zpracováním osobních a zdravotních údajů: ano · jazyk webu: ${lang} · odesláno ${sent}` +
-    (filed === null ? "" : filed ? " · uloženo ve správě pouti (Přihlášky)" : " · NEULOŽENO ve správě pouti – zadejte ručně");
+    (filed === null ? "" : filed ? " · uloženo ve správě pouti (Přihlášky)" : " · NEULOŽENO ve správě pouti – zadejte ručně") +
+    (sheet === null ? "" : sheet ? " · zapsáno do Google tabulky" : " · NEZAPSÁNO do Google tabulky – doplňte ručně");
   text += `\n${stamp}\n`;
   const html = MAIL.shell({ lang: "cs", alt: CS.ui.lockup, heading: CS.ui.mailHeader, title,
     body: `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:0 0 18px">${table}</table>` +

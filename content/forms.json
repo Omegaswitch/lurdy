@@ -1,16 +1,66 @@
 {
  "nemocni": [
   {
-   "k": "name",
+   "k": "stay",
+   "t": "radio",
+   "r": 1,
+   "o": [
+    "stay_accueil",
+    "stay_hotel"
+   ]
+  },
+  {
+   "k": "title",
+   "t": "text",
+   "max": 40,
+   "list": [
+    "Bc.",
+    "BcA.",
+    "Ing.",
+    "Ing. arch.",
+    "Mgr.",
+    "MgA.",
+    "MUDr.",
+    "MDDr.",
+    "MVDr.",
+    "PharmDr.",
+    "PhDr.",
+    "JUDr.",
+    "RNDr.",
+    "PaedDr.",
+    "ThDr.",
+    "ThLic.",
+    "doc.",
+    "prof.",
+    "P.",
+    "Mons.",
+    "S."
+   ],
+   "ac": "honorific-prefix"
+  },
+  {
+   "k": "firstname",
    "t": "text",
    "r": 1,
-   "ac": "name"
+   "ac": "given-name"
+  },
+  {
+   "k": "lastname",
+   "t": "text",
+   "r": 1,
+   "ac": "family-name"
   },
   {
    "k": "birth",
    "t": "date",
    "r": 1,
    "ac": "bday"
+  },
+  {
+   "k": "rc",
+   "t": "text",
+   "max": 11,
+   "pat": "\\d{6}/?\\d{3,4}"
   },
   {
    "k": "gender",
@@ -22,16 +72,22 @@
    ]
   },
   {
-   "k": "email",
-   "t": "email",
-   "r": 1,
-   "ac": "email"
-  },
-  {
    "k": "address",
    "t": "text",
    "r": 1,
    "ac": "street-address"
+  },
+  {
+   "k": "telefon",
+   "t": "tel",
+   "r": 1,
+   "ac": "tel"
+  },
+  {
+   "k": "email",
+   "t": "email",
+   "r": 1,
+   "ac": "email"
   },
   {
    "k": "idnum",
@@ -44,85 +100,91 @@
    "r": 1
   },
   {
-   "k": "phone",
-   "t": "tel",
-   "ac": "tel"
-  },
-  {
-   "k": "mobile",
-   "t": "tel",
-   "r": 1,
-   "ac": "tel"
-  },
-  {
    "k": "times",
    "t": "text"
   },
   {
-   "g": "relative"
+   "g": "g_limits"
   },
   {
-   "k": "relname",
-   "t": "text",
-   "r": 1
+   "k": "limit_body",
+   "t": "area",
+   "max": 500
   },
   {
-   "k": "relphone",
-   "t": "tel"
+   "k": "limit_senses",
+   "t": "area",
+   "max": 500
   },
   {
-   "k": "relmobile",
-   "t": "tel",
-   "r": 1
+   "k": "health_issues",
+   "t": "area",
+   "max": 500
   },
   {
-   "g": "health"
-  },
-  {
-   "k": "disability",
-   "t": "check",
+   "k": "speech",
+   "t": "radio",
    "o": [
-    "tp",
-    "ztp",
-    "ztpp",
-    "wheelchair",
-    "assisted"
+    "yes",
+    "no"
    ]
   },
   {
-   "k": "otherlimit",
-   "t": "text"
+   "k": "weight",
+   "t": "number"
   },
   {
-   "k": "diagnoses",
-   "t": "area",
-   "r": 1
+   "k": "height",
+   "t": "number"
   },
   {
-   "k": "nursing",
-   "t": "area"
+   "g": "g_mobility"
   },
   {
-   "k": "hygiene",
+   "k": "mobility",
+   "t": "check",
+   "o": [
+    "mob_free",
+    "mob_poles",
+    "mob_cane",
+    "mob_crutches",
+    "mob_walker",
+    "mob_wheelchair",
+    "mob_lying",
+    "mob_turning"
+   ]
+  },
+  {
+   "k": "own_wheelchair",
+   "t": "radio",
+   "o": [
+    "yes",
+    "no"
+   ]
+  },
+  {
+   "k": "own_walker",
+   "t": "radio",
+   "o": [
+    "yes",
+    "no"
+   ]
+  },
+  {
+   "g": "g_hygiene"
+  },
+  {
+   "k": "hygiene_level",
    "t": "radio",
    "r": 1,
    "o": [
-    "self",
-    "help",
-    "dependent"
+    "lvl_self",
+    "lvl_help",
+    "lvl_none"
    ]
   },
   {
-   "k": "hygieneother",
-   "t": "text"
-  },
-  {
-   "k": "meds",
-   "t": "area",
-   "r": 1
-  },
-  {
-   "k": "diet",
+   "k": "wc",
    "t": "radio",
    "r": 1,
    "o": [
@@ -131,20 +193,120 @@
    ]
   },
   {
-   "k": "dietkind",
+   "k": "hygaids",
    "t": "check",
    "o": [
-    "diabetic",
-    "nosalt"
+    "aid_pads",
+    "aid_pants",
+    "aid_bedpad",
+    "aid_urinal",
+    "aid_bedpan",
+    "aid_catheter",
+    "aid_bag"
    ]
   },
   {
-   "k": "dietother",
+   "k": "hygaids_other",
    "t": "text"
   },
   {
-   "k": "aids",
-   "t": "area"
+   "g": "g_food"
+  },
+  {
+   "k": "eating",
+   "t": "radio",
+   "r": 1,
+   "o": [
+    "lvl_self",
+    "lvl_help",
+    "lvl_none",
+    "lvl_tube"
+   ]
+  },
+  {
+   "k": "diettype",
+   "t": "radio",
+   "o": [
+    "diet_basic",
+    "diet_diabetic",
+    "diet_gentle",
+    "diet_gluten"
+   ]
+  },
+  {
+   "k": "diet_other",
+   "t": "text"
+  },
+  {
+   "k": "mixed",
+   "t": "radio",
+   "o": [
+    "yes",
+    "no"
+   ]
+  },
+  {
+   "k": "nutrition",
+   "t": "text"
+  },
+  {
+   "g": "g_devices"
+  },
+  {
+   "k": "devices",
+   "t": "check",
+   "o": [
+    "dev_pacemaker",
+    "dev_icd",
+    "dev_pump",
+    "dev_pen",
+    "dev_gluco",
+    "dev_apnea",
+    "dev_oxygen",
+    "dev_vent",
+    "dev_cough",
+    "dev_suction"
+   ]
+  },
+  {
+   "k": "devices_other",
+   "t": "text"
+  },
+  {
+   "g": "g_care"
+  },
+  {
+   "k": "procedures",
+   "t": "check",
+   "o": [
+    "proc_inject",
+    "proc_wounds",
+    "proc_catheter",
+    "proc_picc",
+    "proc_port",
+    "proc_stoma"
+   ]
+  },
+  {
+   "k": "inject_drug",
+   "t": "text"
+  },
+  {
+   "k": "stoma_type",
+   "t": "text"
+  },
+  {
+   "k": "procedures_other",
+   "t": "text"
+  },
+  {
+   "g": "g_meds"
+  },
+  {
+   "k": "medication",
+   "t": "area",
+   "r": 1,
+   "max": 500
   },
   {
    "k": "allergy",
@@ -157,42 +319,76 @@
   },
   {
    "k": "allergykind",
-   "t": "text"
-  },
-  {
-   "k": "height",
-   "t": "number"
-  },
-  {
-   "k": "weight",
-   "t": "number"
+   "t": "text",
+   "max": 150
   },
   {
    "g": "doctor"
   },
   {
-   "k": "doctor",
+   "k": "gp_first",
+   "t": "text"
+  },
+  {
+   "k": "gp_last",
    "t": "text",
    "r": 1
   },
   {
-   "k": "doctoraddr",
+   "k": "gp_address",
    "t": "text"
   },
   {
-   "k": "doctorphone",
+   "k": "gp_phone",
    "t": "tel"
   },
   {
-   "k": "doctormobile",
-   "t": "tel"
+   "k": "gp_email",
+   "t": "email"
   },
   {
-   "g": "other"
+   "g": "relative"
   },
   {
-   "k": "note",
-   "t": "area"
+   "k": "rel_first",
+   "t": "text",
+   "r": 1
+  },
+  {
+   "k": "rel_last",
+   "t": "text",
+   "r": 1
+  },
+  {
+   "k": "rel_address",
+   "t": "text"
+  },
+  {
+   "k": "rel_phone",
+   "t": "tel",
+   "r": 1
+  },
+  {
+   "k": "rel_email",
+   "t": "email"
+  },
+  {
+   "k": "escort",
+   "t": "area",
+   "max": 500
+  },
+  {
+   "g": "g_subsidy",
+   "dlg": 1
+  },
+  {
+   "k": "subsidy",
+   "t": "radio",
+   "r": 1,
+   "o": [
+    "sub_self",
+    "sub_ask"
+   ]
   },
   {
    "g": "attachments"
@@ -203,6 +399,35 @@
   }
  ],
  "poutnici": [
+  {
+   "k": "title",
+   "t": "text",
+   "max": 40,
+   "list": [
+    "Bc.",
+    "BcA.",
+    "Ing.",
+    "Ing. arch.",
+    "Mgr.",
+    "MgA.",
+    "MUDr.",
+    "MDDr.",
+    "MVDr.",
+    "PharmDr.",
+    "PhDr.",
+    "JUDr.",
+    "RNDr.",
+    "PaedDr.",
+    "ThDr.",
+    "ThLic.",
+    "doc.",
+    "prof.",
+    "P.",
+    "Mons.",
+    "S."
+   ],
+   "ac": "honorific-prefix"
+  },
   {
    "k": "name",
    "t": "text",
@@ -350,6 +575,35 @@
   }
  ],
  "tym": [
+  {
+   "k": "title",
+   "t": "text",
+   "max": 40,
+   "list": [
+    "Bc.",
+    "BcA.",
+    "Ing.",
+    "Ing. arch.",
+    "Mgr.",
+    "MgA.",
+    "MUDr.",
+    "MDDr.",
+    "MVDr.",
+    "PharmDr.",
+    "PhDr.",
+    "JUDr.",
+    "RNDr.",
+    "PaedDr.",
+    "ThDr.",
+    "ThLic.",
+    "doc.",
+    "prof.",
+    "P.",
+    "Mons.",
+    "S."
+   ],
+   "ac": "honorific-prefix"
+  },
   {
    "k": "name",
    "t": "text",

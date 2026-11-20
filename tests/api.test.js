@@ -5,7 +5,13 @@ SITE.registrationOpen = true; // the cached module object is the one the handler
 const sent = [];
 const intakes = [];
 let intakeOk = true;
+const sheetPosts = [];
+let sheetOk = true;
 global.fetch = async (url, o) => {
+  if (url.includes("script.google.com")) {
+    sheetPosts.push(JSON.parse(o.body));
+    return { ok: true, status: 200, json: async () => (sheetOk ? { ok: true } : { ok: false, error: "secret" }) };
+  }
   if (url.includes("intake")) {
     intakes.push({ headers: o.headers, body: JSON.parse(o.body) });
     return { ok: intakeOk, status: intakeOk ? 201 : 500, text: async () => "", json: async () => ({ id: "x", notify: ["koordinator@example.test", "not an address"] }) };
@@ -85,26 +91,64 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   process.env.LURDY_INTAKE_URL = "https://x.supabase.co/functions/v1/application-intake";
   process.env.LURDY_INTAKE_SECRET = "s".repeat(40);
   sent.length = 0;
-  const sick = { ...good, form: "nemocni", diagnoses: "fiktivní diagnóza", meds: "fiktivní lék", hygiene: "self", allergy: "no", doctor: "MUDr. Test", relphone: "555" };
+  // the sick pilgrims' form (from the organisers' paper form "Přihláška Lurdy")
+  const sick = { form: "nemocni", lang: "cs", stay: "stay_accueil", title: "Ing.", firstname: "Jan <b>", lastname: "Novák</b>", rc: "500101/1234",
+    birth_d: "1", birth_m: "1", birth_y: "1950", gender: "male", address: "Praha", telefon: "777", email: "jan@example.com", idnum: "123",
+    idvalid_d: "31", idvalid_m: "12", idvalid_y: "2030", health_issues: "fiktivní diagnóza", mobility: ["mob_cane", "mob_wheelchair"],
+    hygiene_level: "lvl_help", wc: "yes", eating: "lvl_self", devices: "dev_gluco", medication: "fiktivní lék", allergy: "no",
+    gp_last: "MUDr. Test", rel_first: "Eva", rel_last: "Nováková", rel_phone: "555", escort: "dcera", subsidy: "sub_ask", declaration: "yes", consent: "yes" };
+  assert.equal((await call({ ...sick, subsidy: "" })).status, 400, "the subsidy question must be answered");
+  assert.equal((await call({ ...sick, rc: "12345" })).status, 400, "rodné číslo has its shape");
+  assert.equal((await call({ ...sick, medication: "x".repeat(501) })).status, 400, "the paper form's 500-character limit");
+  assert.equal((await call({ ...sick, title: "x".repeat(41) })).status, 400, "title length");
+  assert.equal((await call({ ...sick, mobility: "mob_flying" })).status, 400, "unknown mobility option");
+  intakes.length = 0; sent.length = 0;
   assert.equal((await call(sick)).status, 303);
   assert.equal(intakes.length, 1);
   assert.equal(intakes[0].headers["x-intake-secret"], "s".repeat(40));
-  assert.deepEqual(Object.keys(intakes[0].body).sort(), ["address", "birth", "email", "form", "gender", "idnum", "lang", "mobile", "name", "relmobile", "relname", "relphone"].sort(),
-    "identity, gender, contact, emergency contact, ID number: no health answers");
+  assert.deepEqual(Object.keys(intakes[0].body).sort(), ["address", "birth", "companion", "email", "first", "form", "gender", "idnum", "lang", "last", "mobile", "name", "relmobile", "relname", "subsidy", "title"].sort(),
+    "identity, gender, contact, emergency contact, ID number, subsidy: no health answers, no rodné číslo");
+  assert.equal(intakes[0].body.name, "Jan <b> Novák</b>");
+  assert.equal(intakes[0].body.relname, "Eva Nováková");
+  assert.equal(intakes[0].body.mobile, "777");
+  assert.equal(intakes[0].body.subsidy, true);
+  assert.equal(intakes[0].body.title, "Ing.");
+  assert.ok(!JSON.stringify(intakes[0].body).includes("500101") && !JSON.stringify(intakes[0].body).includes("fiktivní"), "nothing medical, no rodné číslo");
+  assert.ok(sent[0].text.includes("Prosím o příspěvek") && sent[0].text.includes("vycházková hůl, vozík") && sent[0].text.includes("500101/1234"), "the organisers get everything");
   assert.equal(intakes[0].body.form, "malade");
   assert.equal(intakes[0].body.birth, "1950-01-01");
   assert.ok(sent[0].text.includes("uloženo ve správě pouti"), "the organisers see it was filed");
   assert.equal(sent.length, 3, "application, notice, receipt");
   const notice = sent.find((m) => m.subject.startsWith("Nová přihláška"));
   assert.deepEqual(notice.to, ["koordinator@example.test"], "the notice goes to the chosen addresses only (invalid ones dropped)");
-  assert.equal(notice.subject, "Nová přihláška: Jan <b>Novák</b> (Přihláška – nemocní)");
-  assert.ok(notice.html.includes("Jan &lt;b&gt;Novák&lt;/b&gt;") && notice.html.includes("https://lurdy.vercel.app/#/prihlasky"), "escaped, with the admin link");
+  assert.equal(notice.subject, "Nová přihláška: Jan <b> Novák</b> (Přihláška – nemocní)");
+  assert.ok(notice.html.includes("Jan &lt;b&gt; Novák&lt;/b&gt;") && notice.html.includes("https://lurdy.vercel.app/#/prihlasky"), "escaped, with the admin link");
   for (const word of ["fiktivní", "MUDr", "777", "Praha", "jan@example.com"]) assert.ok(!notice.html.includes(word) && !notice.text.includes(word), `the notice carries no ${word}`);
   intakeOk = false;
   sent.length = 0;
   assert.equal((await call(sick)).status, 303, "the platform being down does not fail the applicant");
   assert.ok(sent[0].text.includes("NEULOŽENO ve správě pouti"), "the organisers see it was not filed");
   delete process.env.LURDY_INTAKE_URL;
+  // the Google Sheet: every answer with the option codes, behind its own secret; an outage never fails the applicant
+  intakeOk = true;
+  process.env.GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/x/exec";
+  process.env.GOOGLE_SHEETS_SECRET = "g".repeat(40);
+  sent.length = 0;
+  assert.equal((await call(sick)).status, 303);
+  const sheet = sheetPosts.at(-1);
+  assert.equal(sheet.secret, "g".repeat(40));
+  assert.equal(sheet.form, "nemocni");
+  assert.equal(sheet.name, "Jan <b> Novák</b>");
+  const mob = sheet.fields.find((x) => x.key === "mobility");
+  assert.deepEqual(mob.codes, ["mob_cane", "mob_wheelchair"]);
+  assert.equal(mob.value, "vycházková hůl, vozík");
+  assert.equal(sheet.fields.find((x) => x.key === "subsidy").codes[0], "sub_ask");
+  assert.equal(sheet.fields.find((x) => x.key === "rc").value, "500101/1234");
+  assert.ok(sent[0].text.includes("zapsáno do Google tabulky"));
+  sheetOk = false; sent.length = 0;
+  assert.equal((await call(sick)).status, 303, "the sheet being down does not fail the applicant");
+  assert.ok(sent[0].text.includes("NEZAPSÁNO do Google tabulky"));
+  delete process.env.GOOGLE_SHEETS_URL;
   intakes.length = 0;
   sent.length = 0;
   SITE.registrationOpen = false;

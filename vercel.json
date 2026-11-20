@@ -175,7 +175,7 @@
     },
     {
       "source": "/wp-content/uploads/2020/02/Lourdes_prihlaska_nemocny-2020.rtf",
-      "destination": "/files/prihlaska-nemocni.rtf",
+      "destination": "/files/prihlaska-nemocni.xlsx",
       "permanent": true
     },
     {

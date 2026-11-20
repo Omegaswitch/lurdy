@@ -194,6 +194,40 @@
       store(null); f.reset(); chosen = []; render(); say(""); note.hidden = true;
     });
 
+    // The question marked data-dialog (e.g. whether the pilgrim would like a subsidy) is asked in a window just
+    // before sending, once the rest of the form is valid. Without JavaScript it stays an ordinary part of the form.
+    var ask = f.querySelector("fieldset[data-dialog]"), dlg, asked = false;
+    if (ask && window.HTMLDialogElement) {
+      var radios = ask.querySelectorAll("input[type=radio]"), need = radios.length && radios[0].required;
+      radios.forEach(function (r) { r.required = false; });  // a hidden required control would block the browser's own check
+      dlg = document.createElement("dialog");
+      dlg.className = "ask";
+      dlg.setAttribute("aria-labelledby", "ask-title");
+      ask.querySelector("legend").id = "ask-title";
+      ask.parentNode.removeChild(ask);
+      dlg.appendChild(ask);  // still inside the form: its answer is sent and kept in the draft like any other
+      var why = document.createElement("p"), row = document.createElement("div"), go = document.createElement("button"), back = document.createElement("button");
+      why.className = "form-error"; why.setAttribute("role", "alert"); why.hidden = true;
+      row.className = "ask-buttons";
+      go.type = "button"; go.className = "btn"; go.textContent = f.getAttribute("data-dlg-send");
+      back.type = "button"; back.className = "btn btn--ghost"; back.textContent = f.getAttribute("data-dlg-back");
+      row.appendChild(go); row.appendChild(back);
+      dlg.appendChild(why); dlg.appendChild(row);
+      f.appendChild(dlg);
+      go.addEventListener("click", function () {
+        if (need && !ask.querySelector("input:checked")) { why.textContent = f.getAttribute("data-dlg-choose"); why.hidden = false; return; }
+        asked = true; dlg.close();
+        f.requestSubmit ? f.requestSubmit() : f.submit();
+      });
+      back.addEventListener("click", function () { dlg.close(); });
+      f.addEventListener("submit", function (e) {
+        if (asked) { asked = false; return; }  // answered just now: carry on sending
+        e.preventDefault(); e.stopImmediatePropagation();
+        why.hidden = true;
+        dlg.showModal();
+      });
+    }
+
     f.addEventListener("submit", function (e) {
       if (b) { b.setAttribute("data-label", b.textContent); b.disabled = true; b.textContent = b.getAttribute("data-sending"); }
       if (!input || !window.FormData || !window.XMLHttpRequest) return;  // plain post

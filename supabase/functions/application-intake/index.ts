@@ -1,7 +1,7 @@
 // Receives an application sent on the public website (lurdy.eu, api/prihlaska.js) and files it in the active
 // edition for the organisers (admin → Přihlášky). Only the website calls this: it proves itself with a shared secret
-// (INTAKE_SECRET here, LURDY_INTAKE_SECRET on the website). Identity, gender, contact, emergency contact, the ID / passport
-// number and who they travel with; the website never sends health answers or attachments (they stay in the e-mail).
+// (INTAKE_SECRET here, LURDY_INTAKE_SECRET on the website). Title, identity, gender, contact, emergency contact, the ID / passport
+// number, who they travel with and whether they ask for a subsidy; the website never sends health answers or attachments (they stay in the e-mail).
 // The reply lists the addresses chosen to be told about new applications; the website sends them the notice.
 import { createClient } from 'npm:@supabase/supabase-js@2.118.0';
 
@@ -39,13 +39,16 @@ Deno.serve(async (req) => {
   const { data: ed, error: edError } = await admin.from('editions').select('id').eq('status', 'active').order('year', { ascending: false }).limit(1).maybeSingle();
   if (edError) return reply(500, { error: 'server' });
   if (!ed) return reply(409, { error: 'no_active_edition' });
-  const [first, last] = splitName(full);
+  // the sick pilgrims' form asks for first name and surname separately; the others give one name to split
+  const given = [str(b.first, 120), str(b.last, 120)];
+  const [first, last] = given[0] && given[1] ? given as [string, string] : splitName(full);
   const { data, error } = await admin.from('applications').insert({
     edition_id: ed.id, form: b.form, full_name: full, first_name: first, last_name: last, birth_date: birth,
     email: str(b.email, 200), phone: str(b.mobile, 40), phone2: str(b.phone, 40), address: str(b.address, 300),
     emergency_name: str(b.relname, 200), emergency_phone: str(b.relmobile, 40) ?? str(b.relphone, 40), times: str(b.times, 200),
     language: LANGS.includes(b.lang as string) ? b.lang : 'cs',
     gender: b.gender === 'male' ? 'M' : b.gender === 'female' ? 'F' : null, passport: str(b.idnum, 40), travels_with: str(b.companion, 200),
+    subsidy: b.subsidy === true, title: str(b.title, 40),
   }).select('id').single();
   if (error) { console.error(error.message); return reply(500, { error: 'server' }); }
   // who is to be told about it (admin → Přihlášky → Upozornění); the website sends the notice

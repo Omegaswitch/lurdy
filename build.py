@@ -271,8 +271,10 @@ def downloads(lang):
 
 def field_html(f, lang, form):
     t = L[lang]
-    if "g" in f:
-        return f'</fieldset><fieldset><legend>{esc(t["fields"][f["g"]])}</legend>'
+    if "g" in f:  # a group: its own fieldset, with an optional hint; "dlg" marks the one site.js asks in a dialog before sending
+        g, gh = f["g"], t["fields"].get(f'{f["g"]}_hint')
+        return (f'</fieldset><fieldset{" data-dialog" if f.get("dlg") else ""}><legend>{esc(t["fields"][g])}</legend>'
+                + (f'<p class="hint">{esc(gh)}</p>' if gh else ""))
     k, typ, req = f["k"], f["t"], bool(f.get("r"))
     fid, label = f"{form}-{k}", esc(t["fields"][k]) + (' <span aria-hidden="true">*</span>' if req else "")
     hint = t["fields"].get(f"{k}_hint")
@@ -298,10 +300,14 @@ def field_html(f, lang, form):
         return f'<fieldset class="field choice"><legend>{label}</legend>{hint_html}<div class="opts">{opts}</div></fieldset>'
     ac = f' autocomplete="{f["ac"]}"' if f.get("ac") else ""
     if typ == "area":
-        control = f'<textarea id="{fid}" name="{k}" rows="4" maxlength="2000"{r}{described}></textarea>'
+        control = f'<textarea id="{fid}" name="{k}" rows="4" maxlength="{f.get("max", 2000)}"{r}{described}></textarea>'
     else:
-        extra = ' inputmode="numeric" min="0" max="300"' if typ == "number" else ' maxlength="200"'
+        extra = ' inputmode="numeric" min="0" max="300"' if typ == "number" else f' maxlength="{f.get("max", 200)}"'
+        if f.get("pat"): extra += f' pattern="{esc(f["pat"])}"'
         control = f'<input id="{fid}" name="{k}" type="{typ}"{extra}{ac}{r}{described}>'
+        if f.get("list"):  # suggestions to pick from, or anything written in
+            opts = "".join(f'<option value="{esc(o)}">' for o in f["list"])
+            control = f'<input id="{fid}" name="{k}" type="{typ}" list="{fid}-l"{extra}{ac}{r}{described}><datalist id="{fid}-l">{opts}</datalist>'
     return f'<div class="field{" field--wide" if typ == "area" else ""}"><label for="{fid}">{label}</label>{hint_html}{control}</div>'
 
 
@@ -309,7 +315,8 @@ def form_html(form, lang):
     u = L[lang]["ui"]
     fields = "".join(field_html(f, lang, form) for f in FORMS[form])
     return f"""<form class="apply" method="post" action="/api/prihlaska/" accept-charset="utf-8" enctype="multipart/form-data"
- data-preparing="{esc(u['preparing'])}" data-uploading="{esc(u['uploading'])}" data-too-big="{esc(u['filesTooBig'])}" data-type="{esc(u['filesType'])}" data-count="{esc(u['filesCount'])}" data-error="{esc(u['sendError'])}" data-remove="{esc(u['removeFile'])}" data-draft="{form}">
+ data-preparing="{esc(u['preparing'])}" data-uploading="{esc(u['uploading'])}" data-too-big="{esc(u['filesTooBig'])}" data-type="{esc(u['filesType'])}" data-count="{esc(u['filesCount'])}" data-error="{esc(u['sendError'])}" data-remove="{esc(u['removeFile'])}" data-draft="{form}"
+ data-dlg-send="{esc(u['subsidyContinue'])}" data-dlg-back="{esc(u['subsidyBack'])}" data-dlg-choose="{esc(u['subsidyChoose'])}">
  <input type="hidden" name="form" value="{form}"><input type="hidden" name="lang" value="{lang}">
  <p class="small">{esc(u['required'])}</p>
  <p class="small draft-note" hidden>{esc(u['draftNote'])} <button class="link-btn" type="button" data-clear>{esc(u['draftClear'])}</button></p>
@@ -405,6 +412,8 @@ def render_form_page(key, lang):
         inner = f'{form_html(key, lang)}<section class="paper"><h2 class="display-s">{esc(u["paperTitle"])}</h2><p>{esc(u["paperNote"])}</p>{dl}</section>'
     else:
         inner = f'<p class="notice">{esc(fill(u["regClosed"], year=SITE["pilgrimage"]["start"][:4]))}</p><p>{esc(u["onlineClosed"])}</p>{dl}'
+    if p.get("notes"):  # what to know before filling it in
+        inner = f'<section class="notes"><h2 class="display-s">{esc(u["notesTitle"])}</h2><ul>{"".join(f"<li>{esc(n)}</li>" for n in p["notes"])}</ul></section>{inner}'
     return page(key, lang, inner, lead=p["lead"])
 
 
