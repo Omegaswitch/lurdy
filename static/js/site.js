@@ -150,6 +150,22 @@
   var LIMIT = 4 * 1024 * 1024, MAX_FILES = 5, PDF_SHRINK_FROM = 1024 * 1024;
   var TYPES = ["image/jpeg", "image/png", "image/webp", "application/pdf"];
 
+  // The loader (a plain port of the AbstractCubeIsometricLoader component): a 5×5 dot cube whose dots light up in turn
+  var CUBE = ["00100", "01110", "10101", "11011", "01110"];
+  function dotLoader() {
+    var el = document.createElement("span");
+    el.className = "dot-loader has-bloom"; el.setAttribute("data-motion", "orbit"); el.setAttribute("aria-hidden", "true");
+    CUBE.forEach(function (row, r) {
+      row.split("").forEach(function (on, c) {
+        var d = document.createElement("span");
+        if (on === "1") d.className = "active";
+        d.style.setProperty("--delay", ((r * 5 + c) * 0.04).toFixed(2) + "s");
+        el.appendChild(d);
+      });
+    });
+    return el;
+  }
+
   function mb(n) { return (n / 1048576).toFixed(1).replace(".0", "") + " MB"; }
 
   function shrinkImage(file) {
@@ -250,7 +266,9 @@
     (function next() {
       if (i >= c.length) { if (last) location.href = last; else cartRender(); return; }
       var it = c[i];
-      status.textContent = fillIn(CU.cartSending, { i: i + 1, n: c.length });
+      status.textContent = "";
+      var said = document.createElement("span"); said.textContent = fillIn(CU.cartSending, { i: i + 1, n: c.length });
+      status.appendChild(dotLoader()); status.appendChild(said);
       idb("readonly", function (st) { return st.get(it.id); }).then(function (files) {
         files = files || [];
         return files.reduce(function (p, file) {
@@ -305,6 +323,7 @@
     var err = f.querySelector(".form-error");
     function say(msg) { err.textContent = msg; err.hidden = !msg; }
     function progress(text, value) {
+      if (!bar.querySelector(".dot-loader")) bar.insertBefore(dotLoader(), bar.firstChild);
       bar.hidden = false; label.textContent = text;
       if (value == null) meter.removeAttribute("value"); else meter.value = value;
     }

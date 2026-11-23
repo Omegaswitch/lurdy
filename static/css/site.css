@@ -527,6 +527,19 @@ html:not(.js) .file-pick label{display:none}
 .draft-note .link-btn{min-height:0}
 .file-list:empty{display:none}
 .progress{flex:1 1 100%;display:grid;gap:6px}
+/* the loader (AbstractCubeIsometricLoader, ported): dotSize 6, gap 4, speed 1.2 s, bloom, idle opacity .08 */
+.dot-loader{--dot-size:6px;--gap:4px;--speed:1.2s;display:inline-grid;grid-template-columns:repeat(5,var(--dot-size));grid-auto-rows:var(--dot-size);gap:var(--gap);flex:none;color:var(--red);vertical-align:middle}
+.dot-loader span{width:var(--dot-size);height:var(--dot-size);border-radius:50%;background:var(--dot-color,var(--red));opacity:.08;animation:dot-idle var(--speed) ease-in-out infinite;animation-delay:var(--delay)}
+.dot-loader span.active{animation-name:dot-active}
+.dot-loader[data-motion=orbit] span.active{animation-name:dot-orbit}
+.dot-loader.has-bloom span.active{box-shadow:0 0 6px 1px var(--dot-color,var(--red))}
+@keyframes dot-idle{0%,100%{opacity:.08;transform:scale(.75)}50%{opacity:.22;transform:scale(.9)}}
+@keyframes dot-active{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes dot-orbit{0%{opacity:.15;transform:scale(.8)}20%{opacity:1;transform:scale(1.2)}60%{opacity:.35;transform:scale(.95)}100%{opacity:.15;transform:scale(.8)}}
+/* the loader with its text; the bar stays for screen readers only */
+.progress:not([hidden]){display:flex;align-items:center;gap:var(--s4)}
+.progress progress{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.cart-status:not(:empty){display:flex;align-items:center;gap:var(--s3)}
 .progress progress{width:100%;height:8px;appearance:none;border:0;border-radius:4px;background:#ddd;overflow:hidden;accent-color:var(--red)}
 .progress progress::-webkit-progress-bar{background:#ddd}
 .progress progress::-webkit-progress-value{background:var(--red);transition:width var(--med) var(--ease)}

@@ -1,17 +1,17 @@
 # Graph Report - lurdy  (2026-11-23)
 
 ## Corpus Check
-- 190 files · ~161,599 words
+- 190 files · ~161,690 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 40 file(s) not represented in the graph (top: .woff2 24, (none) 5, .example 2)
 
 ## Summary
-- 1506 nodes · 3412 edges · 102 communities (67 shown, 35 thin omitted)
+- 1507 nodes · 3415 edges · 101 communities (66 shown, 35 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 43 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4e2c7243`
+- Built from commit: `62c74aff`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -27,7 +27,6 @@
 - expo
 - app/package.json
 - dependencies
-- types.ts
 - prihlaska.js
 - public.profiles
 - Observed workflows and their digital replacement
@@ -124,15 +123,15 @@
   docs/E-database.md → platform/shared/src/register.ts
 - `7. Changes made` --references--> `encryptedStorage()`  [INFERRED]
   docs/audits/2026-10-19-remediation.md → platform/shared/src/encryptedStorage.ts
-- `remove()` --calls--> `friendlyError()`  [EXTRACTED]
-  platform/admin/src/pages/Archive.tsx → platform/admin/src/errors.ts
-- `run()` --calls--> `friendlyError()`  [EXTRACTED]
-  platform/admin/src/pages/Archive.tsx → platform/admin/src/errors.ts
+- `accept()` --calls--> `friendlyError()`  [EXTRACTED]
+  platform/admin/src/pages/Applications.tsx → platform/admin/src/errors.ts
+- `decline()` --calls--> `friendlyError()`  [EXTRACTED]
+  platform/admin/src/pages/Applications.tsx → platform/admin/src/errors.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (102 total, 35 thin omitted)
+## Communities (101 total, 35 thin omitted)
 
 ### Community 0 - "steps"
 Cohesion: 0.10
@@ -177,10 +176,6 @@ Nodes (14): aes-js@3.1.2, expo-brightness@~58.0.2, expo-constants@~58.0.12, expo
 ### Community 10 - "dependencies"
 Cohesion: 0.11
 Nodes (19): dependencies, expo-camera@~58.0.10, expo-linking@~58.0.13, expo-router@~58.0.24, expo-secure-store@~58.0.2, @lurdy/shared@workspace:*, react-dom@19.3.0, react-native@0.88.0 (+11 more)
-
-### Community 11 - "types.ts"
-Cohesion: 0.11
-Nodes (16): CompositeTypes, Constants, Database, DatabaseWithoutInternals, DefaultSchema, Enums, Json, Tables (+8 more)
 
 ### Community 12 - "prihlaska.js"
 Cohesion: 0.06
@@ -328,7 +323,7 @@ Nodes (17): public.editions, public.announcement_acks, public.announcements, pub
 
 ### Community 57 - "site.js"
 Cohesion: 0.13
-Nodes (24): boxOf(), cartBadge(), cartGet(), cartPut(), cartRender(), check(), clearErrors(), collect() (+16 more)
+Nodes (26): boxOf(), cartBadge(), cartGet(), cartPut(), cartRender(), check(), clearErrors(), collect() (+18 more)
 
 ### Community 62 - "20261019133339_remediation.sql"
 Cohesion: 0.10
@@ -391,8 +386,8 @@ Cohesion: 0.11
 Nodes (33): friendlyError(), affected(), FacilityForm(), remove(), save(), fold(), RoomDetail(), RoomForm() (+25 more)
 
 ### Community 92 - "Register.tsx"
-Cohesion: 0.10
-Nodes (43): AddPerson(), add(), Capacities(), save(), capFields, Check(), czk(), Detail() (+35 more)
+Cohesion: 0.06
+Nodes (59): AddPerson(), add(), Capacities(), save(), capFields, Check(), czk(), Detail() (+51 more)
 
 ### Community 96 - "20261023100000_registration_register.sql"
 Cohesion: 0.18
@@ -404,23 +399,23 @@ Nodes (13): fmtStamp(), Application, czDate(), Decide(), accept(), decline(), De
 
 ## Knowledge Gaps
 - **10 isolated node(s):** `PGDATABASE`, `PGHOST`, `PGPORT`, `PGUSER`, `../tsconfig.base.json` (+5 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 554 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 553 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
 - **35 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Remediation of the audit findings — 2026-10-19` connect `i18n.ts` to `ROADMAP.md`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `active()` connect `Register.tsx` to `E. Database architecture`?**
+  _High betweenness centrality (0.038) - this node is a cross-community bridge._
 - **Are the 12 inferred relationships involving `Module()` (e.g. with `ac()` and `$b()`) actually correct?**
   _`Module()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `PGDATABASE`, `PGHOST`, `PGPORT` to the rest of the system?**
   _10 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `steps` be split into smaller, more focused modules?**
   _Cohesion score 0.09666666666666666 - nodes in this community are weakly interconnected._
-- **Why does `active()` connect `Register.tsx` to `E. Database architecture`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `Entities` connect `E. Database architecture` to `Register.tsx`?**
+  _High betweenness centrality (0.038) - this node is a cross-community bridge._
 - **Should `ui.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.07331334332833583 - nodes in this community are weakly interconnected._
-- **Why does `Entities` connect `E. Database architecture` to `Register.tsx`?**
-  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Why does `E. Database architecture` connect `E. Database architecture` to `ROADMAP.md`?**
+  _High betweenness centrality (0.038) - this node is a cross-community bridge._
