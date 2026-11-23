@@ -160,7 +160,13 @@
   "errEmail": "Inserisca un’e-mail del tipo nome@esempio.it.",
   "errFormat": "Inserisca il dato nel formato corretto.",
   "errConsent": "Senza questo consenso l’iscrizione non può essere inviata.",
-  "shrinking": "riduzione…"
+  "shrinking": "riduzione…",
+  "cartDraft": "Salva bozza",
+  "cartUnfinished": "incompleta",
+  "cartFinish": "Completa",
+  "cartUndone": "Le iscrizioni incomplete non vengono inviate – le completi prima.",
+  "cartNoName": "Senza nome",
+  "cartDraftSaved": "Bozza salvata. Può tornarci in qualsiasi momento."
  },
  "nav": [
   "ucast",

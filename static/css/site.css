@@ -268,7 +268,51 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .index-list b{font:500 1.3rem/1.25 var(--display);color:var(--ink-strong)}
 .index-list a:hover b{color:var(--red-text)}
 .index-list span{font-size:.94rem;color:var(--muted)}
-/* "Uložené přihlášky" (site.js) */
+/* "Uložené přihlášky" (site.js): minimal, in the style of the section menu above it, staying in view while scrolling */
+.page-side{position:sticky;top:calc(var(--nav-h,48px) + var(--s4));align-self:start;display:grid;gap:var(--s6);max-height:calc(100vh - var(--nav-h,48px) - var(--s6));overflow-y:auto;overscroll-behavior:contain}
+.page-side .side-nav{position:static}
+.page--with-side:has(.page-side--cart .cart[hidden]){grid-template-columns:minmax(0,1fr)}
+.cart{border-top:3px solid var(--red);padding-top:var(--s3);font-size:.94rem;animation:cart-in 320ms var(--ease) both}
+@keyframes cart-in{from{opacity:0;transform:translateX(12px)}to{opacity:1;transform:none}}
+.cart h2{display:flex;align-items:center;gap:var(--s2);margin:0 0 var(--s2)}
+.cart-toggle{display:flex;align-items:center;gap:8px;flex:1;padding:0;background:none;border:0;font:600 .78rem var(--ui);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left;cursor:default}
+.cart-toggle .cart-count{background:var(--red);color:#fff;margin-left:0}
+.cart-tip{position:relative;display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;border:1.5px solid #9a9a9a;color:#7a7a7a;font:700 .7rem var(--ui);cursor:help;flex:none}
+.cart-tip:hover,.cart-tip:focus{border-color:var(--ink-strong);color:var(--ink-strong);outline:none}
+.cart-tip-text{position:absolute;right:0;top:calc(100% + 8px);z-index:5;width:230px;padding:10px 12px;background:var(--ink-strong);color:#fff;font:400 .8rem/1.45 var(--ui);letter-spacing:0;text-transform:none;border-radius:3px;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity 160ms var(--ease),transform 160ms var(--ease),visibility 0s linear 160ms}
+.cart-tip:hover .cart-tip-text,.cart-tip:focus .cart-tip-text{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+.cart ul{list-style:none;margin:0 0 var(--s3);padding:0}
+.cart li{display:flex;align-items:center;border-bottom:1px solid var(--grey)}
+.cart-row{flex:1;min-width:0;display:grid;grid-template-columns:auto 1fr;column-gap:8px;align-items:center;padding:7px 0;color:var(--ink);text-decoration:none}
+.cart-row:hover .cart-name{color:var(--red-text)}
+.cart-name{grid-column:2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-strong);transition:color var(--fast) var(--ease)}
+.cart-kind{grid-column:2;font-size:.78rem;color:var(--muted)}
+.cart-dot{grid-row:1/3;width:8px;height:8px;border-radius:50%;background:#e0a100}
+.cart-x{flex:none;width:32px;height:32px;margin-right:-6px;background:none;border:0;border-radius:50%;font-size:1.15rem;line-height:1;color:#9a9a9a;cursor:pointer;transition:color var(--fast) var(--ease),background var(--fast) var(--ease)}
+.cart-x:hover{color:var(--red);background:var(--grey)}
+.cart-send{width:100%;justify-content:center;min-height:40px;font-size:.9rem}
+.cart-msg{margin:0 0 var(--s2);font-size:.82rem;color:#1e7a45;transition:opacity 400ms var(--ease)}
+.cart-msg.gone{opacity:0}
+.cart-status{margin:var(--s2) 0 0;font-size:.85rem;color:var(--ink-strong)}
+.cart-status:empty{display:none}
+.cart-status:not(:empty){display:flex;align-items:center;gap:var(--s2)}
+.cart-status .dot-loader{--dot-size:3px;--gap:2px}
+.btn--cart{min-height:48px}
+.cart-count{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-left:8px;padding:0 6px;border-radius:10px;background:#fff;color:var(--red);font-size:.75rem;font-weight:700;letter-spacing:0}
+/* phones: a slim bar pinned to the bottom of the screen; its heading opens the list */
+@media (max-width:960px){
+  .page-side{position:static;max-height:none;overflow:visible}
+  .page-side .cart{position:fixed;left:0;right:0;bottom:0;z-index:40;max-height:70vh;overflow-y:auto;margin:0;padding:var(--s2) var(--gutter,16px) calc(var(--s2) + env(safe-area-inset-bottom,0px));background:#fff;border-top:3px solid var(--red);box-shadow:0 -8px 24px rgba(0,0,0,.14);animation:cart-up 320ms var(--ease) both}
+  @keyframes cart-up{from{transform:translateY(100%)}to{transform:none}}
+  .page-side .cart h2{margin:0}
+  .cart-toggle{cursor:pointer;min-height:40px}
+  .cart-toggle::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(-135deg);transition:transform var(--med) var(--ease)}
+  .cart.open .cart-toggle::after{transform:rotate(45deg)}
+  .page-side .cart:not(.open)>:not(h2){display:none}
+  .cart-tip-text{right:-8px;bottom:calc(100% + 8px);top:auto}
+  body:has(.page-side .cart:not([hidden])){padding-bottom:64px}
+}
+}
 .cart{margin:0 0 var(--s6);padding:var(--s5);background:#fff;border:1px solid var(--rule);border-left:4px solid #2e7d4f;max-width:760px}
 .cart h2{margin:0 0 var(--s3)}
 .cart ul{list-style:none;margin:0 0 var(--s4);padding:0;border-top:1px solid var(--rule)}

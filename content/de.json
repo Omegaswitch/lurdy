@@ -160,7 +160,13 @@
   "errEmail": "Geben Sie eine E-Mail-Adresse wie name@beispiel.de ein.",
   "errFormat": "Bitte geben Sie dies im richtigen Format ein.",
   "errConsent": "Ohne diese Einwilligung kann die Anmeldung nicht gesendet werden.",
-  "shrinking": "wird verkleinert …"
+  "shrinking": "wird verkleinert …",
+  "cartDraft": "Als Entwurf speichern",
+  "cartUnfinished": "unvollständig",
+  "cartFinish": "Fertigstellen",
+  "cartUndone": "Unvollständige Anmeldungen werden nicht gesendet – stellen Sie sie zuerst fertig.",
+  "cartNoName": "Ohne Namen",
+  "cartDraftSaved": "Entwurf gespeichert. Sie können jederzeit darauf zurückkommen."
  },
  "nav": [
   "ucast",

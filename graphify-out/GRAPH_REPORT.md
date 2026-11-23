@@ -1,17 +1,17 @@
 # Graph Report - lurdy  (2026-11-23)
 
 ## Corpus Check
-- 190 files · ~161,850 words
+- 190 files · ~162,343 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 40 file(s) not represented in the graph (top: .woff2 24, (none) 5, .example 2)
 
 ## Summary
-- 1509 nodes · 3421 edges · 100 communities (65 shown, 35 thin omitted)
+- 1509 nodes · 3420 edges · 100 communities (65 shown, 35 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 44 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8f6a2de2`
+- Built from commit: `f79ca940`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -402,16 +402,16 @@ Nodes (16): Application, Applications(), czDate(), Decide(), accept(), decline()
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `active()` connect `Register.tsx` to `E. Database architecture`?**
-  _High betweenness centrality (0.054) - this node is a cross-community bridge._
+  _High betweenness centrality (0.038) - this node is a cross-community bridge._
 - **Are the 12 inferred relationships involving `Module()` (e.g. with `ac()` and `$b()`) actually correct?**
   _`Module()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `PGDATABASE`, `PGHOST`, `PGPORT` to the rest of the system?**
   _10 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `steps` be split into smaller, more focused modules?**
   _Cohesion score 0.09666666666666666 - nodes in this community are weakly interconnected._
-- **Why does `E. Database architecture` connect `E. Database architecture` to `ROADMAP.md`?**
-  _High betweenness centrality (0.054) - this node is a cross-community bridge._
+- **Why does `Entities` connect `E. Database architecture` to `Register.tsx`?**
+  _High betweenness centrality (0.038) - this node is a cross-community bridge._
 - **Should `ui.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.06801246443571332 - nodes in this community are weakly interconnected._
-- **Why does `Entities` connect `E. Database architecture` to `Register.tsx`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
+- **Why does `E. Database architecture` connect `E. Database architecture` to `ROADMAP.md`?**
+  _High betweenness centrality (0.038) - this node is a cross-community bridge._

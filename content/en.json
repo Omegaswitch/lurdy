@@ -160,7 +160,13 @@
   "errEmail": "Enter an e-mail address like name@example.com.",
   "errFormat": "Enter this in the correct format.",
   "errConsent": "The application cannot be sent without this consent.",
-  "shrinking": "shrinking…"
+  "shrinking": "shrinking…",
+  "cartDraft": "Save unfinished",
+  "cartUnfinished": "unfinished",
+  "cartFinish": "Finish",
+  "cartUndone": "Unfinished applications are not sent – finish them first.",
+  "cartNoName": "No name",
+  "cartDraftSaved": "Unfinished application saved. You can come back to it any time."
  },
  "nav": [
   "ucast",

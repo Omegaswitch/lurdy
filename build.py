@@ -258,6 +258,9 @@ def side_nav(key, lang):
 
 def page(key, lang, inner, lead="", status=None, image=None):
     p, side = L[lang]["pages"][key], side_nav(key, lang)
+    if key == "prihlasky" or key in FORMS:  # the saved applications ride along in the side column (site.js fills them)
+        side = (side.replace('</nav></div>', f'</nav>{cart_box(lang)}</div>') if side
+                else f'<div class="page-side page-side--cart">{cart_box(lang)}</div>')
     body = f"""
 <div class="wrap">{crumbs_html(key, lang)}</div>
 <article class="wrap page{' page--with-side' if side else ''}">
@@ -293,7 +296,9 @@ def downloads(lang):
 def field_html(f, lang, form):
     t = L[lang]
     if "g" in f:  # a group: its own fieldset, with an optional hint; "dlg" marks the one site.js asks in a dialog before sending
-        g, gh = f["g"], t["fields"].get(f'{f["g"]}_hint')
+        g = f["g"]
+        # a group's own hint; not when a question in the form shares its key (that hint is the question's)
+        gh = None if any(x.get("k") == g for x in FORMS[form]) else t["fields"].get(f"{g}_hint")
         return (f'</fieldset><fieldset{" data-dialog" if f.get("dlg") else ""}><legend>{esc(t["fields"][g])}</legend>'
                 + (f'<p class="hint">{esc(gh)}</p>' if gh else ""))
     k, typ, req = f["k"], f["t"], bool(f.get("r"))
@@ -337,7 +342,8 @@ def field_html(f, lang, form):
     return f'<div class="field{" field--s" if short else ""}"><label for="{fid}">{label}</label>{hint_html}{control}</div>'
 
 
-CART_KEYS = ("cartTitle", "cartSaved", "cartEdit", "cartRemove", "cartSend", "cartSending", "cartError", "cartNote")
+CART_KEYS = ("cartTitle", "cartSaved", "cartEdit", "cartRemove", "cartSend", "cartSending", "cartError", "cartNote",
+             "cartUnfinished", "cartFinish", "cartUndone", "cartNoName", "cartDraftSaved")
 
 
 def cart_box(lang):
@@ -365,6 +371,7 @@ def form_html(form, lang):
  <div class="hp" aria-hidden="true"><label>Web <input name="web" tabindex="-1" autocomplete="off"></label></div>
  <div class="submit"><button class="btn btn--submit" type="submit" data-sending="{esc(u['sending'])}">{esc(u['submit'])}</button>
  <button class="btn btn--ghost btn--cart" type="button" data-cart hidden>{esc(u['cartAdd'])}</button>
+ <button class="link-btn" type="button" data-cart-draft hidden>{esc(u['cartDraft'])}</button>
  <p class="small">{esc(u['copyNote'])}</p>
  <div class="progress" hidden><progress max="100"></progress><span role="status"></span></div>
  <p class="form-error" role="alert" hidden></p></div>
@@ -450,7 +457,7 @@ def render_section(key, lang):
         wz = f' data-names="{esc(json.dumps(u["wzSteps"], ensure_ascii=False))}" data-next="{esc(u["wzNext"])}" data-agree="{esc(u["wzAgree"])}" data-back="{esc(u["wzBack"])}"'
         inner = (f'<div class="wizard"{wz}><section class="wz-step prose">{how}</section><section class="wz-step prose"><h2>{consent}</section>'
                  f'<section class="wz-step choose" aria-labelledby="choose-title"><h2 id="choose-title" class="display-m">{esc(u["chooseForm"])}</h2>'
-                 f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>{cart_box(lang)}'
+                 f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>'
                  f'<ul class="form-cards">{"".join(card(k) for k in CHILDREN["prihlasky"])}</ul></section></div>')
     return page(key, lang, inner)
 
@@ -471,7 +478,7 @@ def render_form_page(key, lang):
         inner = f'<p class="notice">{esc(fill(u["regClosed"], year=SITE["pilgrimage"]["start"][:4]))}</p><p>{esc(u["onlineClosed"])}</p>{dl}'
     if p.get("notes"):  # what to know before filling it in
         inner = f'<section class="notes"><h2 class="display-s">{esc(u["notesTitle"])}</h2><ul>{"".join(f"<li>{esc(n)}</li>" for n in p["notes"])}</ul></section>{inner}'
-    return page(key, lang, top + (cart_box(lang) if key in FORMS else "") + inner, lead=p["lead"])
+    return page(key, lang, top + inner, lead=p["lead"])
 
 
 def render_faq(lang):

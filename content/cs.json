@@ -160,7 +160,13 @@
   "errEmail": "Zadejte e-mail ve tvaru jmeno@example.cz.",
   "errFormat": "Zadejte údaj ve správném tvaru.",
   "errConsent": "Bez tohoto souhlasu nelze přihlášku odeslat.",
-  "shrinking": "zmenšuje se…"
+  "shrinking": "zmenšuje se…",
+  "cartDraft": "Uložit rozpracovanou",
+  "cartUnfinished": "nedokončená",
+  "cartFinish": "Dokončit",
+  "cartUndone": "Nedokončené přihlášky se neodešlou – nejdřív je dokončete.",
+  "cartNoName": "Bez jména",
+  "cartDraftSaved": "Rozpracovaná přihláška je uložená. Můžete se k ní kdykoli vrátit."
  },
  "nav": [
   "ucast",

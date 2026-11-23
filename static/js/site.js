@@ -228,40 +228,59 @@
       b.textContent = n;
     });
   }
+  // Minimal: a heading with the count and a "?" for the notes, one line per person (click to open, × to remove), one button.
   function cartRender(msg) {
     var c = cartGet();
     cartBadge(c.length);
     if (!cartBox) return;
-    cartBox.hidden = !c.length && !msg;
+    cartBox.hidden = !c.length;
     cartBox.innerHTML = "";
-    if (msg) { var m = document.createElement("p"); m.className = "cart-msg"; m.textContent = msg; cartBox.appendChild(m); }
     if (!c.length) return;
-    var h = document.createElement("h2"); h.className = "display-s"; h.textContent = CU.cartTitle; cartBox.appendChild(h);
+    var ok = c.filter(function (x) { return x.done !== false; }).length;
+    var h = document.createElement("h2"), tog = document.createElement("button"), tip = document.createElement("span");
+    tog.type = "button"; tog.className = "cart-toggle"; tog.setAttribute("aria-expanded", String(cartBox.classList.contains("open")));
+    tog.innerHTML = '<span></span><span class="cart-count"></span>';
+    tog.firstChild.textContent = CU.cartTitle; tog.lastChild.textContent = c.length;
+    tog.addEventListener("click", function () { var o = cartBox.classList.toggle("open"); tog.setAttribute("aria-expanded", String(o)); });
+    // the notes behind a question mark (hover, focus or tap)
+    tip.className = "cart-tip"; tip.tabIndex = 0; tip.setAttribute("role", "note"); tip.textContent = "?";
+    var tipText = document.createElement("span"); tipText.className = "cart-tip-text";
+    tipText.textContent = CU.cartNote + (ok < c.length ? " " + CU.cartUndone : "");
+    tip.appendChild(tipText); tip.setAttribute("aria-label", tipText.textContent);
+    h.appendChild(tog); h.appendChild(tip); cartBox.appendChild(h);
+    if (msg) {
+      var m = document.createElement("p"); m.className = "cart-msg"; m.textContent = msg; cartBox.appendChild(m);
+      setTimeout(function () { m.classList.add("gone"); setTimeout(function () { m.remove(); }, 400); }, 3500);
+    }
     var ul = document.createElement("ul");
     c.forEach(function (it) {
-      var li = document.createElement("li"), who = document.createElement("b"), what = document.createElement("span");
-      who.textContent = it.name; what.textContent = it.title;
-      var edit = document.createElement("a"); edit.href = it.url + "?upravit=" + encodeURIComponent(it.id); edit.textContent = CU.cartEdit;
-      var rm = document.createElement("button"); rm.type = "button"; rm.className = "link-btn"; rm.textContent = CU.cartRemove;
+      var li = document.createElement("li"), row = document.createElement("a"), unfinished = it.done === false;
+      row.className = "cart-row"; row.href = it.url + "?upravit=" + encodeURIComponent(it.id);
+      row.title = (unfinished ? CU.cartFinish : CU.cartEdit) + ": " + it.name;
+      if (unfinished) { var dot = document.createElement("span"); dot.className = "cart-dot"; dot.title = CU.cartUnfinished; row.appendChild(dot); }
+      var who = document.createElement("span"), kind = document.createElement("span");
+      who.className = "cart-name"; who.textContent = it.name;
+      kind.className = "cart-kind"; kind.textContent = (it.title.split(/\s[–-]\s/).pop() || it.title) + (unfinished ? " · " + CU.cartUnfinished : "");
+      row.appendChild(who); row.appendChild(kind);
+      var rm = document.createElement("button");
+      rm.type = "button"; rm.className = "cart-x"; rm.textContent = "×"; rm.setAttribute("aria-label", CU.cartRemove + ": " + it.name); rm.title = CU.cartRemove;
       rm.addEventListener("click", function () {
         cartPut(cartGet().filter(function (x) { return x.id !== it.id; }));
         idb("readwrite", function (st) { return st.delete(it.id); });
         cartRender();
       });
-      var who2 = document.createElement("div"); who2.appendChild(who); who2.appendChild(what);
-      var acts = document.createElement("div"); acts.className = "cart-acts"; acts.appendChild(edit); acts.appendChild(rm);
-      li.appendChild(who2); li.appendChild(acts); ul.appendChild(li);
+      li.appendChild(row); li.appendChild(rm); ul.appendChild(li);
     });
     cartBox.appendChild(ul);
-    var send = document.createElement("button"); send.type = "button"; send.className = "btn btn--big"; send.textContent = fillIn(CU.cartSend, { n: c.length });
-    var status = document.createElement("p"); status.className = "cart-status"; status.setAttribute("role", "status");
-    var note = document.createElement("p"); note.className = "small"; note.textContent = CU.cartNote;
+    var send = document.createElement("button"), status = document.createElement("p");
+    send.type = "button"; send.className = "btn cart-send"; send.textContent = fillIn(CU.cartSend, { n: ok }); send.hidden = !ok;
+    status.className = "cart-status"; status.setAttribute("role", "status");
     send.addEventListener("click", function () { sendAll(send, status); });
-    cartBox.appendChild(send); cartBox.appendChild(status); cartBox.appendChild(note);
+    cartBox.appendChild(send); cartBox.appendChild(status);
   }
   // one after another; each sent one leaves the list, a failure stops and says which
   function sendAll(btn, status) {
-    var c = cartGet(), i = 0, last = null;
+    var c = cartGet().filter(function (x) { return x.done !== false; }), i = 0, last = null;  // finished ones only
     btn.disabled = true;
     (function next() {
       if (i >= c.length) { if (last) location.href = last; else cartRender(); return; }
@@ -542,11 +561,12 @@
         f.reset(); fillForm(mine.f);
         idb("readonly", function (st) { return st.get(mine.id); }).then(function (files) { chosen = files || []; chosen.forEach(mine.shrunk ? ready : prep); render(); });
       } else editing = null;
-      var toCart = function () {
+      var toCart = function (finished) {
+        finished = finished !== false;
         var v = collect(), id = editing || "a" + Date.now(), x = v.f;
         var item = { id: id, form: f.getAttribute("data-draft"), lang: f.elements.lang.value, url: location.pathname,
           title: (document.querySelector("h1") || {}).textContent || "", t: Date.now(), f: x,
-          name: (x.firstname ? x.firstname + " " + (x.lastname || "") : x.name || "").trim() || "–" };
+          done: finished, name: (x.firstname ? x.firstname + " " + (x.lastname || "") : x.name || "").trim() || (CU ? CU.cartNoName : "–") };
         Promise.all(chosen.map(prep)).then(function (small) {
           item.shrunk = true;
           return idb("readwrite", function (st) { return st.put(small, id); });
@@ -556,8 +576,14 @@
           store(null); f.reset(); chosen = []; render(); if (note) note.hidden = true;
           editing = null;
           if (location.search) history.replaceState(null, "", location.pathname);
-          cartRender(CU && CU.cartSaved);
-          (cartBox || f).scrollIntoView({ behavior: "smooth", block: "start" });
+          if (cartBox) {  // on phones the bar opens to show it went in, then folds back so the form is free again
+            cartBox.classList.add("open");
+            clearTimeout(cartBox._fold);
+            cartBox._fold = setTimeout(function () { cartBox.classList.remove("open"); var t = cartBox.querySelector(".cart-toggle"); if (t) t.setAttribute("aria-expanded", "false"); }, 4000);
+          }
+          cartRender(CU && (finished ? CU.cartSaved : CU.cartDraftSaved));
+          var top = document.querySelector(".page-head") || f;
+          if (top.getBoundingClientRect().top < 0) top.scrollIntoView({ behavior: "smooth", block: "start" });
         });
       };
       cartBtn.addEventListener("click", function () {
@@ -565,6 +591,12 @@
         if (dlg) { afterAsk = toCart; dlg.querySelector(".form-error").hidden = true; dlg.showModal(); }
         else toCart();
       });
+      // "Uložit rozpracovanou": as it is, without the checks; it waits in the list marked unfinished
+      var draftBtn = f.querySelector("[data-cart-draft]");
+      if (draftBtn) {
+        draftBtn.hidden = false;
+        draftBtn.addEventListener("click", function () { if (E) clearErrors(); toCart(false); });
+      }
     }
 
     f.addEventListener("submit", function (e) {

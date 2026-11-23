@@ -160,7 +160,13 @@
   "errEmail": "Saisissez une adresse e-mail du type nom@exemple.fr.",
   "errFormat": "Saisissez cette donnée au bon format.",
   "errConsent": "L’inscription ne peut pas être envoyée sans ce consentement.",
-  "shrinking": "réduction…"
+  "shrinking": "réduction…",
+  "cartDraft": "Enregistrer le brouillon",
+  "cartUnfinished": "non terminée",
+  "cartFinish": "Terminer",
+  "cartUndone": "Les inscriptions non terminées ne sont pas envoyées – terminez-les d’abord.",
+  "cartNoName": "Sans nom",
+  "cartDraftSaved": "Brouillon enregistré. Vous pouvez y revenir à tout moment."
  },
  "nav": [
   "ucast",
