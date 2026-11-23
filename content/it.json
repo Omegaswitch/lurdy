@@ -141,7 +141,16 @@
   ],
   "wzNext": "Continua",
   "wzAgree": "Ho capito, continua",
-  "wzBack": "Indietro"
+  "wzBack": "Indietro",
+  "cartTitle": "Iscrizioni salvate",
+  "cartAdd": "Salva e compilane un’altra",
+  "cartSaved": "Iscrizione salvata. Può compilarne un’altra o inviarle tutte insieme.",
+  "cartEdit": "Modifica",
+  "cartRemove": "Rimuovi",
+  "cartSend": "Invia tutte ({n})",
+  "cartSending": "Invio {i} di {n}…",
+  "cartError": "L’iscrizione «{name}» non è stata inviata. Riprovi.",
+  "cartNote": "Le iscrizioni salvate restano solo in questo browser (al massimo 30 giorni) finché non le invia."
  },
  "nav": [
   "ucast",

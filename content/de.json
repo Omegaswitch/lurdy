@@ -141,7 +141,16 @@
   ],
   "wzNext": "Weiter",
   "wzAgree": "Verstanden, weiter",
-  "wzBack": "Zurück"
+  "wzBack": "Zurück",
+  "cartTitle": "Gespeicherte Anmeldungen",
+  "cartAdd": "Speichern und weitere ausfüllen",
+  "cartSaved": "Anmeldung gespeichert. Sie können eine weitere ausfüllen oder alle auf einmal absenden.",
+  "cartEdit": "Bearbeiten",
+  "cartRemove": "Entfernen",
+  "cartSend": "Alle absenden ({n})",
+  "cartSending": "Sende {i} von {n} …",
+  "cartError": "„{name}“ konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
+  "cartNote": "Gespeicherte Anmeldungen bleiben nur in diesem Browser (höchstens 30 Tage), bis Sie sie absenden."
  },
  "nav": [
   "ucast",

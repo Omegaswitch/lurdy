@@ -141,7 +141,16 @@
   ],
   "wzNext": "Pokračovat",
   "wzAgree": "Rozumím, pokračovat",
-  "wzBack": "Zpět"
+  "wzBack": "Zpět",
+  "cartTitle": "Uložené přihlášky",
+  "cartAdd": "Uložit a vyplnit další přihlášku",
+  "cartSaved": "Přihláška je uložená. Můžete vyplnit další, nebo odeslat všechny najednou.",
+  "cartEdit": "Upravit",
+  "cartRemove": "Odebrat",
+  "cartSend": "Odeslat všechny ({n})",
+  "cartSending": "Odesílám {i} z {n}…",
+  "cartError": "Přihlášku „{name}“ se nepodařilo odeslat. Zkuste to prosím znovu.",
+  "cartNote": "Uložené přihlášky zůstávají jen v tomto prohlížeči (nejdéle 30 dní), dokud je neodešlete."
  },
  "nav": [
   "ucast",

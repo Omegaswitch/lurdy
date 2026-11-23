@@ -141,7 +141,16 @@
   ],
   "wzNext": "Continue",
   "wzAgree": "I understand, continue",
-  "wzBack": "Back"
+  "wzBack": "Back",
+  "cartTitle": "Saved applications",
+  "cartAdd": "Save and fill in another",
+  "cartSaved": "Application saved. Fill in another one, or send them all at once.",
+  "cartEdit": "Edit",
+  "cartRemove": "Remove",
+  "cartSend": "Send all ({n})",
+  "cartSending": "Sending {i} of {n}…",
+  "cartError": "“{name}” could not be sent. Please try again.",
+  "cartNote": "Saved applications stay only in this browser (up to 30 days) until you send them."
  },
  "nav": [
   "ucast",

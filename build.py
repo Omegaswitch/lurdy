@@ -332,6 +332,15 @@ def field_html(f, lang, form):
     return f'<div class="field{" field--wide" if typ == "area" else ""}"><label for="{fid}">{label}</label>{hint_html}{control}</div>'
 
 
+CART_KEYS = ("cartTitle", "cartSaved", "cartEdit", "cartRemove", "cartSend", "cartSending", "cartError", "cartNote")
+
+
+def cart_box(lang):
+    """'Uložené přihlášky': filled by site.js from what this browser saved (empty and hidden otherwise)"""
+    ui = {k: L[lang]["ui"][k] for k in CART_KEYS}
+    return f'<section class="cart" hidden aria-live="polite" data-ui="{esc(json.dumps(ui, ensure_ascii=False))}"></section>'
+
+
 def form_html(form, lang):
     u = L[lang]["ui"]
     fields = "".join(field_html(f, lang, form) for f in FORMS[form])
@@ -349,6 +358,7 @@ def form_html(form, lang):
  </fieldset>
  <div class="hp" aria-hidden="true"><label>Web <input name="web" tabindex="-1" autocomplete="off"></label></div>
  <div class="submit"><button class="btn btn--submit" type="submit" data-sending="{esc(u['sending'])}">{esc(u['submit'])}</button>
+ <button class="btn btn--ghost btn--cart" type="button" data-cart hidden>{esc(u['cartAdd'])}</button>
  <p class="small">{esc(u['copyNote'])}</p>
  <div class="progress" hidden><progress max="100"></progress><span role="status"></span></div>
  <p class="form-error" role="alert" hidden></p></div>
@@ -433,7 +443,7 @@ def render_section(key, lang):
         wz = f' data-names="{esc(json.dumps(u["wzSteps"], ensure_ascii=False))}" data-next="{esc(u["wzNext"])}" data-agree="{esc(u["wzAgree"])}" data-back="{esc(u["wzBack"])}"'
         inner = (f'<div class="wizard"{wz}><section class="wz-step prose">{how}</section><section class="wz-step prose"><h2>{consent}</section>'
                  f'<section class="wz-step choose" aria-labelledby="choose-title"><h2 id="choose-title" class="display-m">{esc(u["chooseForm"])}</h2>'
-                 f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>'
+                 f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>{cart_box(lang)}'
                  f'<ul class="form-cards">{"".join(card(k) for k in CHILDREN["prihlasky"])}</ul></section></div>')
     return page(key, lang, inner)
 
@@ -454,7 +464,7 @@ def render_form_page(key, lang):
         inner = f'<p class="notice">{esc(fill(u["regClosed"], year=SITE["pilgrimage"]["start"][:4]))}</p><p>{esc(u["onlineClosed"])}</p>{dl}'
     if p.get("notes"):  # what to know before filling it in
         inner = f'<section class="notes"><h2 class="display-s">{esc(u["notesTitle"])}</h2><ul>{"".join(f"<li>{esc(n)}</li>" for n in p["notes"])}</ul></section>{inner}'
-    return page(key, lang, top + inner, lead=p["lead"])
+    return page(key, lang, top + (cart_box(lang) if key in FORMS else "") + inner, lead=p["lead"])
 
 
 def render_faq(lang):

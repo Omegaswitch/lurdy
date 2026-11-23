@@ -117,7 +117,10 @@
       }
       at = k;
     }
-    function fromHash() { var m = /^#krok-(\d)$/.exec(location.hash); return m ? Math.min(steps.length, Math.max(1, +m[1])) - 1 : 0; }
+    function fromHash() {  // a link to a step, else straight to the forms when this browser has saved applications
+      var m = /^#krok-(\d)$/.exec(location.hash);
+      return m ? Math.min(steps.length, Math.max(1, +m[1])) - 1 : cartGet().length ? steps.length - 1 : 0;
+    }
     go(fromHash(), false);
     addEventListener("popstate", function (e) { go(e.state && e.state.wz != null ? e.state.wz : fromHash(), false); });
   }
@@ -175,6 +178,102 @@
     });
   }
 
+  // ---- "Uložené přihlášky": finished applications kept in this browser (attachments in IndexedDB), to edit and to send
+  // several at once. Up to 30 days, like drafts.
+  var CART = "cart", ACTION = "/api/prihlaska/";
+  function cartGet() {
+    try { return (JSON.parse(localStorage.getItem("cart")) || []).filter(function (x) { return Date.now() - x.t < 30 * 864e5; }); } catch (e) { return []; }
+  }
+  function cartPut(c) { try { c.length ? localStorage.setItem("cart", JSON.stringify(c)) : localStorage.removeItem("cart"); } catch (e) {} }
+  function idb(mode, fn) {  // resolves with the request's result (or null when IndexedDB is not there)
+    return new Promise(function (ok) {
+      if (!window.indexedDB) return ok(null);
+      var r;
+      try { r = indexedDB.open("lurdy", 1); } catch (e) { return ok(null); }
+      r.onupgradeneeded = function () { r.result.createObjectStore("files"); };
+      r.onerror = function () { ok(null); };
+      r.onsuccess = function () {
+        var tx = r.result.transaction("files", mode), q = fn(tx.objectStore("files"));
+        tx.oncomplete = function () { ok(q && q.result !== undefined ? q.result : null); };
+        tx.onerror = tx.onabort = function () { ok(null); };
+      };
+    });
+  }
+  function fillIn(s, kw) { return s.replace(/\{(\w+)\}/g, function (m, k) { return k in kw ? kw[k] : m; }); }
+  var cartBox = document.querySelector(".cart"), CU = cartBox ? JSON.parse(cartBox.getAttribute("data-ui")) : null;
+  function cartBadge(n) {
+    document.querySelectorAll(".nav-apply > a, .nav-cta").forEach(function (a) {
+      var b = a.querySelector(".cart-count");
+      if (!n) { if (b) b.remove(); return; }
+      if (!b) { b = document.createElement("span"); b.className = "cart-count"; a.appendChild(b); }
+      b.textContent = n;
+    });
+  }
+  function cartRender(msg) {
+    var c = cartGet();
+    cartBadge(c.length);
+    if (!cartBox) return;
+    cartBox.hidden = !c.length && !msg;
+    cartBox.innerHTML = "";
+    if (msg) { var m = document.createElement("p"); m.className = "cart-msg"; m.textContent = msg; cartBox.appendChild(m); }
+    if (!c.length) return;
+    var h = document.createElement("h2"); h.className = "display-s"; h.textContent = CU.cartTitle; cartBox.appendChild(h);
+    var ul = document.createElement("ul");
+    c.forEach(function (it) {
+      var li = document.createElement("li"), who = document.createElement("b"), what = document.createElement("span");
+      who.textContent = it.name; what.textContent = it.title;
+      var edit = document.createElement("a"); edit.href = it.url + "?upravit=" + encodeURIComponent(it.id); edit.textContent = CU.cartEdit;
+      var rm = document.createElement("button"); rm.type = "button"; rm.className = "link-btn"; rm.textContent = CU.cartRemove;
+      rm.addEventListener("click", function () {
+        cartPut(cartGet().filter(function (x) { return x.id !== it.id; }));
+        idb("readwrite", function (st) { return st.delete(it.id); });
+        cartRender();
+      });
+      var who2 = document.createElement("div"); who2.appendChild(who); who2.appendChild(what);
+      var acts = document.createElement("div"); acts.className = "cart-acts"; acts.appendChild(edit); acts.appendChild(rm);
+      li.appendChild(who2); li.appendChild(acts); ul.appendChild(li);
+    });
+    cartBox.appendChild(ul);
+    var send = document.createElement("button"); send.type = "button"; send.className = "btn btn--big"; send.textContent = fillIn(CU.cartSend, { n: c.length });
+    var status = document.createElement("p"); status.className = "cart-status"; status.setAttribute("role", "status");
+    var note = document.createElement("p"); note.className = "small"; note.textContent = CU.cartNote;
+    send.addEventListener("click", function () { sendAll(send, status); });
+    cartBox.appendChild(send); cartBox.appendChild(status); cartBox.appendChild(note);
+  }
+  // one after another; each sent one leaves the list, a failure stops and says which
+  function sendAll(btn, status) {
+    var c = cartGet(), i = 0, last = null;
+    btn.disabled = true;
+    (function next() {
+      if (i >= c.length) { if (last) location.href = last; else cartRender(); return; }
+      var it = c[i];
+      status.textContent = fillIn(CU.cartSending, { i: i + 1, n: c.length });
+      idb("readonly", function (st) { return st.get(it.id); }).then(function (files) {
+        files = files || [];
+        return files.reduce(function (p, file) {
+          return p.then(function (out) { return (file.type === "application/pdf" ? shrinkPdf(file) : shrinkImage(file)).then(function (x) { return out.concat(x); }); });
+        }, Promise.resolve([]));
+      }).then(function (files) {
+        var data = new FormData();
+        data.append("form", it.form); data.append("lang", it.lang); data.append("declaration", "yes"); data.append("consent", "yes");
+        Object.keys(it.f).forEach(function (k) { [].concat(it.f[k]).forEach(function (v) { data.append(k, v); }); });
+        files.forEach(function (x) { data.append("files", x, x.name); });
+        return fetch(ACTION, { method: "POST", body: data });
+      }).then(function (r) {
+        if (!r.ok || !r.redirected) throw new Error(r.status);
+        last = r.url;
+        cartPut(cartGet().filter(function (x) { return x.id !== it.id; }));
+        idb("readwrite", function (st) { return st.delete(it.id); });
+        i++; next();
+      }).catch(function () {
+        status.textContent = fillIn(CU.cartError, { name: it.name });
+        btn.disabled = false;
+        cartRender(); var s2 = cartBox.querySelector(".cart-status"); if (s2) s2.textContent = fillIn(CU.cartError, { name: it.name });
+      });
+    })();
+  }
+  cartRender();
+
   document.querySelectorAll("form.apply").forEach(function (f) {
     var b = f.querySelector("button[type=submit]");
     var input = f.querySelector("input[type=file]");
@@ -219,13 +318,25 @@
     var SKIP = { form: 1, lang: 1, web: 1, files: 1, declaration: 1, consent: 1 };
     var note = f.querySelector(".draft-note");
     function store(v) { try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); } catch (e) {} }
-    function save() {
+    function collect() {
       var v = { t: Date.now(), f: {} };
       Array.prototype.forEach.call(f.elements, function (el) {
         if (!el.name || SKIP[el.name] || el.type === "file") return;
         if (el.type === "checkbox" || el.type === "radio") { if (el.checked) (v.f[el.name] = v.f[el.name] || []).push(el.value); }
         else if (el.value) v.f[el.name] = el.value;
       });
+      return v;
+    }
+    function fillForm(vals) {
+      Array.prototype.forEach.call(f.elements, function (el) {
+        var x = vals[el.name];
+        if (x == null || SKIP[el.name]) return;
+        if (el.type === "checkbox" || el.type === "radio") el.checked = [].concat(x).indexOf(el.value) >= 0;
+        else if (el.type !== "file") el.value = x;
+      });
+    }
+    function save() {
+      var v = collect();
       store(Object.keys(v.f).length ? v : null);
       if (note) note.hidden = !Object.keys(v.f).length;
     }
@@ -233,12 +344,7 @@
       var v = null;
       try { v = JSON.parse(localStorage.getItem(KEY)); } catch (e) {}
       if (!v || Date.now() - v.t > DAYS30) return store(null);
-      Array.prototype.forEach.call(f.elements, function (el) {
-        var x = v.f[el.name];
-        if (x == null || SKIP[el.name]) return;
-        if (el.type === "checkbox" || el.type === "radio") el.checked = x.indexOf(el.value) >= 0;
-        else if (el.type !== "file") el.value = x;
-      });
+      fillForm(v.f);
       if (note) note.hidden = false;
     })();
     var timer;
@@ -257,7 +363,7 @@
 
     // The question marked data-dialog (e.g. whether the pilgrim would like a subsidy) is asked in a window just
     // before sending, once the rest of the form is valid. Without JavaScript it stays an ordinary part of the form.
-    var ask = f.querySelector("fieldset[data-dialog]"), dlg, asked = false;
+    var ask = f.querySelector("fieldset[data-dialog]"), dlg, asked = false, afterAsk = null;
     if (ask && window.HTMLDialogElement) {
       var radios = ask.querySelectorAll("input[type=radio]"), need = radios.length && radios[0].required;
       radios.forEach(function (r) { r.required = false; });  // a hidden required control would block the browser's own check
@@ -277,15 +383,48 @@
       f.appendChild(dlg);
       go.addEventListener("click", function () {
         if (need && !ask.querySelector("input:checked")) { why.textContent = f.getAttribute("data-dlg-choose"); why.hidden = false; return; }
+        if (afterAsk) { var then = afterAsk; afterAsk = null; dlg.close(); return then(); }  // saving to the list, not sending
         asked = true; dlg.close();
         f.requestSubmit ? f.requestSubmit() : f.submit();
       });
-      back.addEventListener("click", function () { dlg.close(); });
+      back.addEventListener("click", function () { afterAsk = null; dlg.close(); });
       f.addEventListener("submit", function (e) {
         if (asked) { asked = false; return; }  // answered just now: carry on sending
         e.preventDefault(); e.stopImmediatePropagation();
         why.hidden = true;
         dlg.showModal();
+      });
+    }
+
+    // "Uložit a vyplnit další": the checked form goes to the list, the form empties for the next person
+    var cartBtn = f.querySelector("[data-cart]"), editing = new URLSearchParams(location.search).get("upravit");
+    var cartOk = (function () { try { localStorage.setItem("t", "1"); localStorage.removeItem("t"); return true; } catch (e) { return false; } })();
+    if (cartBtn && cartOk && window.fetch && window.FormData) {
+      cartBtn.hidden = false;
+      var mine = editing && cartGet().filter(function (x) { return x.id === editing; })[0];
+      if (mine) {  // editing a saved one: fill the form with it and its attachments
+        f.reset(); fillForm(mine.f);
+        idb("readonly", function (st) { return st.get(mine.id); }).then(function (files) { chosen = files || []; render(); });
+      } else editing = null;
+      var toCart = function () {
+        var v = collect(), id = editing || "a" + Date.now(), x = v.f;
+        var item = { id: id, form: f.getAttribute("data-draft"), lang: f.elements.lang.value, url: location.pathname,
+          title: (document.querySelector("h1") || {}).textContent || "", t: Date.now(), f: x,
+          name: (x.firstname ? x.firstname + " " + (x.lastname || "") : x.name || "").trim() || "–" };
+        idb("readwrite", function (st) { return st.put(chosen.slice(), id); }).then(function () {
+          var c = cartGet().filter(function (y) { return y.id !== id; });
+          c.push(item); cartPut(c);
+          store(null); f.reset(); chosen = []; render(); if (note) note.hidden = true;
+          editing = null;
+          if (location.search) history.replaceState(null, "", location.pathname);
+          cartRender(CU && CU.cartSaved);
+          (cartBox || f).scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      };
+      cartBtn.addEventListener("click", function () {
+        if (!f.reportValidity()) return;
+        if (dlg) { afterAsk = toCart; dlg.querySelector(".form-error").hidden = true; dlg.showModal(); }
+        else toCart();
       });
     }
 
@@ -315,6 +454,7 @@
         x.onload = function () {
           if (x.status < 400 && x.responseURL) {
             store(null);
+            if (editing) { cartPut(cartGet().filter(function (x) { return x.id !== editing; })); idb("readwrite", function (st) { return st.delete(editing); }); }
             try { sessionStorage.setItem("sent:" + KEY, "1"); } catch (e) {}
             location.href = x.responseURL;
             return;

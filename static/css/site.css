@@ -268,6 +268,22 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .index-list b{font:500 1.3rem/1.25 var(--display);color:var(--ink-strong)}
 .index-list a:hover b{color:var(--red-text)}
 .index-list span{font-size:.94rem;color:var(--muted)}
+/* "Uložené přihlášky" (site.js) */
+.cart{margin:0 0 var(--s6);padding:var(--s5);background:#fff;border:1px solid var(--rule);border-left:4px solid #2e7d4f;max-width:760px}
+.cart h2{margin:0 0 var(--s3)}
+.cart ul{list-style:none;margin:0 0 var(--s4);padding:0;border-top:1px solid var(--rule)}
+.cart li{display:flex;justify-content:space-between;align-items:center;gap:var(--s4);padding:var(--s3) 0;border-bottom:1px solid var(--rule)}
+.cart li b{display:block;color:var(--ink-strong)}
+.cart li span{font-size:.88rem;color:var(--muted)}
+.cart-acts{display:flex;gap:var(--s4);flex:none;font-weight:600}
+.cart-acts .link-btn{font:inherit;font-size:1rem;color:var(--red)}
+.cart-acts a{font-size:1rem}
+.cart-msg{margin:0 0 var(--s4);padding:var(--s3) var(--s4);background:#eaf5ee;color:#1e5c38;font-weight:600}
+.cart-status{margin:var(--s3) 0 0;font-weight:600;color:var(--ink-strong)}
+.cart-status:empty{display:none}
+.cart .small{margin:var(--s3) 0 0}
+.btn--cart{min-height:48px}
+.cart-count{display:inline-grid;place-items:center;min-width:20px;height:20px;margin-left:8px;padding:0 6px;border-radius:10px;background:#fff;color:var(--red);font-size:.75rem;font-weight:700;letter-spacing:0}
 /* Přihlášky: after the steps and the consent, the forms as cards with a big button */
 /* …shown as three steps by site.js */
 .wz-progress{list-style:none;margin:0 0 var(--s6);padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2);counter-reset:none}

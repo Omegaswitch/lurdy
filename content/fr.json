@@ -141,7 +141,16 @@
   ],
   "wzNext": "Continuer",
   "wzAgree": "J’ai compris, continuer",
-  "wzBack": "Retour"
+  "wzBack": "Retour",
+  "cartTitle": "Inscriptions enregistrées",
+  "cartAdd": "Enregistrer et en remplir une autre",
+  "cartSaved": "Inscription enregistrée. Vous pouvez en remplir une autre ou toutes les envoyer en une fois.",
+  "cartEdit": "Modifier",
+  "cartRemove": "Supprimer",
+  "cartSend": "Tout envoyer ({n})",
+  "cartSending": "Envoi {i} sur {n}…",
+  "cartError": "L’inscription « {name} » n’a pas pu être envoyée. Veuillez réessayer.",
+  "cartNote": "Les inscriptions enregistrées restent uniquement dans ce navigateur (30 jours au plus) jusqu’à leur envoi."
  },
  "nav": [
   "ucast",
