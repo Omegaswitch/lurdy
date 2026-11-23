@@ -308,7 +308,7 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 @media (max-width:640px){.wz-progress button{flex-direction:column;align-items:flex-start;gap:6px;font-size:.7rem}}
 .choose{margin-top:var(--s7);padding-top:var(--s6);border-top:1px solid var(--rule)}
 .choose h2{margin-bottom:var(--s4)}
-.choose .notice{margin-bottom:var(--s5)}
+.choose .notice{margin-bottom:var(--s5);max-width:none}
 .form-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4)}
 .form-cards a{display:flex;flex-direction:column;gap:var(--s3);height:100%;padding:var(--s5);background:#fff;border:1px solid var(--rule);border-top:4px solid var(--red);text-decoration:none;color:var(--ink);transition:box-shadow var(--med) var(--ease),transform var(--med) var(--ease)}
 .form-cards a:hover{box-shadow:0 14px 34px rgba(0,0,0,.12);transform:translateY(-3px)}
