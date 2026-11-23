@@ -101,7 +101,8 @@
   },
   {
    "k": "times",
-   "t": "text"
+   "t": "text",
+   "w": 1
   },
   {
    "g": "g_limits"
@@ -484,7 +485,8 @@
   },
   {
    "k": "times",
-   "t": "text"
+   "t": "text",
+   "w": 1
   },
   {
    "k": "years",
@@ -665,7 +667,8 @@
   },
   {
    "k": "times",
-   "t": "text"
+   "t": "text",
+   "w": 1
   },
   {
    "k": "role",

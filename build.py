@@ -329,7 +329,8 @@ def field_html(f, lang, form):
         if f.get("list"):  # suggestions to pick from, or anything written in
             opts = "".join(f'<option value="{esc(o)}">' for o in f["list"])
             control = f'<input id="{fid}" name="{k}" type="{typ}" list="{fid}-l"{extra}{ac}{r}{described}><datalist id="{fid}-l">{opts}</datalist>'
-    return f'<div class="field{" field--wide" if typ == "area" else ""}"><label for="{fid}">{label}</label>{hint_html}{control}</div>'
+    # the hint goes under the box, so boxes side by side line up whatever the hints are
+    return f'<div class="field{" field--wide" if typ == "area" or f.get("w") else ""}"><label for="{fid}">{label}</label>{control}{hint_html}</div>'
 
 
 CART_KEYS = ("cartTitle", "cartSaved", "cartEdit", "cartRemove", "cartSend", "cartSending", "cartError", "cartNote")

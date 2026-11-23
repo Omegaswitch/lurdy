@@ -295,10 +295,17 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .wz-progress .done .wz-num{background:var(--ink-strong);color:#fff}
 .wz-progress .done button:hover{color:var(--red-text)}
 .wz-nav{display:none}
-.wz-on .wz-nav{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);margin-top:var(--s6);max-width:68ch}
+.wz-on .wz-nav{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);max-width:68ch}
 .wz-on .wz-nav .btn--big{width:auto;flex:1 1 260px}
 .wz-on .wz-nav .btn--ghost{min-height:54px;padding:0 var(--s5);font-size:1rem}
 .wz-on .choose{margin-top:0;padding-top:0;border-top:0}
+/* every step takes the height of the tallest one, so the buttons stay in the same place; the buttons also stay in view
+   at the bottom of the screen while a step is longer than it */
+.wz-on{display:grid}
+.wz-on>.wz-progress{grid-row:1}
+.wz-on>.wz-step{grid-row:2;grid-column:1;display:flex;flex-direction:column;min-width:0}
+.wz-on>.wz-step[hidden]{display:flex!important;visibility:hidden;pointer-events:none}
+.wz-on .wz-nav{margin-top:auto;padding:var(--s4) 0;position:sticky;bottom:0;background:linear-gradient(rgba(255,255,255,0),#fff 22%)}
 .wz-on .choose .wz-nav{max-width:none}
 @keyframes wz-next{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
 @keyframes wz-back{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
