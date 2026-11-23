@@ -10,7 +10,7 @@ let sheetOk = true;
 global.fetch = async (url, o) => {
   if (url.includes("script.google.com")) {
     sheetPosts.push(JSON.parse(o.body));
-    return { ok: true, status: 200, json: async () => (sheetOk ? { ok: true } : { ok: false, error: "secret" }) };
+    return { ok: true, status: 200, json: async () => (sheetOk ? { ok: true, files: true } : { ok: false, error: "secret" }) };
   }
   if (url.includes("intake")) {
     intakes.push({ headers: o.headers, body: JSON.parse(o.body) });
@@ -145,6 +145,11 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   assert.equal(sheet.fields.find((x) => x.key === "subsidy").codes[0], "sub_ask");
   assert.equal(sheet.fields.find((x) => x.key === "rc").value, "500101/1234");
   assert.ok(sent[0].text.includes("zapsáno do Google tabulky"));
+  assert.deepEqual(sheet.files, [], "no attachments, none sent");
+  sent.length = 0;
+  assert.equal((await multipart(sick, [["zpráva.pdf", Buffer.from("%PDF-1.4 test")]])).status, 303);
+  assert.deepEqual(sheetPosts.at(-1).files, [{ name: "1-zprava.pdf", data: Buffer.from("%PDF-1.4 test").toString("base64") }], "attachments go to the Drive folder");
+  assert.ok(sent[0].text.includes("přílohy uloženy na Google Disk"));
   sheetOk = false; sent.length = 0;
   assert.equal((await call(sick)).status, 303, "the sheet being down does not fail the applicant");
   assert.ok(sent[0].text.includes("NEZAPSÁNO do Google tabulky"));

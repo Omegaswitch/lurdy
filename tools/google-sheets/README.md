@@ -4,10 +4,19 @@ Every application sent on the website is also written to a Google Sheet:
 
 - **one tab per form** ("Přihláška – nemocní", "Přihláška – poutníci", "Přihláška – tým"), one row per application;
 - for **sick pilgrims**, also **a copy of the paper form** (tab `Formulář`), filled in, on its own tab named after the
-  pilgrim (e.g. `Ing. Novák Jan 20.11.26 14:05`). It reads and prints like the paper form.
+  pilgrim (e.g. `Ing. Novák Jan 20.11.26 14:05`). It reads and prints like the paper form;
+- **a Google Drive folder per applicant** (e.g. `Ing. Jan Novák – Přihláška – nemocní – 20.11.26 14:05`) inside the
+  folder **Lurdy – přílohy přihlášek**, with the files they attached (medical report, photos). Every applicant gets
+  a folder, even without attachments, so a report that arrives later by post or e-mail can be dropped in. The row
+  (column "Složka s přílohami") and the form tab (cell B92) link to it.
+
+The main folder is created automatically the first time, in the same Drive folder as the spreadsheet. To use a folder
+you already have (e.g. on a shared drive), put its ID (the last part of its address) in Script Properties as
+`FOLDER_ID`.
 
 The e-mail to the organisers still goes out as before; it is the record. Its footer says whether the sheet saved the
-application ("zapsáno do Google tabulky" / "NEZAPSÁNO … – doplňte ručně").
+application ("zapsáno do Google tabulky" / "NEZAPSÁNO … – doplňte ručně") and its attachments ("přílohy uloženy na
+Google Disk" / "NEULOŽENY … – uložte je z tohoto e-mailu").
 
 ## Setup (about 10 minutes)
 
@@ -18,8 +27,9 @@ application ("zapsáno do Google tabulky" / "NEZAPSÁNO … – doplňte ručně
    `prihlasky.gs`, and save.
 3. **Set the secret.** In Apps Script: Project Settings (gear) → Script Properties → Add property:
    `SECRET` = a long random string (at least 32 characters). You can generate one with `openssl rand -hex 32`.
-4. **Check it.** Select `testSetup` in the toolbar and click Run. Allow the access Google asks for. The log should
-   say `Template "Formulář": found` and `SECRET: set`.
+4. **Check it.** Select `testSetup` in the toolbar and click Run. Allow the access Google asks for (Sheets and
+   Drive: the script saves the attachments). The log should say `Template "Formulář": found`, `SECRET: set` and
+   where the attachment folders will go.
 5. **Publish it.** Deploy → New deployment → type **Web app**:
    - Execute as: **Me**
    - Who has access: **Anyone** (the secret is what protects it; Google login cannot be used by the website)
@@ -32,6 +42,9 @@ application ("zapsáno do Google tabulky" / "NEZAPSÁNO … – doplňte ručně
    Then redeploy the website (Deployments → … → Redeploy).
 7. **Test.** Send a test application on the website. A new row and (for the sick form) a new tab appear.
 
+If you set this up before the attachment folders existed: paste the new `prihlasky.gs`, run `testSetup` once to allow
+Drive access, then publish a new version as below.
+
 After you change the script later: Deploy → Manage deployments → edit (pencil) → Version: **New version** → Deploy.
 The URL stays the same.
 
@@ -41,9 +54,9 @@ The sick pilgrims' form carries **health data and the rodné číslo** (special-
 
 - Use a Google account **of the organisation** (Google Workspace), not a personal Gmail, so a data-processing
   agreement with Google covers it.
-- Share the sheet **only with named organisers**; never "anyone with the link". Turn on 2-step verification for
+- Share the sheet and the **Lurdy – přílohy přihlášek** folder **only with named organisers**; never "anyone with the link". Turn on 2-step verification for
   everyone who has access.
-- Delete the sheet's data after the pilgrimage, as the privacy policy says (the website's "Ochrana osobních údajů").
+- Delete the sheet's data and the applicant folders after the pilgrimage, as the privacy policy says (the website's "Ochrana osobních údajů").
 - The organisers' e-mail already contains the same data, so the mailbox needs the same care.
 
 ## What goes where
@@ -51,7 +64,8 @@ The sick pilgrims' form carries **health data and the rodné číslo** (special-
 | | E-mail to organisers | Google Sheet | Správa pouti (admin) |
 |---|---|---|---|
 | Name, contact, ID number, emergency contact | yes | yes | yes |
-| Health answers, rodné číslo, attachments | yes (attachments too) | yes (no attachments) | **never** |
+| Health answers, rodné číslo | yes | yes | **never** |
+| Attachments | yes | yes, in the applicant's Drive folder | **never** |
 | Subsidy request | yes | yes | yes ("žádá o příspěvek") |
 
 Notes on the paper form copy: the website lets people tick several hygiene aids, so cell D46 may hold more than one

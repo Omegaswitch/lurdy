@@ -5,7 +5,7 @@
 // management platform (admin → Přihlášky); health answers and attachments never do. The platform
 // replies with the addresses chosen to be told about new applications, and they get a short notice.
 // With GOOGLE_SHEETS_URL + GOOGLE_SHEETS_SECRET set, the whole application is also written to the organisers' Google
-// Sheet by the Apps Script in tools/google-sheets/ (setup: tools/google-sheets/README.md).
+// Sheet (attachments in a Google Drive folder per applicant) by the Apps Script in tools/google-sheets/ (setup: tools/google-sheets/README.md).
 const FORMS = require("../content/forms.json");
 const SITE = require("../content/site.json");
 // listed one by one so the bundler sees every file the function needs
@@ -92,17 +92,19 @@ async function intake(form, lang, body) {
 }
 
 // the organisers' Google Sheet (tools/google-sheets/prihlasky.gs): every answer, in Czech, with the option codes so the
-// script can tick the paper form's ano/ne cells; null when not connected, false when it did not take it
-async function sheets(form, lang, name, sent, rows) {
+// script can tick the paper form's ano/ne cells, and the attachments, which it saves in the applicant's own Google Drive
+// folder; null when not connected, false when it did not take it, else { files: whether the attachments were saved }
+async function sheets(form, lang, name, sent, rows, attached) {
   const url = process.env.GOOGLE_SHEETS_URL, secret = process.env.GOOGLE_SHEETS_SECRET;
   if (!url || !secret) return null;
   const fields = rows.map(([group, label, value, key, raw]) => ({ key, group, label, value, ...(raw !== undefined && raw !== value ? { codes: [].concat(raw) } : {}) }));
   try {
-    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, redirect: "follow", signal: AbortSignal.timeout(15000),
-      body: JSON.stringify({ secret, form, title: CS.pages[form].title, lang, submitted: sent, name, fields }) });
+    const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, redirect: "follow", signal: AbortSignal.timeout(30000),
+      body: JSON.stringify({ secret, form, title: CS.pages[form].title, lang, submitted: sent, name, fields,
+        files: attached.map((a) => ({ name: a.filename, data: a.content })) }) });
     const reply = await r.json().catch(() => ({}));
     if (!r.ok || !reply.ok) throw new Error(`sheets ${r.status}: ${reply.error || ""}`);
-    return true;
+    return { files: reply.files === true };
   } catch (e) {
     console.error(e.message);
     return false;  // the e-mail is the record either way
@@ -194,10 +196,11 @@ module.exports = async (req, res) => {
       `<tr><td colspan="2" style="font:14px/1.6 Asap,Arial,sans-serif">${attached.map((a) => esc(a.filename)).join("<br>")}</td></tr>`;
     text += `\n== ${CS.fields.attachments} ==\n${attached.map((a) => a.filename).join("\n")}\n`;
   }
-  const [filed, sheet] = await Promise.all([intake(form, lang, body), sheets(form, lang, name, sent, rows)]);
+  const [filed, sheet] = await Promise.all([intake(form, lang, body), sheets(form, lang, name, sent, rows, attached)]);
   const stamp = `Prohlášení a souhlas se zpracováním osobních a zdravotních údajů: ano · jazyk webu: ${lang} · odesláno ${sent}` +
     (filed === null ? "" : filed ? " · uloženo ve správě pouti (Přihlášky)" : " · NEULOŽENO ve správě pouti – zadejte ručně") +
-    (sheet === null ? "" : sheet ? " · zapsáno do Google tabulky" : " · NEZAPSÁNO do Google tabulky – doplňte ručně");
+    (sheet === null ? "" : sheet ? " · zapsáno do Google tabulky" : " · NEZAPSÁNO do Google tabulky – doplňte ručně") +
+    (sheet && attached.length ? (sheet.files ? " · přílohy uloženy na Google Disk" : " · přílohy NEULOŽENY na Google Disk – uložte je z tohoto e-mailu") : "");
   text += `\n${stamp}\n`;
   const html = MAIL.shell({ lang: "cs", alt: CS.ui.lockup, heading: CS.ui.mailHeader, title,
     body: `<table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border-collapse:collapse;margin:0 0 18px">${table}</table>` +

@@ -5,7 +5,10 @@
  *   1. appends one row to the tab named after the form ("Přihláška – nemocní", "Přihláška – poutníci", …),
  *      with a header row made from the question labels the first time;
  *   2. for the sick pilgrims' form, copies the "Formulář" tab (the organisers' paper form) to a new tab named
- *      after the pilgrim and fills its answer cells, so it reads and prints like the paper form.
+ *      after the pilgrim and fills its answer cells, so it reads and prints like the paper form;
+ *   3. makes a Google Drive folder for the applicant (inside "Lurdy – přílohy přihlášek", next to this spreadsheet)
+ *      and saves the attachments there; the row and the form tab link to it. Every applicant gets one, so a medical
+ *      report that comes later by post or e-mail has its place too.
  *
  * Setup: tools/google-sheets/README.md. The shared secret lives in Project Settings → Script Properties → SECRET.
  */
@@ -39,6 +42,8 @@ var LIST_TEXT = {
   diet_basic: 'základní', diet_diabetic: 'diabetická', diet_gentle: 'šetřící (žlučník, žaludek)', diet_gluten: 'bezlepková'
 };
 var TEMPLATE = 'Formulář';
+var FILES_FOLDER = 'Lurdy – přílohy přihlášek';
+var TYPES = { pdf: 'application/pdf', jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
 
 function doPost(e) {
   var data;
@@ -49,9 +54,10 @@ function doPost(e) {
   lock.waitLock(20000);  // two applications at once must not write into the same row
   try {
     var book = SpreadsheetApp.getActiveSpreadsheet();
-    appendRow(book, data);
-    if (data.form === 'nemocni' && book.getSheetByName(TEMPLATE)) fillPaperForm(book, data);
-    return reply({ ok: true });
+    var files = saveFiles(book, data);  // the answers are written even when Drive fails; the website tells the organisers
+    appendRow(book, data, files.url);
+    if (data.form === 'nemocni' && book.getSheetByName(TEMPLATE)) fillPaperForm(book, data, files.url);
+    return reply({ ok: true, files: files.saved });
   } finally {
     lock.releaseLock();
   }
@@ -67,10 +73,36 @@ function safe(v) {
   return /^[=+\-@]/.test(v) ? "'" + v : v;
 }
 
-function appendRow(book, data) {
+// the applicant's folder: "<name> – <form> – <sent>", inside FILES_FOLDER (Script Property FOLDER_ID, or made next to
+// this spreadsheet the first time and remembered)
+function saveFiles(book, data) {
+  try {
+    var props = PropertiesService.getScriptProperties(), id = props.getProperty('FOLDER_ID'), root = null;
+    if (id) try { root = DriveApp.getFolderById(id); } catch (err) { root = null; }
+    if (!root) {
+      var parents = DriveApp.getFileById(book.getId()).getParents();
+      root = (parents.hasNext() ? parents.next() : DriveApp.getRootFolder()).createFolder(FILES_FOLDER);
+      props.setProperty('FOLDER_ID', root.getId());
+    }
+    var t = data.fields.filter(function (f) { return f.key === 'title'; })[0];
+    var label = [[t && t.value, data.name].filter(Boolean).join(' '), data.title, data.submitted].filter(Boolean).join(' – ').replace(/[\/\\]/g, ' ').slice(0, 200);
+    var folder = root.createFolder(label);
+    (data.files || []).forEach(function (f) {
+      var ext = String(f.name).split('.').pop().toLowerCase();
+      if (!TYPES[ext]) return;
+      folder.createFile(Utilities.newBlob(Utilities.base64Decode(f.data), TYPES[ext], f.name));
+    });
+    return { url: folder.getUrl(), saved: true };
+  } catch (err) {
+    console.error(err);
+    return { url: '', saved: false };
+  }
+}
+
+function appendRow(book, data, folderUrl) {
   var name = String(data.title || data.form).slice(0, 90);
   var sheet = book.getSheetByName(name) || book.insertSheet(name);
-  var labels = ['Odesláno', 'Jazyk'].concat(data.fields.map(function (f) { return (f.group ? f.group + ' – ' : '') + f.label; }));
+  var labels = ['Odesláno', 'Jazyk', 'Složka s přílohami'].concat(data.fields.map(function (f) { return (f.group ? f.group + ' – ' : '') + f.label; }));
   if (sheet.getLastRow() === 0) {
     sheet.appendRow(labels);
     sheet.setFrozenRows(1);
@@ -79,8 +111,8 @@ function appendRow(book, data) {
   // columns follow the header row, so a question added to the website later lands in a new column, not a wrong one
   var header = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
   var row = new Array(header.length).fill('');
-  row[0] = data.submitted; row[1] = data.lang;
-  labels.slice(2).forEach(function (label, i) {
+  row[0] = data.submitted; row[1] = data.lang; row[2] = folderUrl || '';
+  labels.slice(3).forEach(function (label, i) {
     var col = header.indexOf(label);
     if (col < 0) { header.push(label); sheet.getRange(1, header.length).setValue(label).setFontWeight('bold'); col = header.length - 1; row.push(''); }
     row[col] = safe(data.fields[i].value);
@@ -88,7 +120,7 @@ function appendRow(book, data) {
   sheet.appendRow(row);
 }
 
-function fillPaperForm(book, data) {
+function fillPaperForm(book, data, folderUrl) {
   var by = {};
   data.fields.forEach(function (f) { by[f.key] = f; });
   var title = [by.title && by.title.value, by.lastname && by.lastname.value, by.firstname && by.firstname.value].filter(Boolean).join(' ');
@@ -115,6 +147,7 @@ function fillPaperForm(book, data) {
   // what the paper form has no cell for: the stay, the subsidy answer
   var subsidy = by.subsidy ? by.subsidy.value : '';
   sheet.getRange('B91').setValue('Ubytování: ' + (by.stay ? by.stay.value : '') + ' · Úhrada: ' + subsidy + ' · Odesláno z webu ' + data.submitted);
+  if (folderUrl) sheet.getRange('B92').setValue('Přílohy: ' + folderUrl);
 }
 
 // Run once by hand from the editor (Run → testSetup) to check the template is found and the secret is set.
@@ -123,4 +156,6 @@ function testSetup() {
   Logger.log('Template "%s": %s', TEMPLATE, book.getSheetByName(TEMPLATE) ? 'found' : 'MISSING');
   var s = PropertiesService.getScriptProperties().getProperty('SECRET');
   Logger.log('SECRET: %s', s && s.length >= 32 ? 'set' : 'missing or shorter than 32 characters');
+  var parents = DriveApp.getFileById(book.getId()).getParents();  // also asks for the Drive permission
+  Logger.log('Attachment folders will go in: %s / %s', parents.hasNext() ? parents.next().getName() : 'My Drive', FILES_FOLDER);
 }
