@@ -520,6 +520,13 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .apply fieldset.choice{display:block;min-width:0}
 .apply fieldset.choice>legend{font:600 .95rem/1.4 var(--ui);border:0;margin:0 0 4px;padding:0}
 .hint{font-size:.85rem;color:var(--muted)}
+/* "?" hints next to questions */
+.tip{position:relative;display:inline-grid;place-items:center;width:18px;height:18px;margin-left:6px;vertical-align:1px;border-radius:50%;border:1.5px solid #9a9a9a;color:#7a7a7a;font:700 .68rem/1 var(--ui);letter-spacing:0;text-transform:none;cursor:help;transition:border-color var(--fast) var(--ease),color var(--fast) var(--ease)}
+.tip:hover,.tip:focus-visible,.tip.open{border-color:var(--red);color:var(--red);outline:none}
+.tip-text{position:absolute;left:-8px;top:calc(100% + 8px);z-index:20;width:max-content;max-width:min(300px,calc(100vw - 48px));padding:10px 12px;background:var(--ink-strong);color:#fff;font:400 .82rem/1.45 var(--ui);text-align:left;border-radius:3px;box-shadow:0 8px 24px rgba(0,0,0,.2);opacity:0;visibility:hidden;transform:translateY(-4px);transition:opacity 160ms var(--ease),transform 160ms var(--ease),visibility 0s linear 160ms;pointer-events:none}
+.tip-text::before{content:"";position:absolute;left:var(--arrow,12px);top:-5px;width:10px;height:10px;background:inherit;transform:rotate(45deg)}
+.tip:hover .tip-text,.tip:focus-visible .tip-text,.tip.open .tip-text{opacity:1;visibility:visible;transform:none;transition-delay:0s}
+legend .tip{font-size:.68rem}
 fieldset>p.hint{margin:0 0 var(--s4);max-width:68ch}
 /* what to know before filling in a form */
 .notes{border-left:4px solid var(--red);background:var(--grey);padding:var(--s4) var(--s5);margin:0 0 var(--s7);max-width:72ch}

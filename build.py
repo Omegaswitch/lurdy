@@ -293,18 +293,29 @@ def downloads(lang):
             f'<li><a href="{f["info"]}">{esc(u["info"])} <span class="file-meta">PDF</span></a></li></ul>')
 
 
+def tip(text, tid=""):
+    """A hint behind a '?' next to the question: shown on hover, focus or tap (site.js); still read with the field"""
+    i = f' id="{tid}"' if tid else ""
+    return (f' <span class="tip" tabindex="0" role="button" aria-label="{esc(text)}">?'
+            f'<span class="tip-text" role="tooltip"{i}>{esc(text)}</span></span>')
+
+
 def field_html(f, lang, form):
     t = L[lang]
     if "g" in f:  # a group: its own fieldset, with an optional hint; "dlg" marks the one site.js asks in a dialog before sending
         g = f["g"]
         # a group's own hint; not when a question in the form shares its key (that hint is the question's)
         gh = None if any(x.get("k") == g for x in FORMS[form]) else t["fields"].get(f"{g}_hint")
-        return (f'</fieldset><fieldset{" data-dialog" if f.get("dlg") else ""}><legend>{esc(t["fields"][g])}</legend>'
-                + (f'<p class="hint">{esc(gh)}</p>' if gh else ""))
+        return f'</fieldset><fieldset{" data-dialog" if f.get("dlg") else ""}><legend>{esc(t["fields"][g])}{tip(gh) if gh else ""}</legend>'
     k, typ, req = f["k"], f["t"], bool(f.get("r"))
     fid, label = f"{form}-{k}", esc(t["fields"][k]) + (' <span aria-hidden="true">*</span>' if req else "")
     hint = t["fields"].get(f"{k}_hint")
-    hint_html = f'<span class="hint" id="{fid}-h">{esc(hint)}</span>' if hint else ""
+    # the hint sits behind a "?" in the label; the subsidy question keeps its words in view (they are the point of it)
+    if hint and k != "subsidy":
+        label += tip(hint, f"{fid}-h")
+        hint_html = ""
+    else:
+        hint_html = f'<span class="hint" id="{fid}-h">{esc(hint)}</span>' if hint else ""
     described = f' aria-describedby="{fid}-h"' if hint else ""
     r = " required" if req else ""
     if typ == "file":  # shrunk in the browser by site.js before upload (images on a canvas, large PDFs with Ghostscript)

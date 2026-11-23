@@ -59,6 +59,33 @@
     if (li) li.classList.remove("closed");
   });
 
+  // ---- "?" hints: hover or focus shows them (CSS); a tap opens and closes one without touching the field it labels.
+  // Each bubble is nudged to stay inside the screen.
+  function placeTip(t) {
+    var b = t.querySelector(".tip-text");
+    if (!b) return;
+    b.style.left = ""; b.style.setProperty("--arrow", "");
+    var r = b.getBoundingClientRect(), pad = 12, dx = 0;
+    if (r.right > innerWidth - pad) dx = innerWidth - pad - r.right;
+    if (r.left + dx < pad) dx = pad - r.left;
+    if (dx) { b.style.left = (-8 + dx) + "px"; b.style.setProperty("--arrow", (12 - dx) + "px"); }
+  }
+  ["mouseover", "focusin"].forEach(function (ev) {
+    document.addEventListener(ev, function (e) { var t = e.target.closest && e.target.closest(".tip"); if (t) placeTip(t); });
+  });
+  document.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest(".tip");
+    document.querySelectorAll(".tip.open").forEach(function (x) { if (x !== t) x.classList.remove("open"); });
+    if (!t) return;
+    e.preventDefault();  // inside a label: do not jump into the box
+    t.classList.toggle("open");
+    placeTip(t);
+  });
+  document.addEventListener("keydown", function (e) {
+    var t = document.activeElement;
+    if (t && t.classList && t.classList.contains("tip") && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); t.classList.toggle("open"); }
+  });
+
   // ---- images still downloading develop out of the paper tone once they arrive (see .is-loading)
   document.querySelectorAll("img.ph-img").forEach(function (img) {
     if (img.complete || img.naturalWidth) return;  // already shown (or progressively painting): leave it alone
