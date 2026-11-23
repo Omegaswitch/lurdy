@@ -105,7 +105,7 @@ def lang_switch(lang, key):
 def nav_html(lang, key):
     t, top = L[lang], PARENT.get(key, key)
     lis = []
-    for k in t["nav"]:
+    for k in ["home"] + t["nav"]:  # Úvod first, named as such (the home page's own title is the site name)
         p = t["pages"][k]
         cur = ' aria-current="page"' if k == key else (' class="is-active"' if k == top else "")
         sub = ""
@@ -113,7 +113,7 @@ def nav_html(lang, key):
             items = "".join(f'<li><a href="{url_of(c, lang)}">{esc(t["pages"][c]["title"])}</a></li>' for c in CHILDREN[k])
             sub = (f'<button class="sub-toggle" type="button" aria-expanded="false" aria-label="{esc(p["title"])}: {esc(t["ui"]["morePages"])}">'
                    f'<span aria-hidden="true"></span></button><ul class="sub">{items}</ul>')
-        lis.append(f'<li class="{"has-sub" if sub else ""}"><a href="{p["url"]}"{cur}>{esc(p["title"])}</a>{sub}</li>')
+        lis.append(f'<li class="{"has-sub" if sub else ""}"><a href="{p["url"]}"{cur}>{esc(t["ui"]["home"] if k == "home" else p["title"])}</a>{sub}</li>')
     return f'<ul class="nav-list">{"".join(lis)}</ul>'
 
 
