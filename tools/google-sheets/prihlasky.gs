@@ -3,9 +3,9 @@
  *
  * Lives in the registration list's own Apps Script project ("Lourdes 2027"), as a second file next to the
  * organisers' mail script (which it never touches). The website (api/prihlaska.js) POSTs every application here:
- *   1. a new line in the tab "Participants" (only: name, type, waiting, nurse / doctor / priest / SMOM, e-mail,
- *      address, phone, travels together, passport, M / F, birth year, previous, registration, link to the folder) (the first empty one; the sheet keeps its own VarSym), ON THE WAITING
- *      LIST, so the mail script sends nothing but the waiting-list letter until an organiser unticks "Waiting".
+ *   1. a new line in the tab "Participants" (only: name, type, nurse / doctor / priest / SMOM, e-mail,
+ *      address, phone, travels together, passport, M / F, birth year, previous, registration, link to the folder) (the first empty one; the sheet keeps its own VarSym), without the title
+ *      (that stays in the person's folder); Waiting is ticked by the organisers by hand.
  *      Columns are found by their header (row 8), not by position.
  *   2. a Google Drive folder for the person, next to this spreadsheet:
  *        Lurdy – přílohy přihlášek / Přihláška – nemocní / Ing. Jan Novák – 20.11.26 14:05
@@ -108,7 +108,7 @@ function saveFiles(book, data) {
   }
 }
 
-// The registration list (this spreadsheet, or REGISTER_ID → Participants): one new row, waiting list ticked.
+// The registration list (this spreadsheet, or REGISTER_ID → Participants): one new row.
 // Returns true when added or already there, false when it failed.
 function register(book) {
   var id = PropertiesService.getScriptProperties().getProperty('REGISTER_ID');
@@ -127,7 +127,6 @@ function addToRegister(book, data, folderUrl) {
     // first name and surname: asked separately on the sick pilgrims' form, else split at the last space
     var first = v('firstname'), surname = v('lastname');
     if (!surname) { var parts = v('name').split(/\s+/); surname = parts.pop() || ''; first = parts.join(' ') || surname; }
-    if (v('title')) first = v('title') + ' ' + first;
     var email = v('email').toLowerCase();
     var rows = last > REGISTER_HEADER_ROW ? sheet.getRange(REGISTER_HEADER_ROW + 1, 1, last - REGISTER_HEADER_ROW, width).getValues() : [];
     // sent twice (or already entered by hand): not added again
@@ -149,7 +148,6 @@ function addToRegister(book, data, folderUrl) {
     if (folderUrl) surnameCell.setRichTextValue(SpreadsheetApp.newRichTextValue().setText(surname).setLinkUrl(folderUrl).build());
     else surnameCell.setValue(safe(surname));
     put('Type', { nemocni: 'M', poutnici: 'P', tym: 'T' }[data.form] || '');
-    put('Waiting', true);
     var roles = (by.role && by.role.codes) || [];
     if (roles.indexOf('role_nurse') >= 0) put('Nurse', true);
     if (roles.indexOf('role_doctor') >= 0) put('Doctor', true);
