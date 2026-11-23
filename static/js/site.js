@@ -72,8 +72,7 @@
   document.querySelectorAll("[data-opens]").forEach(function (el) {
     if (Date.now() < new Date(el.getAttribute("data-opens") + "T00:00:00+01:00").getTime()) return;
     el.hidden = false;
-    var note = document.querySelector('[data-closed-until="' + el.getAttribute("data-opens") + '"]');
-    if (note) note.remove();
+    document.querySelectorAll('[data-closed-until="' + el.getAttribute("data-opens") + '"]').forEach(function (n) { n.remove(); });
   });
 
   // ---- application form: attachments are shrunk on this device (photos on a canvas, large PDFs with

@@ -83,6 +83,25 @@ def date_span(start, end, lang):
     return f"{left} – {b.day}{dot} {m[b.month - 1]} {b.year}"
 
 
+def day(iso, lang):
+    """'15. ledna 2027', '15 January 2027' …"""
+    d, m = datetime.fromisoformat(iso), L[lang]["months"]
+    return f"{d.day}{'.' if lang in ('cs', 'de') else ''} {m[d.month - 1]} {d.year}"
+
+
+def reg_html(lang):
+    """The registration status line (home, Přihlášky). While some forms are not open yet (site.json opensOn) it says
+    from when; site.js swaps in the plain "open" line on that day."""
+    u = L[lang]["ui"]
+    if not SITE["registrationOpen"]:
+        return esc(fill(u["regClosed"], year=SITE["pilgrimage"]["start"][:4]))
+    later = sorted(d for d in SITE.get("opensOn", {}).values() if d > datetime.now().date().isoformat())
+    if not later:
+        return esc(u["regOpen"])
+    return (f'<span data-closed-until="{later[-1]}">{esc(fill(u["regPartly"], date=day(later[-1], lang)))}</span>'
+            f'<span data-opens="{later[-1]}" hidden>{esc(u["regOpen"])}</span>')
+
+
 def facts(lang):
     c = SITE["contact"]
     return {"email": c["email"], "post": ", ".join(c["post"]), "account": SITE["account"]["number"], "iban": SITE["account"]["iban"],
@@ -340,7 +359,6 @@ def form_html(form, lang):
 def render_home(lang):
     t, u, s, p, last = L[lang], L[lang]["ui"], SITE, SITE["pilgrimage"], SITE["last"]
     year = p["start"][:4]
-    reg = u["regOpen"] if s["registrationOpen"] else fill(u["regClosed"], year=year)
     groups = "".join(f'<li><b>{esc(a)}</b><span>{esc(b)}</span></li>' for a, b in u["groups"])
     faq = faq_list(lang, [t["faq"][i] for i in t["faqHome"]])
     links = "".join(f'<li><a href="{esc(h)}">{esc(n)}</a></li>' for n, h in s["links"])
@@ -356,7 +374,7 @@ def render_home(lang):
   <div class="next">
    <h2 id="next-title" class="display-s">{esc(fill(u['nextTitle'], year=year))}</h2>
    <p class="next-dates"><time datetime="{p['start']}">{esc(fill(u['nextDates'], n=p['number'], dates=date_span(p['start'], p['end'], lang)))}</time></p>
-   <p class="next-reg{' is-open' if s['registrationOpen'] else ''}">{esc(reg)}</p>
+   <p class="next-reg{' is-open' if s['registrationOpen'] else ''}">{reg_html(lang)}</p>
    <p class="next-links"><a class="btn" href="{url_of('prihlasky', lang)}">{esc(u['apply'])}</a> <a class="link-strong" href="{url_of('ucast', lang)}">{esc(u['howTo'])}</a></p>
   </div>
  </div>
@@ -397,8 +415,7 @@ def render_section(key, lang):
     if key == "ucast":
         inner += f'<h2>{esc(t["ui"]["contactTitle"])}</h2>' + contact_card(lang)
     if key == "prihlasky":
-        reg = t["ui"]["regOpen"] if SITE["registrationOpen"] else fill(t["ui"]["regClosed"], year=SITE["pilgrimage"]["start"][:4])
-        inner = f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{esc(reg)}</p>' + inner + '<ul class="index-list">' + "".join(
+        inner = f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>' + inner + '<ul class="index-list">' + "".join(
             f'<li><a href="{url_of(k, lang)}"><b>{esc(t["pages"][k]["title"])}</b><span>{esc(t["pages"][k]["lead"])}</span></a></li>' for k in CHILDREN["prihlasky"]) + "</ul>"
     return page(key, lang, inner)
 
@@ -412,8 +429,7 @@ def render_form_page(key, lang):
         inner = f'{form_html(key, lang)}<section class="paper"><h2 class="display-s">{esc(u["paperTitle"])}</h2><p>{esc(u["paperNote"])}</p>{dl}</section>'
         opens = SITE.get("opensOn", {}).get(key)
         if opens and datetime.now().date().isoformat() < opens:  # not open yet: site.js shows the form from that day on, no rebuild needed
-            d, m, dot = datetime.fromisoformat(opens), L[lang]["months"], "." if lang in ("cs", "de") else ""
-            when = esc(fill(u["opensLater"], date=f"{d.day}{dot} {m[d.month - 1]} {d.year}"))
+            when = esc(fill(u["opensLater"], date=day(opens, lang)))
             inner = f'<div data-opens="{opens}" hidden>{inner}</div>'
             top = f'<p class="notice" data-closed-until="{opens}">{when}</p>'
     else:

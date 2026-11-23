@@ -129,7 +129,8 @@
   "subsidyBack": "Zpět k formuláři",
   "subsidyChoose": "Vyberte prosím jednu možnost.",
   "notesTitle": "Než začnete vyplňovat",
-  "opensLater": "Přihlášky otevřeme v polovině ledna, {date}. Do té doby se přihlásit nelze – přijďte se prosím podívat znovu."
+  "opensLater": "Přihlášky otevřeme v polovině ledna, {date}. Do té doby se přihlásit nelze – přijďte se prosím podívat znovu.",
+  "regPartly": "Přihlášky týmu jsou otevřeny, nemocní a poutníci se mohou přihlásit od {date}."
  },
  "nav": [
   "ucast",

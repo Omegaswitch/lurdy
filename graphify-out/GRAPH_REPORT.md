@@ -1,17 +1,17 @@
 # Graph Report - lurdy  (2026-11-23)
 
 ## Corpus Check
-- 190 files · ~158,462 words
+- 190 files · ~158,620 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 40 file(s) not represented in the graph (top: .woff2 24, (none) 5, .example 2)
 
 ## Summary
-- 1482 nodes · 3356 edges · 108 communities (67 shown, 41 thin omitted)
+- 1486 nodes · 3365 edges · 97 communities (62 shown, 35 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 43 edges (avg confidence: 0.86)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `c30c5921`
+- Built from commit: `be70f7b9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -25,7 +25,7 @@
 - Reports.tsx
 - 20261018211208_foundation.sql
 - expo
-- aes-js@3.1.2
+- app/package.json
 - dependencies
 - types.ts
 - prihlaska.js
@@ -39,7 +39,7 @@
 - compilerOptions
 - vercel.json
 - scripts
-- Participants.tsx
+- @expo-google-fonts/asap
 - run.sh
 - J. Deployment strategy
 - admin/tsconfig.json
@@ -52,9 +52,9 @@
 - platform/package.json
 - B. Product requirements
 - E. Database architecture
-- App Store and Google Play checklist
+- STATUS.md
 - AGENTS.md
-- app/package.json
+- devDependencies
 - Archive.tsx
 - Aplikace Pouť do Lurd – návod pro poutníky a nemocné
 - expo-crypto
@@ -77,13 +77,13 @@
 - 07_account_deletion.sql
 - 20261019150000_advisor_followup.sql
 - public.participants
-- src/index.ts
+- Badges.tsx
 - Login.tsx
 - @expo/metro-runtime@~58.0.14
-- t
-- useReady
+- Programme.tsx
+- Icon
 - Module
-- Badges.tsx
+- react-native-safe-area-context
 - admin/vercel.json
 - 08_hardening.sql
 - 20261019123937_zz_probe_column_privileges.sql
@@ -93,23 +93,13 @@
 - expo-status-bar
 - 09_remediation.sql
 - react@19.3.0
-- eslint.config.js
 - 20261022180000_application_notify.sql
 - friendlyError
 - pnpm-workspace.yaml
 - Register.tsx
 - Applications.tsx
-- lurdy.eu
 - 20261023100000_registration_register.sql
-- Administrace – návod pro organizátory
 - Přihlášky z webu → Lourdes 2027
-- expo-constants@~58.0.12
-- expo-linking@~58.0.13
-- expo-location
-- expo-secure-store
-- react-dom@19.3.0
-- react-native-screens@~4.30.0
-- @supabase/supabase-js@2.118.0
 
 ## God Nodes (most connected - your core abstractions)
 1. `friendlyError()` - 75 edges
@@ -130,15 +120,15 @@
   docs/E-database.md → platform/shared/src/register.ts
 - `7. Changes made` --references--> `encryptedStorage()`  [INFERRED]
   docs/audits/2026-10-19-remediation.md → platform/shared/src/encryptedStorage.ts
-- `run()` --calls--> `friendlyError()`  [EXTRACTED]
-  platform/admin/src/pages/ImportExport.tsx → platform/admin/src/errors.ts
 - `remove()` --calls--> `friendlyError()`  [EXTRACTED]
+  platform/admin/src/pages/Archive.tsx → platform/admin/src/errors.ts
+- `run()` --calls--> `friendlyError()`  [EXTRACTED]
   platform/admin/src/pages/Archive.tsx → platform/admin/src/errors.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (108 total, 41 thin omitted)
+## Communities (97 total, 35 thin omitted)
 
 ### Community 0 - "steps"
 Cohesion: 0.10
@@ -146,15 +136,15 @@ Nodes (24): runs-on, steps, jobs, database, platform, website, name, on (+16 mor
 
 ### Community 1 - "ui.tsx"
 Cohesion: 0.07
-Nodes (86): Account(), Badge(), useMaxBrightness(), Duty(), MyLeg, call(), Help(), Home() (+78 more)
+Nodes (89): Account(), Badge(), useMaxBrightness(), Duty(), MyLeg, call(), Help(), Home() (+81 more)
 
 ### Community 2 - "build.py"
-Cohesion: 0.06
-Nodes (40): build(), contact_card(), crumbs_html(), date_span(), downloads(), facts(), faq_list(), field_html() (+32 more)
+Cohesion: 0.05
+Nodes (42): build(), contact_card(), crumbs_html(), date_span(), day(), downloads(), facts(), faq_list() (+34 more)
 
 ### Community 3 - "20261018211334_operations.sql"
-Cohesion: 0.12
-Nodes (31): a_inherit, app.check_care_roles(), app.check_leg_capacity(), app.check_leg_facility(), app.check_room_capacity(), app.is_carer_of(), app.is_member(), app.my_category() (+23 more)
+Cohesion: 0.08
+Nodes (35): a_inherit, app.check_care_roles(), app.check_leg_capacity(), app.check_leg_facility(), app.check_room_capacity(), app.is_carer_of(), app.is_member(), app.my_category() (+27 more)
 
 ### Community 4 - "admin/package.json"
 Cohesion: 0.07
@@ -165,20 +155,24 @@ Cohesion: 0.07
 Nodes (36): devDependencies, @axe-core/playwright@4.11.0, @playwright/test@1.56.1, read-excel-file@9.3.10, @supabase/supabase-js@2.118.0, typescript@5.9.3, write-excel-file@4.1.1, read-excel-file (+28 more)
 
 ### Community 6 - "Reports.tsx"
-Cohesion: 0.13
-Nodes (19): activeReg(), busSections, Care, Contact, Data, Ed, Event, Facility (+11 more)
+Cohesion: 0.10
+Nodes (34): fmtDay(), fmtTime(), must(), useLive(), Programme(), activeReg(), busSections, Care (+26 more)
 
 ### Community 7 - "20261018211208_foundation.sql"
-Cohesion: 0.12
+Cohesion: 0.09
 Nodes (12): app.active_user(), app.check_participant_refs(), app.is_super_admin(), app.on_auth_user_created(), audit.log, audit_log_edition_at, audit_log_row, editions_one_active (+4 more)
 
 ### Community 8 - "expo"
 Cohesion: 0.06
 Nodes (34): backgroundColor, backgroundImage, foregroundImage, monochromeImage, adaptiveIcon, allowBackup, blockedPermissions, package (+26 more)
 
+### Community 9 - "app/package.json"
+Cohesion: 0.13
+Nodes (14): aes-js@3.1.2, expo-brightness@~58.0.2, expo-constants@~58.0.12, expo-location@~58.0.17, react-native-screens@~4.30.0, aes-js, main, name (+6 more)
+
 ### Community 10 - "dependencies"
 Cohesion: 0.11
-Nodes (18): dependencies, expo-brightness@~58.0.2, expo-camera@~58.0.10, @expo-google-fonts/asap@^0.4.3, expo-router@~58.0.24, @lurdy/shared@workspace:*, react-native@0.88.0, @react-native-async-storage/async-storage@2.2.0 (+10 more)
+Nodes (19): dependencies, expo-camera@~58.0.10, expo-linking@~58.0.13, expo-router@~58.0.24, expo-secure-store@~58.0.2, @lurdy/shared@workspace:*, react-dom@19.3.0, react-native@0.88.0 (+11 more)
 
 ### Community 11 - "types.ts"
 Cohesion: 0.11
@@ -199,10 +193,6 @@ Nodes (15): 10. Night shifts, meal service, cleaning (doc 2), 11. Team meals and
 ### Community 15 - "D. Architecture decision record"
 Cohesion: 0.12
 Nodes (16): ADR-10 Brand — accepted, ADR-11 Sign-in by personal code — accepted (organisers' decision), ADR-12 Field app is big-button, edits happen on the web — accepted (organisers' decision), ADR-13 Map: Leaflet + OpenStreetMap as an Expo DOM component — accepted, ADR-1 Backend: Supabase (mandated) — accepted, ADR-2 Authorisation lives in the database — accepted, ADR-3 Medical data in a separate, unexposed schema — accepted, ADR-4 Two clients, one shared package — accepted (+8 more)
-
-### Community 16 - "ROADMAP.md"
-Cohesion: 0.18
-Nodes (3): I. Testing strategy, DPIA outline (to be completed by the data controller), Pilgrimage platform
 
 ### Community 17 - "shared/package.json"
 Cohesion: 0.13
@@ -228,17 +218,13 @@ Nodes (12): includeFiles, buildCommand, cleanUrls, framework, functions, api/pri
 Cohesion: 0.22
 Nodes (9): scripts, android, export:web, ios, lint, start, test, typecheck (+1 more)
 
-### Community 23 - "Participants.tsx"
-Cohesion: 0.17
-Nodes (17): Icon(), AiPrompt(), Decision, downloadTemplate(), Existing, exportParticipants(), ImportPanel(), run() (+9 more)
-
 ### Community 24 - "run.sh"
 Cohesion: 0.28
 Nodes (7): as_pg(), PGDATABASE, PGHOST, PGPORT, PGUSER, psql(), run.sh script
 
 ### Community 25 - "J. Deployment strategy"
-Cohesion: 0.25
-Nodes (8): Blockers needing the organisers, Database, Environments, J. Deployment strategy, Mobile, Operations during the pilgrimage, Pilot, Web (admin + app web)
+Cohesion: 0.12
+Nodes (14): Administrace – návod pro organizátory, Doprava, Jmenovky, Přehled, Přihlášení, Účastníci, Blockers needing the organisers, Database (+6 more)
 
 ### Community 26 - "admin/tsconfig.json"
 Cohesion: 0.25
@@ -250,7 +236,7 @@ Nodes (9): expo@~58.0.15, leaflet@1.9.4, CENTER, esc(), LourdesMap(), MapPlace, 
 
 ### Community 28 - "i18n.ts"
 Cohesion: 0.06
-Nodes (28): 1. Issues resolved, 2. Test results (final run, this branch), 3. Blocked — not done, and why, 4. Remaining issues (open, with owner), 5. Readiness, 6. Health score: 88 / 100, 7. Changes made, Remediation of the audit findings — 2026-10-19 (+20 more)
+Nodes (27): 1. Issues resolved, 2. Test results (final run, this branch), 3. Blocked — not done, and why, 4. Remaining issues (open, with owner), 5. Readiness, 6. Health score: 88 / 100, 7. Changes made, Remediation of the audit findings — 2026-10-19 (+19 more)
 
 ### Community 30 - "C. Feature prioritisation"
 Cohesion: 0.29
@@ -280,17 +266,17 @@ Nodes (6): B. Product requirements, Core use cases, Functional requirements (sum
 Cohesion: 0.33
 Nodes (6): E. Database architecture, Entities, Functions (RPC), Integrity and concurrency, Migration strategy, Schemas
 
-### Community 37 - "App Store and Google Play checklist"
-Cohesion: 0.50
-Nodes (3): App Store and Google Play checklist, Before submission (organisers / store accounts), Done in the code
+### Community 37 - "STATUS.md"
+Cohesion: 0.16
+Nodes (8): App Store and Google Play checklist, Before submission (organisers / store accounts), Done in the code, Pilgrimage platform, Content, Hosting, lurdy.eu, Online applications (`api/prihlaska.js`)
 
 ### Community 38 - "AGENTS.md"
 Cohesion: 0.33
 Nodes (5): Building with EAS, Commands, Expo has changed — do not trust your training data, Navigation & Routing, Rules
 
-### Community 39 - "app/package.json"
-Cohesion: 0.18
-Nodes (13): react-native-safe-area-context@~5.10.1, devDependencies, @types/leaflet@^1.9.22, @types/react@~19.3.0, typescript@~6.0.3, @types/react, typescript, main (+5 more)
+### Community 39 - "devDependencies"
+Cohesion: 0.15
+Nodes (13): { defineConfig }, expoConfig, devDependencies, eslint@^9.39.5, eslint-config-expo@~58.0.4, @types/leaflet@^1.9.22, @types/react@~19.3.0, typescript@~6.0.3 (+5 more)
 
 ### Community 40 - "Archive.tsx"
 Cohesion: 0.06
@@ -333,40 +319,36 @@ Cohesion: 0.25
 Nodes (6): check(), mb(), render(), save(), say(), store()
 
 ### Community 62 - "20261019133339_remediation.sql"
-Cohesion: 0.10
-Nodes (22): a_guard_fields, app.assign_access_code(), app.check_capacity_change(), app.check_mobility_change(), app.config, app.guard_incident_fields(), app.member_edition_ids(), app.purge_logs() (+14 more)
+Cohesion: 0.09
+Nodes (23): a_guard_fields, app.assign_access_code(), app.check_capacity_change(), app.check_mobility_change(), app.config, app.guard_incident_fields(), app.member_edition_ids(), app.purge_logs() (+15 more)
 
 ### Community 65 - "20261019150000_advisor_followup.sql"
-Cohesion: 0.09
-Nodes (24): guide_pages_slug, incidents_edition, public.guide_pages, public.incidents, public.incident_reports, announcement_acks_user, app.incident_summary(), duties_edition (+16 more)
+Cohesion: 0.15
+Nodes (15): incidents_edition, public.incidents, announcement_acks_user, app.incident_summary(), duties_edition, duties_lead, duties_team, duty_assignments_edition (+7 more)
 
 ### Community 66 - "public.participants"
-Cohesion: 0.09
-Nodes (26): b_facility, public.transport_legs, credentials_one_active, public.credentials, public.issue_credential(), public.my_digital_credential(), public.participant_card(), public.revoke_credential() (+18 more)
+Cohesion: 0.10
+Nodes (30): b_facility, public.participants, public.transport_legs, credentials_one_active, public.credentials, public.issue_credential(), public.my_digital_credential(), public.participant_card() (+22 more)
 
-### Community 67 - "src/index.ts"
-Cohesion: 0.08
-Nodes (31): Affecting, Facility, fold(), kindLabel, kinds, Occupant, Person, Room (+23 more)
+### Community 67 - "Badges.tsx"
+Cohesion: 0.09
+Nodes (30): activeNow(), Batch, Config, CropMarks(), Pending, Printed, Row, Code (+22 more)
 
 ### Community 68 - "Login.tsx"
-Cohesion: 0.21
-Nodes (22): App(), CodeExpiryNotice(), routes, Shell(), useHashPath(), Notice(), Edition(), save() (+14 more)
+Cohesion: 0.16
+Nodes (21): App(), CodeExpiryNotice(), routes, Shell(), useHashPath(), Notice(), CodeLogin(), submit() (+13 more)
 
-### Community 70 - "t"
-Cohesion: 0.14
-Nodes (26): fmtDay(), fmtTime(), fromLocalInput(), fullName(), toLocalInput(), AddCarer(), submit(), audienceLabel() (+18 more)
+### Community 70 - "Programme.tsx"
+Cohesion: 0.19
+Nodes (16): fromLocalInput(), toLocalInput(), EventCodes(), add(), endNow(), randomEventCode(), audienceLabel(), categories (+8 more)
 
-### Community 71 - "useReady"
-Cohesion: 0.28
-Nodes (15): activeNow(), must(), useLive(), Accommodation(), Applications(), Care(), EventCodes(), add() (+7 more)
+### Community 71 - "Icon"
+Cohesion: 0.16
+Nodes (19): fullName(), Icon(), Accommodation(), Affecting, Facility, fold(), kindLabel, kinds (+11 more)
 
 ### Community 72 - "Module"
 Cohesion: 0.06
 Nodes (34): Module(), a(), Aa(), bb(), c(), cc(), a(), d() (+26 more)
-
-### Community 73 - "Badges.tsx"
-Cohesion: 0.17
-Nodes (14): Badge(), Badges(), activate(), discard(), print(), saveConfig(), Batch, batchKey() (+6 more)
 
 ### Community 74 - "admin/vercel.json"
 Cohesion: 0.29
@@ -380,44 +362,32 @@ Nodes (5): app.is_any_organizer(), archive_people_once, archive_people_year, pub
 Cohesion: 0.50
 Nodes (3): c, newsecret, qr
 
-### Community 86 - "eslint.config.js"
-Cohesion: 0.29
-Nodes (6): { defineConfig }, expoConfig, eslint@^9.39.5, eslint-config-expo@~58.0.4, eslint, eslint-config-expo
-
 ### Community 89 - "friendlyError"
-Cohesion: 0.12
-Nodes (27): friendlyError(), affected(), FacilityForm(), remove(), save(), RoomForm(), save(), NotifyPanel() (+19 more)
+Cohesion: 0.09
+Nodes (48): friendlyError(), affected(), FacilityForm(), remove(), save(), RoomForm(), save(), Badge() (+40 more)
 
 ### Community 92 - "Register.tsx"
 Cohesion: 0.10
 Nodes (43): AddPerson(), add(), Capacities(), save(), capFields, Check(), czk(), Detail() (+35 more)
 
 ### Community 93 - "Applications.tsx"
-Cohesion: 0.15
-Nodes (13): fmtStamp(), Application, czDate(), Decide(), accept(), decline(), Decided(), remove() (+5 more)
-
-### Community 94 - "lurdy.eu"
-Cohesion: 0.50
-Nodes (4): Content, Hosting, lurdy.eu, Online applications (`api/prihlaska.js`)
+Cohesion: 0.13
+Nodes (17): fmtStamp(), Application, Applications(), czDate(), Decide(), accept(), decline(), Decided() (+9 more)
 
 ### Community 96 - "20261023100000_registration_register.sql"
 Cohesion: 0.18
 Nodes (14): applications_edition, applications_participant, public.accept_application(), public.applications, z_audit, a_edition, app.assign_varsym(), app.check_private_edition() (+6 more)
 
-### Community 97 - "Administrace – návod pro organizátory"
-Cohesion: 0.33
-Nodes (6): Administrace – návod pro organizátory, Doprava, Jmenovky, Přehled, Přihlášení, Účastníci
-
 ## Knowledge Gaps
 - **10 isolated node(s):** `PGDATABASE`, `PGHOST`, `PGPORT`, `PGUSER`, `../tsconfig.base.json` (+5 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 552 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **41 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 554 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **35 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `E. Database architecture` connect `E. Database architecture` to `ROADMAP.md`?**
-  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+- **Why does `encryptedStorage()` connect `i18n.ts` to `ui.tsx`?**
+  _High betweenness centrality (0.048) - this node is a cross-community bridge._
 - **Are the 12 inferred relationships involving `Module()` (e.g. with `ac()` and `$b()`) actually correct?**
   _`Module()` has 12 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `PGDATABASE`, `PGHOST`, `PGPORT` to the rest of the system?**
@@ -427,6 +397,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `active()` connect `Register.tsx` to `E. Database architecture`?**
   _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **Should `ui.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.07093006694203105 - nodes in this community are weakly interconnected._
-- **Why does `Entities` connect `E. Database architecture` to `Register.tsx`?**
+  _Cohesion score 0.06801246443571332 - nodes in this community are weakly interconnected._
+- **Why does `E. Database architecture` connect `E. Database architecture` to `ROADMAP.md`?**
   _High betweenness centrality (0.046) - this node is a cross-community bridge._

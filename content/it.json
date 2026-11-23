@@ -129,7 +129,8 @@
   "subsidyBack": "Torna al modulo",
   "subsidyChoose": "Scelga una delle opzioni.",
   "notesTitle": "Prima di iniziare",
-  "opensLater": "Le iscrizioni si apriranno a metà gennaio, il {date}. Fino ad allora non è possibile iscriversi – torni a trovarci in quella data."
+  "opensLater": "Le iscrizioni si apriranno a metà gennaio, il {date}. Fino ad allora non è possibile iscriversi – torni a trovarci in quella data.",
+  "regPartly": "Le iscrizioni per il team sono aperte; malati e pellegrini potranno iscriversi dal {date}."
  },
  "nav": [
   "ucast",
