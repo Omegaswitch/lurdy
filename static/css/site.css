@@ -537,7 +537,24 @@ html:not(.js) .file-pick label{display:none}
 @keyframes bar-sweep{from{background-position:100% 0}to{background-position:-50% 0}}
 .progress span{font-size:.9rem;color:var(--ink-strong)}
 .form-error{flex:1 1 100%;margin:0;padding:var(--s3) var(--s4);border-left:4px solid var(--red);background:#fff;color:var(--ink-strong)}
-.apply input[type=checkbox],.apply input[type=radio]{width:20px;height:20px;flex:none;margin:0;accent-color:var(--red)}
+/* tick boxes and round options: drawn by hand so choosing one springs in (no motion when the device asks for less) */
+.apply input[type=checkbox],.apply input[type=radio]{appearance:none;-webkit-appearance:none;position:relative;display:inline-grid;place-items:center;width:22px;height:22px;flex:none;margin:0;border:2px solid #8a8a8a;border-radius:5px;background:#fff;cursor:pointer;transition:border-color 160ms var(--ease),background-color 160ms var(--ease),transform 200ms cubic-bezier(.34,1.56,.64,1),box-shadow 260ms var(--ease)}
+.apply input[type=radio]{border-radius:50%}
+.apply input[type=checkbox]::after{content:"";width:6px;height:11px;margin-top:-2px;border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg) scale(0);transition:transform 260ms cubic-bezier(.34,1.56,.64,1)}
+.apply input[type=radio]::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--red);transform:scale(0);transition:transform 260ms cubic-bezier(.34,1.56,.64,1)}
+.apply input[type=checkbox]:checked{background:var(--red);border-color:var(--red);box-shadow:0 0 0 6px rgba(227,26,24,.12)}
+.apply input[type=checkbox]:checked::after{transform:rotate(45deg) scale(1)}
+.apply input[type=radio]:checked{border-color:var(--red);box-shadow:0 0 0 6px rgba(227,26,24,.12)}
+.apply input[type=radio]:checked::after{transform:scale(1)}
+.apply input[type=checkbox]:hover:not(:checked),.apply input[type=radio]:hover:not(:checked){border-color:var(--red)}
+.apply input[type=checkbox]:active,.apply input[type=radio]:active{transform:scale(.86)}
+.apply input[type=checkbox]:focus-visible,.apply input[type=radio]:focus-visible{outline:2px solid var(--red);outline-offset:3px}
+/* the chosen answer's text firms up */
+.opts label{transition:color 200ms var(--ease)}
+.opts label:has(input:checked){color:var(--ink-strong)}
+/* drop-downs and boxes ease their border when picked or focused */
+.apply select,.apply input:not([type=checkbox]):not([type=radio]),.apply textarea{transition:border-color 180ms var(--ease),box-shadow 220ms var(--ease)}
+.apply select:focus,.apply input:not([type=checkbox]):not([type=radio]):focus,.apply textarea:focus{box-shadow:0 0 0 4px rgba(227,26,24,.12)}
 .apply .consent input{margin-top:3px}
 .submit{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3) var(--s5);padding:var(--s5) var(--s6);background:var(--grey);border-top:3px solid var(--red)}
 .submit p{margin:0;flex:1 1 16rem}
