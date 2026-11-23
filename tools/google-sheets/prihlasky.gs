@@ -168,9 +168,6 @@ function addToRegister(book, data, folderUrl) {
     // and in the column "Přílohy", if the sheet has one
     if (folderUrl && header.indexOf('Přílohy') >= 0)
       sheet.getRange(row, col('Přílohy') + 1).setRichTextValue(SpreadsheetApp.newRichTextValue().setText('složka').setLinkUrl(folderUrl).build());
-    var note = 'Přihláška z webu ' + data.submitted + (code('subsidy') === 'sub_ask' ? '\nŽádá o příspěvek na pouť' : '') +
-      (folderUrl ? '\nPřihláška a přílohy: ' + folderUrl : '');
-    sheet.getRange(row, nameCol + 1).setNote(note);
     return true;
   } catch (err) {
     console.error(err);
