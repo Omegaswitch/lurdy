@@ -268,15 +268,20 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .index-list b{font:500 1.3rem/1.25 var(--display);color:var(--ink-strong)}
 .index-list a:hover b{color:var(--red-text)}
 .index-list span{font-size:.94rem;color:var(--muted)}
-/* Přihlášky: the forms as cards, before the text */
-.form-cards{list-style:none;margin:0 0 var(--s7);padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4)}
-.form-cards a{position:relative;display:flex;flex-direction:column;gap:var(--s2);height:100%;padding:var(--s5) var(--s5) calc(var(--s5) + 28px);background:#fff;border:1px solid var(--rule);border-top:4px solid var(--red);text-decoration:none;color:var(--ink);transition:box-shadow var(--med) var(--ease),transform var(--med) var(--ease)}
-.form-cards a::after{content:"→";position:absolute;left:var(--s5);bottom:var(--s4);font-size:1.3rem;color:var(--red);transition:transform var(--med) var(--ease)}
-.form-cards a:hover{box-shadow:0 12px 30px rgba(0,0,0,.12);transform:translateY(-2px)}
-.form-cards a:hover::after{transform:translateX(6px)}
-.form-cards b{font:500 1.3rem/1.25 var(--display);color:var(--ink-strong)}
-.form-cards span{font-size:.94rem;color:var(--muted)}
-.card-tag{align-self:flex-start;font-style:normal;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--red-text);background:#fdeceb;padding:2px 8px;border-radius:2px}
+/* Přihlášky: after the steps and the consent, the forms as cards with a big button */
+.choose{margin-top:var(--s7);padding-top:var(--s6);border-top:1px solid var(--rule)}
+.choose h2{margin-bottom:var(--s4)}
+.choose .notice{margin-bottom:var(--s5)}
+.form-cards{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4)}
+.form-cards a{display:flex;flex-direction:column;gap:var(--s3);height:100%;padding:var(--s5);background:#fff;border:1px solid var(--rule);border-top:4px solid var(--red);text-decoration:none;color:var(--ink);transition:box-shadow var(--med) var(--ease),transform var(--med) var(--ease)}
+.form-cards a:hover{box-shadow:0 14px 34px rgba(0,0,0,.12);transform:translateY(-3px)}
+.form-cards b{font:500 1.4rem/1.2 var(--display);color:var(--ink-strong)}
+.card-lead{flex:1;font-size:.95rem;color:var(--muted)}
+.btn--big{justify-content:center;min-height:54px;width:100%;font-size:1rem;letter-spacing:.02em}
+.btn--big:not(.btn--soon)::after{content:"→";margin-left:10px;transition:transform var(--med) var(--ease)}
+.form-cards a:hover .btn--big:not(.btn--soon){background:#c40f0d}
+.form-cards a:hover .btn--big:not(.btn--soon)::after{transform:translateX(5px)}
+.btn--soon{background:none;color:var(--red-text);box-shadow:inset 0 0 0 1.5px var(--red)}
 @media (max-width:760px){.form-cards{grid-template-columns:1fr}}
 
 .side-nav{position:sticky;top:var(--s5);border-top:3px solid var(--red);padding-top:var(--s3);font-size:.94rem}

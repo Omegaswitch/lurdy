@@ -131,7 +131,9 @@
   "notesTitle": "Before you start",
   "opensLater": "Applications open in mid-January, on {date}. Until then it is not possible to apply – please come back then.",
   "regPartly": "Team applications are open; sick pilgrims and pilgrims can apply from {date}.",
-  "opensFrom": "from {date}"
+  "chooseForm": "Choose your application",
+  "fillIn": "Fill in the form",
+  "opensBtn": "Opens {date}"
  },
  "nav": [
   "ucast",

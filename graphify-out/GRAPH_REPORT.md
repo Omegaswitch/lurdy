@@ -1,7 +1,7 @@
 # Graph Report - lurdy  (2026-11-23)
 
 ## Corpus Check
-- 190 files · ~158,713 words
+- 190 files · ~158,788 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 40 file(s) not represented in the graph (top: .woff2 24, (none) 5, .example 2)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bcaac384`
+- Built from commit: `234e94b9`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -400,8 +400,8 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `steps` be split into smaller, more focused modules?**
   _Cohesion score 0.09666666666666666 - nodes in this community are weakly interconnected._
 - **Why does `Entities` connect `E. Database architecture` to `Register.tsx`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **Should `ui.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.07331334332833583 - nodes in this community are weakly interconnected._
 - **Why does `E. Database architecture` connect `E. Database architecture` to `ROADMAP.md`?**
-  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._

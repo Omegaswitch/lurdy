@@ -131,7 +131,9 @@
   "notesTitle": "Než začnete vyplňovat",
   "opensLater": "Přihlášky otevřeme v polovině ledna, {date}. Do té doby se přihlásit nelze – přijďte se prosím podívat znovu.",
   "regPartly": "Přihlášky týmu jsou otevřeny, nemocní a poutníci se mohou přihlásit od {date}.",
-  "opensFrom": "od {date}"
+  "chooseForm": "Vyberte přihlášku",
+  "fillIn": "Vyplnit přihlášku",
+  "opensBtn": "Otevřeme {date}"
  },
  "nav": [
   "ucast",

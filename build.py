@@ -418,15 +418,19 @@ def render_section(key, lang):
     if key == "ucast":
         inner += f'<h2>{esc(t["ui"]["contactTitle"])}</h2>' + contact_card(lang)
     if key == "prihlasky":
-        # the forms first, as cards (a form not open yet says from when; site.js drops that tag on the day)
-        today = datetime.now().date().isoformat()
+        # read first (the steps, the consent), then choose the form: big cards, each with a big button. A form not open
+        # yet has a quiet button saying from when; site.js swaps in the real one on that day.
+        today, u = datetime.now().date().isoformat(), t["ui"]
         def card(k):
             opens = SITE.get("opensOn", {}).get(k)
-            tag = (f'<em class="card-tag" data-closed-until="{opens}">{esc(fill(t["ui"]["opensFrom"], date=day(opens, lang)))}</em>'
-                   if opens and opens > today else "")
-            return f'<li><a href="{url_of(k, lang)}"><b>{esc(t["pages"][k]["title"])}</b>{tag}<span>{esc(t["pages"][k]["lead"])}</span></a></li>'
-        inner = (f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>'
-                 f'<ul class="form-cards">{"".join(card(k) for k in CHILDREN["prihlasky"])}</ul>' + inner)
+            go = f'<span class="btn btn--big">{esc(u["fillIn"])}</span>'
+            if opens and opens > today:
+                go = (f'<span class="btn btn--big btn--soon" data-closed-until="{opens}">{esc(fill(u["opensBtn"], date=day(opens, lang)))}</span>'
+                      f'<span class="btn btn--big" data-opens="{opens}" hidden>{esc(u["fillIn"])}</span>')
+            return f'<li><a href="{url_of(k, lang)}"><b>{esc(t["pages"][k]["title"])}</b><span class="card-lead">{esc(t["pages"][k]["lead"])}</span>{go}</a></li>'
+        inner += (f'<section class="choose" aria-labelledby="choose-title"><h2 id="choose-title" class="display-m">{esc(u["chooseForm"])}</h2>'
+                  f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>'
+                  f'<ul class="form-cards">{"".join(card(k) for k in CHILDREN["prihlasky"])}</ul></section>')
     return page(key, lang, inner)
 
 
