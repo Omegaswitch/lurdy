@@ -271,6 +271,7 @@
       status.appendChild(dotLoader()); status.appendChild(said);
       idb("readonly", function (st) { return st.get(it.id); }).then(function (files) {
         files = files || [];
+        if (it.shrunk) return files;  // shrunk when it was saved
         return files.reduce(function (p, file) {
           return p.then(function (out) { return (file.type === "application/pdf" ? shrinkPdf(file) : shrinkImage(file)).then(function (x) { return out.concat(x); }); });
         }, Promise.resolve([]));
@@ -331,6 +332,18 @@
 
     // chosen files live here, so each can be removed and more can be added in several goes
     var chosen = [];
+    // Each file starts shrinking the moment it is picked (one at a time: Ghostscript is memory-hungry on older phones),
+    // so sending only has to upload. done: file → its shrunk version.
+    var queue = Promise.resolve(), jobs = new Map(), done = new Map();
+    function prep(file) {
+      if (!jobs.has(file)) {
+        jobs.set(file, queue = queue.then(function () {
+          return TYPES.indexOf(file.type) < 0 ? file : (file.type === "application/pdf" ? shrinkPdf(file) : shrinkImage(file));
+        }).catch(function () { return file; }).then(function (out) { done.set(file, out); render(); return out; }));
+      }
+      return jobs.get(file);
+    }
+    function ready(file) { done.set(file, file); jobs.set(file, Promise.resolve(file)); }  // already shrunk (a saved application)
     function check() {
       say("");
       if (chosen.length > MAX_FILES) say(f.getAttribute("data-count"));
@@ -340,8 +353,12 @@
       list.innerHTML = "";
       chosen.forEach(function (file, i) {
         var li = document.createElement("li");
-        var name = document.createElement("span");
-        name.textContent = file.name + " · " + mb(file.size);
+        var name = document.createElement("span"), out = done.get(file);
+        name.textContent = file.name + " · " + (out ? (out.size < file.size ? mb(file.size) + " → " + mb(out.size) : mb(out.size)) : "");
+        if (!out) {  // still shrinking: the loader and a word
+          var w = document.createElement("em"); w.className = "shrinking"; w.appendChild(dotLoader());
+          w.appendChild(document.createTextNode(" " + f.getAttribute("data-shrinking"))); name.appendChild(w);
+        }
         var rm = document.createElement("button");
         rm.type = "button"; rm.className = "link-btn"; rm.textContent = f.getAttribute("data-remove");
         rm.setAttribute("aria-label", f.getAttribute("data-remove") + ": " + file.name);
@@ -350,9 +367,11 @@
       });
     }
     if (input && list) input.addEventListener("change", function () {
-      chosen = chosen.concat(Array.prototype.slice.call(input.files));
+      var picked = Array.prototype.slice.call(input.files);
+      chosen = chosen.concat(picked);
       input.value = "";  // the list above is now the source of truth
       render(); check();
+      picked.forEach(prep);
     });
 
     // the unfinished application is kept in this browser until it is sent (not attachments, not the consents)
@@ -521,14 +540,17 @@
       var mine = editing && cartGet().filter(function (x) { return x.id === editing; })[0];
       if (mine) {  // editing a saved one: fill the form with it and its attachments
         f.reset(); fillForm(mine.f);
-        idb("readonly", function (st) { return st.get(mine.id); }).then(function (files) { chosen = files || []; render(); });
+        idb("readonly", function (st) { return st.get(mine.id); }).then(function (files) { chosen = files || []; chosen.forEach(mine.shrunk ? ready : prep); render(); });
       } else editing = null;
       var toCart = function () {
         var v = collect(), id = editing || "a" + Date.now(), x = v.f;
         var item = { id: id, form: f.getAttribute("data-draft"), lang: f.elements.lang.value, url: location.pathname,
           title: (document.querySelector("h1") || {}).textContent || "", t: Date.now(), f: x,
           name: (x.firstname ? x.firstname + " " + (x.lastname || "") : x.name || "").trim() || "–" };
-        idb("readwrite", function (st) { return st.put(chosen.slice(), id); }).then(function () {
+        Promise.all(chosen.map(prep)).then(function (small) {
+          item.shrunk = true;
+          return idb("readwrite", function (st) { return st.put(small, id); });
+        }).then(function () {
           var c = cartGet().filter(function (y) { return y.id !== id; });
           c.push(item); cartPut(c);
           store(null); f.reset(); chosen = []; render(); if (note) note.hidden = true;
@@ -553,12 +575,8 @@
       var files = chosen.slice();
       if (files.length > MAX_FILES) { say(f.getAttribute("data-count")); return reset(); }
       if (files.some(function (x) { return TYPES.indexOf(x.type) < 0; })) { say(f.getAttribute("data-type")); return reset(); }
-      if (files.length) progress(f.getAttribute("data-preparing"), null);
-      files.reduce(function (p, file) {  // one at a time: Ghostscript is memory-hungry on older phones
-        return p.then(function (out) {
-          return (file.type === "application/pdf" ? shrinkPdf(file) : shrinkImage(file)).then(function (x) { return out.concat(x); });
-        });
-      }, Promise.resolve([])).then(function (ready) {
+      if (files.some(function (x) { return !done.has(x); })) progress(f.getAttribute("data-preparing"), null);
+      Promise.all(files.map(prep)).then(function (ready) {
         if (ready.reduce(function (n, x) { return n + x.size; }, 0) > LIMIT) { say(f.getAttribute("data-too-big")); return reset(); }
         var data = new FormData(f);
         data.delete("files");

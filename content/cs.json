@@ -159,7 +159,8 @@
   "errChoose": "Vyberte prosím jednu možnost.",
   "errEmail": "Zadejte e-mail ve tvaru jmeno@example.cz.",
   "errFormat": "Zadejte údaj ve správném tvaru.",
-  "errConsent": "Bez tohoto souhlasu nelze přihlášku odeslat."
+  "errConsent": "Bez tohoto souhlasu nelze přihlášku odeslat.",
+  "shrinking": "zmenšuje se…"
  },
  "nav": [
   "ucast",

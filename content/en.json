@@ -159,7 +159,8 @@
   "errChoose": "Please choose one option.",
   "errEmail": "Enter an e-mail address like name@example.com.",
   "errFormat": "Enter this in the correct format.",
-  "errConsent": "The application cannot be sent without this consent."
+  "errConsent": "The application cannot be sent without this consent.",
+  "shrinking": "shrinking…"
  },
  "nav": [
   "ucast",

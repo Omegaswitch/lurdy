@@ -526,6 +526,8 @@ html:not(.js) .file-pick label{display:none}
 .link-btn:hover{text-decoration-thickness:2px}
 .draft-note .link-btn{min-height:0}
 .file-list:empty{display:none}
+.shrinking{display:inline-flex;align-items:center;gap:8px;margin-left:6px;font-style:normal;color:var(--muted)}
+.shrinking .dot-loader{--dot-size:3px;--gap:2px}
 .progress{flex:1 1 100%;display:grid;gap:6px}
 /* the loader (AbstractCubeIsometricLoader, ported): dotSize 6, gap 4, speed 1.2 s, bloom, idle opacity .08 */
 .dot-loader{--dot-size:6px;--gap:4px;--speed:1.2s;display:inline-grid;grid-template-columns:repeat(5,var(--dot-size));grid-auto-rows:var(--dot-size);gap:var(--gap);flex:none;color:var(--red);vertical-align:middle}

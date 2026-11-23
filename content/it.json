@@ -159,7 +159,8 @@
   "errChoose": "Scelga una delle opzioni.",
   "errEmail": "Inserisca un’e-mail del tipo nome@esempio.it.",
   "errFormat": "Inserisca il dato nel formato corretto.",
-  "errConsent": "Senza questo consenso l’iscrizione non può essere inviata."
+  "errConsent": "Senza questo consenso l’iscrizione non può essere inviata.",
+  "shrinking": "riduzione…"
  },
  "nav": [
   "ucast",

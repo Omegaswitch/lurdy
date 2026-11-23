@@ -350,7 +350,7 @@ def form_html(form, lang):
     u = L[lang]["ui"]
     fields = "".join(field_html(f, lang, form) for f in FORMS[form])
     return f"""<form class="apply" method="post" action="/api/prihlaska/" accept-charset="utf-8" enctype="multipart/form-data"
- data-preparing="{esc(u['preparing'])}" data-uploading="{esc(u['uploading'])}" data-too-big="{esc(u['filesTooBig'])}" data-type="{esc(u['filesType'])}" data-count="{esc(u['filesCount'])}" data-error="{esc(u['sendError'])}" data-remove="{esc(u['removeFile'])}" data-draft="{form}"
+ data-preparing="{esc(u['preparing'])}" data-uploading="{esc(u['uploading'])}" data-too-big="{esc(u['filesTooBig'])}" data-type="{esc(u['filesType'])}" data-count="{esc(u['filesCount'])}" data-error="{esc(u['sendError'])}" data-remove="{esc(u['removeFile'])}" data-shrinking="{esc(u['shrinking'])}" data-draft="{form}"
  data-dlg-send="{esc(u['subsidyContinue'])}" data-dlg-back="{esc(u['subsidyBack'])}" data-dlg-choose="{esc(u['subsidyChoose'])}"
  data-errors="{esc(json.dumps({k[3:].lower(): u[k] for k in ('errSummary', 'errRequired', 'errChoose', 'errEmail', 'errFormat', 'errConsent')}, ensure_ascii=False))}">
  <input type="hidden" name="form" value="{form}"><input type="hidden" name="lang" value="{lang}">
