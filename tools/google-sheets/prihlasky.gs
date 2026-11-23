@@ -8,7 +8,10 @@
  *      after the pilgrim and fills its answer cells, so it reads and prints like the paper form;
  *   3. makes a Google Drive folder for the applicant ("Lurdy – přílohy přihlášek" / the form / the person, next to
  *      this spreadsheet) and saves the attachments there; the row and the form tab link to it. Every applicant gets one, so a medical
- *      report that comes later by post or e-mail has its place too.
+ *      report that comes later by post or e-mail has its place too;
+ *   4. adds the applicant to the registration list (Script Property REGISTER_ID: the "Lourdes 2027" spreadsheet's
+ *      ID, tab "Participants") ON THE WAITING LIST, so its mail script sends them nothing but the waiting-list
+ *      letter until an organiser unticks "Waiting". Columns are found by their header (row 8), not by position.
  *
  * Setup: tools/google-sheets/README.md. The shared secret lives in Project Settings → Script Properties → SECRET.
  */
@@ -43,6 +46,7 @@ var LIST_TEXT = {
 };
 var TEMPLATE = 'Formulář';
 var FILES_FOLDER = 'Lurdy – přílohy přihlášek';
+var REGISTER_TAB = 'Participants', REGISTER_HEADER_ROW = 8;
 var TYPES = { pdf: 'application/pdf', jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
 
 function doPost(e) {
@@ -54,10 +58,11 @@ function doPost(e) {
   lock.waitLock(20000);  // two applications at once must not write into the same row
   try {
     var book = SpreadsheetApp.getActiveSpreadsheet();
-    var files = saveFiles(book, data);  // the answers are written even when Drive fails; the website tells the organisers
+    var files = saveFiles(book, data);  // the answers are written even when Drive or the register fails;
+    var register = addToRegister(data);  // the website tells the organisers which part did not
     appendRow(book, data, files.url);
     if (data.form === 'nemocni' && book.getSheetByName(TEMPLATE)) fillPaperForm(book, data, files.url);
-    return reply({ ok: true, files: files.saved });
+    return reply({ ok: true, files: files.saved, register: register });
   } finally {
     lock.releaseLock();
   }
@@ -100,6 +105,62 @@ function saveFiles(book, data) {
   } catch (err) {
     console.error(err);
     return { url: '', saved: false };
+  }
+}
+
+// The registration list ("Lourdes 2027" → Participants): one new row, waiting list ticked. Returns null when not
+// set up (no REGISTER_ID), true when added or already there, false when it failed.
+function addToRegister(data) {
+  var id = PropertiesService.getScriptProperties().getProperty('REGISTER_ID');
+  if (!id) return null;
+  try {
+    var sheet = SpreadsheetApp.openById(id).getSheetByName(REGISTER_TAB);
+    var last = sheet.getLastRow(), width = sheet.getLastColumn();
+    var header = sheet.getRange(REGISTER_HEADER_ROW, 1, 1, width).getValues()[0].map(function (h) { return String(h).trim(); });
+    var col = function (name) { var i = header.indexOf(name); if (i < 0) throw new Error('column "' + name + '" not found in row ' + REGISTER_HEADER_ROW); return i; };
+    var by = {};
+    data.fields.forEach(function (f) { by[f.key] = f; });
+    var v = function (k) { return by[k] ? String(by[k].value || '').trim() : ''; };
+    var code = function (k) { return by[k] && by[k].codes ? by[k].codes[0] : ''; };
+    // first name and surname: asked separately on the sick pilgrims' form, else split at the last space
+    var first = v('firstname'), surname = v('lastname');
+    if (!surname) { var parts = v('name').split(/\s+/); surname = parts.pop() || ''; first = parts.join(' ') || surname; }
+    if (v('title')) first = v('title') + ' ' + first;
+    var email = v('email').toLowerCase();
+    var rows = last > REGISTER_HEADER_ROW ? sheet.getRange(REGISTER_HEADER_ROW + 1, 1, last - REGISTER_HEADER_ROW, width).getValues() : [];
+    // sent twice (or already entered by hand): not added again
+    var nameCol = col('Name'), mailCol = col('E-Mail'), cancelCol = col('Cancel');
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i][cancelCol] === true) continue;
+      if (String(rows[i][nameCol + 1]).trim().toLowerCase() === surname.toLowerCase() && String(rows[i][mailCol]).trim().toLowerCase() === email) return true;
+    }
+    // the first row with no name (the VarSym in it is already numbered by the sheet)
+    var at = -1;
+    for (i = 0; i < rows.length; i++) if (rows[i][nameCol] === '' && rows[i][nameCol + 1] === '') { at = i; break; }
+    if (at < 0) throw new Error('no empty row left in ' + REGISTER_TAB);
+    var row = REGISTER_HEADER_ROW + 1 + at;
+    var birth = v('birth').match(/(\d{4})$/), times = v('times').match(/^\s*(\d{1,2})\s*$/);
+    var put = function (name, value) { if (value !== '' && value != null) sheet.getRange(row, col(name) + 1).setValue(typeof value === 'string' ? safe(value) : value); };
+    put('Name', first);
+    sheet.getRange(row, nameCol + 2).setValue(safe(surname));
+    put('Type', { nemocni: 'M', poutnici: 'P', tym: 'T' }[data.form] || '');
+    put('Waiting', true);
+    put('Stays', data.form === 'nemocni' ? (code('stay') === 'stay_hotel' ? 'H' : 'A') : 'H');
+    put('E-Mail', email);
+    put('Address', v('address'));
+    put('Telephone', v('telefon') || v('mobile') || v('phone'));
+    put('Travels together', v('escort') || v('companion'));
+    put('Passport number', v('idnum'));
+    put('M / F', { male: 'M', female: 'F' }[code('gender')] || '');
+    put('Y', birth ? Number(birth[1]) : '');
+    put('Previous', times ? Number(times[1]) : '');
+    put('Registration', new Date());
+    var note = 'Přihláška z webu ' + data.submitted + (code('subsidy') === 'sub_ask' ? '\nŽádá o příspěvek na pouť' : '');
+    sheet.getRange(row, nameCol + 1).setNote(note);
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
   }
 }
 
@@ -162,4 +223,12 @@ function testSetup() {
   Logger.log('SECRET: %s', s && s.length >= 32 ? 'set' : 'missing or shorter than 32 characters');
   var parents = DriveApp.getFileById(book.getId()).getParents();  // also asks for the Drive permission
   Logger.log('Attachment folders will go in: %s / %s', parents.hasNext() ? parents.next().getName() : 'My Drive', FILES_FOLDER);
+  var id = PropertiesService.getScriptProperties().getProperty('REGISTER_ID');
+  if (!id) return Logger.log('Register: not connected (Script Property REGISTER_ID missing)');
+  var reg = SpreadsheetApp.openById(id), tab = reg.getSheetByName(REGISTER_TAB);
+  if (!tab) return Logger.log('Register "%s": tab "%s" MISSING', reg.getName(), REGISTER_TAB);
+  var header = tab.getRange(REGISTER_HEADER_ROW, 1, 1, tab.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+  var missing = ['Name', 'Type', 'Waiting', 'Cancel', 'Stays', 'E-Mail', 'Address', 'Telephone', 'Travels together', 'Passport number', 'M / F', 'Y', 'Previous', 'Registration']
+    .filter(function (n) { return header.indexOf(n) < 0; });
+  Logger.log('Register "%s": %s', reg.getName(), missing.length ? 'columns MISSING: ' + missing.join(', ') : 'all columns found');
 }

@@ -19,6 +19,15 @@ Every application sent on the website is also written to a Google Sheet:
   a folder, even without attachments, so a report that arrives later by post or e-mail can be dropped in. The row
   (column "Složka s přílohami") and the form tab (cell B92) link to it.
 
+- **a new row in the registration list** ("Lourdes 2027" → tab `Participants`), **on the waiting list**: name
+  (with the title), type P / M / T, Accueil or hotel, e-mail, address, phone, travels together, passport number,
+  M / F, birth year, earlier pilgrimages, registration date. A note on the name says it came from the website (and
+  whether they ask for a subsidy). The VarSym is the sheet's own. Someone who sends the form twice is not added twice.
+
+  The **waiting list tick is on purpose**: the registration list's mail script sends the flight and payment letter to
+  every row that is not on the waiting list, so new applicants get only the waiting-list letter until an organiser
+  checks them and unticks "Waiting".
+
 The main folder is created automatically the first time, in the same Drive folder as the spreadsheet. To use a folder
 you already have (e.g. on a shared drive), put its ID (the last part of its address) in Script Properties as
 `FOLDER_ID`.
@@ -36,9 +45,12 @@ Google Disk" / "NEULOŽENY … – uložte je z tohoto e-mailu").
    `prihlasky.gs`, and save.
 3. **Set the secret.** In Apps Script: Project Settings (gear) → Script Properties → Add property:
    `SECRET` = a long random string (at least 32 characters). You can generate one with `openssl rand -hex 32`.
+3b. **Connect the registration list.** Open "Lourdes 2027" and copy its ID from the address bar: the part between
+   `/d/` and `/edit`. Add it in Script Properties as `REGISTER_ID`. The person who deploys the script (step 5) needs
+   edit access to that spreadsheet.
 4. **Check it.** Select `testSetup` in the toolbar and click Run. Allow the access Google asks for (Sheets and
    Drive: the script saves the attachments). The log should say `Template "Formulář": found`, `SECRET: set` and
-   where the attachment folders will go.
+   where the attachment folders will go, and `Register "Lourdes 2027": all columns found`.
 5. **Publish it.** Deploy → New deployment → type **Web app**:
    - Execute as: **Me**
    - Who has access: **Anyone** (the secret is what protects it; Google login cannot be used by the website)

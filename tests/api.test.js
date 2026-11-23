@@ -10,7 +10,7 @@ let sheetOk = true;
 global.fetch = async (url, o) => {
   if (url.includes("script.google.com")) {
     sheetPosts.push(JSON.parse(o.body));
-    return { ok: true, status: 200, json: async () => (sheetOk ? { ok: true, files: true } : { ok: false, error: "secret" }) };
+    return { ok: true, status: 200, json: async () => (sheetOk ? { ok: true, files: true, register: true } : { ok: false, error: "secret" }) };
   }
   if (url.includes("intake")) {
     intakes.push({ headers: o.headers, body: JSON.parse(o.body) });
@@ -145,6 +145,7 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   assert.equal(sheet.fields.find((x) => x.key === "subsidy").codes[0], "sub_ask");
   assert.equal(sheet.fields.find((x) => x.key === "rc").value, "500101/1234");
   assert.ok(sent[0].text.includes("zapsáno do Google tabulky"));
+  assert.ok(sent[0].text.includes("zapsáno do registru (čekací listina)"), "the organisers see it is on the register's waiting list");
   assert.deepEqual(sheet.files, [], "no attachments, none sent");
   sent.length = 0;
   assert.equal((await multipart(sick, [["zpráva.pdf", Buffer.from("%PDF-1.4 test")]])).status, 303);

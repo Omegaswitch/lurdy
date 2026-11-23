@@ -104,7 +104,7 @@ async function sheets(form, lang, name, sent, rows, attached) {
         files: attached.map((a) => ({ name: a.filename, data: a.content })) }) });
     const reply = await r.json().catch(() => ({}));
     if (!r.ok || !reply.ok) throw new Error(`sheets ${r.status}: ${reply.error || ""}`);
-    return { files: reply.files === true };
+    return { files: reply.files === true, register: reply.register === undefined ? null : reply.register };
   } catch (e) {
     console.error(e.message);
     return false;  // the e-mail is the record either way
@@ -200,6 +200,7 @@ module.exports = async (req, res) => {
   const stamp = `Prohlášení a souhlas se zpracováním osobních a zdravotních údajů: ano · jazyk webu: ${lang} · odesláno ${sent}` +
     (filed === null ? "" : filed ? " · uloženo ve správě pouti (Přihlášky)" : " · NEULOŽENO ve správě pouti – zadejte ručně") +
     (sheet === null ? "" : sheet ? " · zapsáno do Google tabulky" : " · NEZAPSÁNO do Google tabulky – doplňte ručně") +
+    (sheet && sheet.register !== null ? (sheet.register ? " · zapsáno do registru (čekací listina)" : " · NEZAPSÁNO do registru – zadejte ručně") : "") +
     (sheet && attached.length ? (sheet.files ? " · přílohy uloženy na Google Disk" : " · přílohy NEULOŽENY na Google Disk – uložte je z tohoto e-mailu") : "");
   text += `\n${stamp}\n`;
   const html = MAIL.shell({ lang: "cs", alt: CS.ui.lockup, heading: CS.ui.mailHeader, title,
