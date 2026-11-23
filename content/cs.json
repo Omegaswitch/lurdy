@@ -133,7 +133,7 @@
   "regPartly": "Přihlášky týmu jsou otevřeny, nemocní a poutníci se mohou přihlásit od {date}.",
   "chooseForm": "Vyberte přihlášku",
   "fillIn": "Vyplnit přihlášku",
-  "opensBtn": "Otevřeme {date}",
+  "opensBtn": "Přihlašování od {date}",
   "wzSteps": [
    "Jak to funguje",
    "Souhlas",
