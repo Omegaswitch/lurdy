@@ -133,7 +133,15 @@
   "regPartly": "Team applications are open; sick pilgrims and pilgrims can apply from {date}.",
   "chooseForm": "Choose your application",
   "fillIn": "Fill in the form",
-  "opensBtn": "Opens {date}"
+  "opensBtn": "Opens {date}",
+  "wzSteps": [
+   "How it works",
+   "Consent",
+   "Choose a form"
+  ],
+  "wzNext": "Continue",
+  "wzAgree": "I understand, continue",
+  "wzBack": "Back"
  },
  "nav": [
   "ucast",

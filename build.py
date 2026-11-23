@@ -428,9 +428,13 @@ def render_section(key, lang):
                 go = (f'<span class="btn btn--big btn--soon" data-closed-until="{opens}">{esc(fill(u["opensBtn"], date=day(opens, lang)))}</span>'
                       f'<span class="btn btn--big" data-opens="{opens}" hidden>{esc(u["fillIn"])}</span>')
             return f'<li><a href="{url_of(k, lang)}"><b>{esc(t["pages"][k]["title"])}</b><span class="card-lead">{esc(t["pages"][k]["lead"])}</span>{go}</a></li>'
-        inner += (f'<section class="choose" aria-labelledby="choose-title"><h2 id="choose-title" class="display-m">{esc(u["chooseForm"])}</h2>'
-                  f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>'
-                  f'<ul class="form-cards">{"".join(card(k) for k in CHILDREN["prihlasky"])}</ul></section>')
+        # three steps (how it works, consent, choose); site.js shows them one at a time, without it they read as one page
+        how, consent = fill(t["pages"][key]["body"], **kw).split("<h2>", 1)
+        wz = f' data-names="{esc(json.dumps(u["wzSteps"], ensure_ascii=False))}" data-next="{esc(u["wzNext"])}" data-agree="{esc(u["wzAgree"])}" data-back="{esc(u["wzBack"])}"'
+        inner = (f'<div class="wizard"{wz}><section class="wz-step prose">{how}</section><section class="wz-step prose"><h2>{consent}</section>'
+                 f'<section class="wz-step choose" aria-labelledby="choose-title"><h2 id="choose-title" class="display-m">{esc(u["chooseForm"])}</h2>'
+                 f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>'
+                 f'<ul class="form-cards">{"".join(card(k) for k in CHILDREN["prihlasky"])}</ul></section></div>')
     return page(key, lang, inner)
 
 

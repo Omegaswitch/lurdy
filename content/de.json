@@ -133,7 +133,15 @@
   "regPartly": "Die Anmeldung für das Team ist offen; Kranke und Pilger können sich ab dem {date} anmelden.",
   "chooseForm": "Wählen Sie Ihr Formular",
   "fillIn": "Formular ausfüllen",
-  "opensBtn": "Öffnet am {date}"
+  "opensBtn": "Öffnet am {date}",
+  "wzSteps": [
+   "So funktioniert es",
+   "Einwilligung",
+   "Formular wählen"
+  ],
+  "wzNext": "Weiter",
+  "wzAgree": "Verstanden, weiter",
+  "wzBack": "Zurück"
  },
  "nav": [
   "ucast",

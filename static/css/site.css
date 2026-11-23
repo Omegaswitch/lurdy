@@ -269,6 +269,27 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .index-list a:hover b{color:var(--red-text)}
 .index-list span{font-size:.94rem;color:var(--muted)}
 /* Přihlášky: after the steps and the consent, the forms as cards with a big button */
+/* …shown as three steps by site.js */
+.wz-progress{list-style:none;margin:0 0 var(--s6);padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s2);counter-reset:none}
+.wz-progress button{display:flex;align-items:center;gap:var(--s3);width:100%;padding:var(--s3) 0 var(--s3);background:none;border:0;border-top:4px solid var(--rule);font:600 .82rem var(--ui);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:left;cursor:default;transition:border-color var(--med) var(--ease),color var(--med) var(--ease)}
+.wz-num{display:inline-grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;background:var(--grey);color:var(--ink);font-size:.85rem;transition:background var(--med) var(--ease),color var(--med) var(--ease)}
+.wz-progress .current button{border-top-color:var(--red);color:var(--ink-strong)}
+.wz-progress .current .wz-num{background:var(--red);color:#fff}
+.wz-progress .done button{border-top-color:var(--red);color:var(--ink);cursor:pointer}
+.wz-progress .done .wz-num{background:var(--ink-strong);color:#fff}
+.wz-progress .done button:hover{color:var(--red-text)}
+.wz-nav{display:none}
+.wz-on .wz-nav{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);margin-top:var(--s6);max-width:68ch}
+.wz-on .wz-nav .btn--big{width:auto;flex:1 1 260px}
+.wz-on .wz-nav .btn--ghost{min-height:54px;padding:0 var(--s5);font-size:1rem}
+.wz-on .choose{margin-top:0;padding-top:0;border-top:0}
+.wz-on .choose .wz-nav{max-width:none}
+@keyframes wz-next{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+@keyframes wz-back{from{opacity:0;transform:translateX(-40px)}to{opacity:1;transform:none}}
+.wz-in-next{animation:wz-next 380ms var(--ease) both}
+.wz-in-back{animation:wz-back 380ms var(--ease) both}
+@media (prefers-reduced-motion:reduce){.wz-in-next,.wz-in-back{animation:none}}
+@media (max-width:640px){.wz-progress button{flex-direction:column;align-items:flex-start;gap:6px;font-size:.7rem}}
 .choose{margin-top:var(--s7);padding-top:var(--s6);border-top:1px solid var(--rule)}
 .choose h2{margin-bottom:var(--s4)}
 .choose .notice{margin-bottom:var(--s5)}

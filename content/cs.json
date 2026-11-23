@@ -133,7 +133,15 @@
   "regPartly": "Přihlášky týmu jsou otevřeny, nemocní a poutníci se mohou přihlásit od {date}.",
   "chooseForm": "Vyberte přihlášku",
   "fillIn": "Vyplnit přihlášku",
-  "opensBtn": "Otevřeme {date}"
+  "opensBtn": "Otevřeme {date}",
+  "wzSteps": [
+   "Jak to funguje",
+   "Souhlas",
+   "Výběr přihlášky"
+  ],
+  "wzNext": "Pokračovat",
+  "wzAgree": "Rozumím, pokračovat",
+  "wzBack": "Zpět"
  },
  "nav": [
   "ucast",

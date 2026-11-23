@@ -133,7 +133,15 @@
   "regPartly": "Les inscriptions de l’équipe sont ouvertes ; les malades et les pèlerins pourront s’inscrire à partir du {date}.",
   "chooseForm": "Choisissez votre formulaire",
   "fillIn": "Remplir le formulaire",
-  "opensBtn": "Ouverture le {date}"
+  "opensBtn": "Ouverture le {date}",
+  "wzSteps": [
+   "Comment ça marche",
+   "Consentement",
+   "Choix du formulaire"
+  ],
+  "wzNext": "Continuer",
+  "wzAgree": "J’ai compris, continuer",
+  "wzBack": "Retour"
  },
  "nav": [
   "ucast",

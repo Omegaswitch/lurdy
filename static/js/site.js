@@ -68,6 +68,60 @@
     img.addEventListener("error", done, { once: true });
   });
 
+  // ---- Přihlášky: the steps one at a time (how it works → consent → choose), with the browser's Back going back a step
+  var wz = document.querySelector(".wizard");
+  if (wz) {
+    var steps = Array.prototype.slice.call(wz.querySelectorAll(".wz-step")), names = JSON.parse(wz.getAttribute("data-names")), at = -1;
+    var bar = document.createElement("ol");
+    bar.className = "wz-progress";
+    names.forEach(function (n, k) {
+      var li = document.createElement("li"), b = document.createElement("button");
+      b.type = "button"; b.innerHTML = '<span class="wz-num">' + (k + 1) + "</span> "; b.appendChild(document.createTextNode(n));
+      b.addEventListener("click", function () { if (k < at) go(k, true); });
+      li.appendChild(b); bar.appendChild(li);
+    });
+    wz.insertBefore(bar, wz.firstChild);
+    steps.forEach(function (s, k) {
+      var nav = document.createElement("div");
+      nav.className = "wz-nav";
+      if (k > 0) {
+        var back = document.createElement("button");
+        back.type = "button"; back.className = "btn btn--ghost"; back.textContent = wz.getAttribute("data-back");
+        back.addEventListener("click", function () { history.state && history.state.wz === k ? history.back() : go(k - 1, true); });
+        nav.appendChild(back);
+      }
+      if (k < steps.length - 1) {
+        var next = document.createElement("button");
+        next.type = "button"; next.className = "btn btn--big";
+        next.textContent = wz.getAttribute(k === steps.length - 2 ? "data-agree" : "data-next");
+        next.addEventListener("click", function () { go(k + 1, true); });
+        nav.appendChild(next);
+      }
+      s.appendChild(nav);
+    });
+    wz.classList.add("wz-on");
+    function go(k, push) {
+      var forward = k > at;
+      steps.forEach(function (s, j) { s.hidden = j !== k; s.classList.remove("wz-in-next", "wz-in-back"); });
+      void steps[k].offsetWidth;  // restart the slide
+      if (at >= 0) steps[k].classList.add(forward ? "wz-in-next" : "wz-in-back");
+      Array.prototype.forEach.call(bar.children, function (li, j) {
+        li.className = j < k ? "done" : j === k ? "current" : "";
+        if (j === k) li.setAttribute("aria-current", "step"); else li.removeAttribute("aria-current");
+      });
+      if (push && at >= 0) history.pushState({ wz: k }, "", "#krok-" + (k + 1));
+      if (at >= 0) {
+        if (wz.getBoundingClientRect().top < 0) wz.scrollIntoView({ behavior: "smooth", block: "start" });
+        var h = steps[k].querySelector("h2, .lead");
+        if (h) { h.setAttribute("tabindex", "-1"); h.focus({ preventScroll: true }); }
+      }
+      at = k;
+    }
+    function fromHash() { var m = /^#krok-(\d)$/.exec(location.hash); return m ? Math.min(steps.length, Math.max(1, +m[1])) - 1 : 0; }
+    go(fromHash(), false);
+    addEventListener("popstate", function (e) { go(e.state && e.state.wz != null ? e.state.wz : fromHash(), false); });
+  }
+
   // ---- a form that opens on a set day (site.json opensOn) is shown from that day, Prague time
   document.querySelectorAll("[data-opens]").forEach(function (el) {
     if (Date.now() < new Date(el.getAttribute("data-opens") + "T00:00:00+01:00").getTime()) return;
