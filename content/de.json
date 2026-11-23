@@ -128,7 +128,8 @@
   "subsidyContinue": "Anmeldung absenden",
   "subsidyBack": "Zurück zum Formular",
   "subsidyChoose": "Bitte wählen Sie eine Möglichkeit.",
-  "notesTitle": "Bevor Sie beginnen"
+  "notesTitle": "Bevor Sie beginnen",
+  "opensLater": "Die Anmeldung öffnet Mitte Januar, am {date}. Bis dahin ist keine Anmeldung möglich – bitte schauen Sie dann wieder vorbei."
  },
  "nav": [
   "ucast",

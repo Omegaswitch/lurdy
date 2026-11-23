@@ -168,6 +168,9 @@ module.exports = async (req, res) => {
   try { host = new URL(origin).host; } catch (e) {}
   if (origin && host !== req.headers.host) return fail(res, lang, form, 403);
   if (!SITE.registrationOpen || !form) return fail(res, lang, form, 403);
+  // a form that opens on a set day (site.json opensOn) is refused before it, Prague time
+  const opens = (SITE.opensOn || {})[form];
+  if (opens && new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Prague" }) < opens) return fail(res, lang, form, 403);
   const done = () => { res.statusCode = 303; res.setHeader("Location", TEXT[lang].pages.odeslano.url); res.end(); };
   if (body.web) return done();  // honeypot: bots fill every field; pretend it worked
   const rows = clean(FORMS[form].filter((f) => f.t !== "file"), body);

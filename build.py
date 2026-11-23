@@ -404,17 +404,23 @@ def render_section(key, lang):
 
 
 def render_form_page(key, lang):
-    u, p = L[lang]["ui"], L[lang]["pages"][key]
+    u, p, top = L[lang]["ui"], L[lang]["pages"][key], ""
     dl = f'<p><a class="btn btn--ghost" href="{SITE["files"][key]}" download>{esc(u["download"])} <span class="file-meta">{SITE["files"][key].rsplit(".", 1)[1].upper()}</span></a></p>'
     if key not in FORMS:
         inner = f'<p>{esc(u["downloadOnly"])}</p>{dl}'
     elif SITE["registrationOpen"]:
         inner = f'{form_html(key, lang)}<section class="paper"><h2 class="display-s">{esc(u["paperTitle"])}</h2><p>{esc(u["paperNote"])}</p>{dl}</section>'
+        opens = SITE.get("opensOn", {}).get(key)
+        if opens and datetime.now().date().isoformat() < opens:  # not open yet: site.js shows the form from that day on, no rebuild needed
+            d, m, dot = datetime.fromisoformat(opens), L[lang]["months"], "." if lang in ("cs", "de") else ""
+            when = esc(fill(u["opensLater"], date=f"{d.day}{dot} {m[d.month - 1]} {d.year}"))
+            inner = f'<div data-opens="{opens}" hidden>{inner}</div>'
+            top = f'<p class="notice" data-closed-until="{opens}">{when}</p>'
     else:
         inner = f'<p class="notice">{esc(fill(u["regClosed"], year=SITE["pilgrimage"]["start"][:4]))}</p><p>{esc(u["onlineClosed"])}</p>{dl}'
     if p.get("notes"):  # what to know before filling it in
         inner = f'<section class="notes"><h2 class="display-s">{esc(u["notesTitle"])}</h2><ul>{"".join(f"<li>{esc(n)}</li>" for n in p["notes"])}</ul></section>{inner}'
-    return page(key, lang, inner, lead=p["lead"])
+    return page(key, lang, top + inner, lead=p["lead"])
 
 
 def render_faq(lang):

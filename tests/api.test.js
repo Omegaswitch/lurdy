@@ -2,6 +2,8 @@
 const assert = require("assert");
 const SITE = require("../content/site.json");
 SITE.registrationOpen = true; // the cached module object is the one the handler sees
+const OPENS = SITE.opensOn;
+SITE.opensOn = {};  // frozen forms are tested at the end
 const sent = [];
 const intakes = [];
 let intakeOk = true;
@@ -165,6 +167,13 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   delete process.env.GOOGLE_SHEETS_URL;
   intakes.length = 0;
   sent.length = 0;
+  // a form that opens on a set day is refused before it, open after it
+  SITE.opensOn = { poutnici: "2999-01-01" };
+  assert.equal((await call(good)).status, 403, "not open yet");
+  SITE.opensOn = { poutnici: "2000-01-01" };
+  assert.equal((await call(good)).status, 303, "open since that day");
+  assert.ok(OPENS && OPENS.nemocni && OPENS.poutnici, "sick and pilgrim forms have an opening day");
+  intakes.length = 0; sent.length = 0;
   SITE.registrationOpen = false;
   assert.equal((await call(good)).status, 403, "closed registration");
   assert.equal(sent.length + intakes.length, 0, "nothing sent for rejected submissions");

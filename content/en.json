@@ -128,7 +128,8 @@
   "subsidyContinue": "Send application",
   "subsidyBack": "Back to the form",
   "subsidyChoose": "Please choose one option.",
-  "notesTitle": "Before you start"
+  "notesTitle": "Before you start",
+  "opensLater": "Applications open in mid-January, on {date}. Until then it is not possible to apply – please come back then."
  },
  "nav": [
   "ucast",
