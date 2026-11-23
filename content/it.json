@@ -150,7 +150,10 @@
   "cartSend": "Invia tutte ({n})",
   "cartSending": "Invio {i} di {n}…",
   "cartError": "L’iscrizione «{name}» non è stata inviata. Riprovi.",
-  "cartNote": "Le iscrizioni salvate restano solo in questo browser (al massimo 30 giorni) finché non le invia."
+  "cartNote": "Le iscrizioni salvate restano solo in questo browser (al massimo 30 giorni) finché non le invia.",
+  "titleNone": "nessun titolo",
+  "titleOther": "altro – lo scrivo",
+  "titleOtherLabel": "Il suo titolo"
  },
  "nav": [
   "ucast",
@@ -437,7 +440,7 @@
   "subsidy": "Come pagherà il pellegrinaggio?",
   "subsidy_hint": "Non vogliamo che nessuno rinunci al pellegrinaggio per motivi economici. La Fondazione Lourdes può contribuire alle spese. La risposta la vedono solo gli organizzatori e non influisce sull’iscrizione.",
   "title": "Titolo (prima del nome)",
-  "title_hint": "Scelga dall’elenco o scriva il suo (ad es. P. per un sacerdote, S. per una suora).",
+  "title_hint": "Scelga dall’elenco (ad es. P. per un sacerdote, S. per una suora). Se il suo non c’è, scelga «altro» e lo scriva.",
   "role": "È…",
   "role_hint": "Selezioni tutto ciò che vale."
  },

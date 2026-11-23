@@ -150,7 +150,10 @@
   "cartSend": "Odeslat všechny ({n})",
   "cartSending": "Odesílám {i} z {n}…",
   "cartError": "Přihlášku „{name}“ se nepodařilo odeslat. Zkuste to prosím znovu.",
-  "cartNote": "Uložené přihlášky zůstávají jen v tomto prohlížeči (nejdéle 30 dní), dokud je neodešlete."
+  "cartNote": "Uložené přihlášky zůstávají jen v tomto prohlížeči (nejdéle 30 dní), dokud je neodešlete.",
+  "titleNone": "bez titulu",
+  "titleOther": "jiný – napíšu sám",
+  "titleOtherLabel": "Váš titul"
  },
  "nav": [
   "ucast",
@@ -437,7 +440,7 @@
   "subsidy": "Jak budete cenu pouti hradit?",
   "subsidy_hint": "Nechceme, aby se kdokoli pouti vzdal z finančních důvodů. Nadační fond Lourdes může na cestu přispět. Odpověď vidí jen organizátoři a na přijetí přihlášky nemá vliv.",
   "title": "Titul před jménem",
-  "title_hint": "Vyberte ze seznamu, nebo napište vlastní (např. P. pro kněze, S. pro řeholní sestru).",
+  "title_hint": "Vyberte ze seznamu (např. P. pro kněze, S. pro řeholní sestru). Pokud tam váš titul není, zvolte „jiný“ a napište ho.",
   "role": "Jste…",
   "role_hint": "Zaškrtněte, co platí."
  },

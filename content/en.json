@@ -150,7 +150,10 @@
   "cartSend": "Send all ({n})",
   "cartSending": "Sending {i} of {n}…",
   "cartError": "“{name}” could not be sent. Please try again.",
-  "cartNote": "Saved applications stay only in this browser (up to 30 days) until you send them."
+  "cartNote": "Saved applications stay only in this browser (up to 30 days) until you send them.",
+  "titleNone": "no title",
+  "titleOther": "other – I’ll type it",
+  "titleOtherLabel": "Your title"
  },
  "nav": [
   "ucast",
@@ -437,7 +440,7 @@
   "subsidy": "How will you pay for the pilgrimage?",
   "subsidy_hint": "We do not want anyone to give up the pilgrimage for financial reasons. The Lourdes Foundation can contribute to the cost. Only the organisers see your answer, and it has no effect on your application.",
   "title": "Title (before your name)",
-  "title_hint": "Choose from the list or type your own (e.g. P. for a priest, S. for a religious sister).",
+  "title_hint": "Choose from the list (e.g. P. for a priest, S. for a religious sister). If yours is not there, choose “other” and type it.",
   "role": "Are you…",
   "role_hint": "Tick all that apply."
  },

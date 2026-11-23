@@ -126,6 +126,10 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   assert.equal(notice.subject, "Nová přihláška: Jan <b> Novák</b> (Přihláška – nemocní)");
   assert.ok(notice.html.includes("Jan &lt;b&gt; Novák&lt;/b&gt;") && notice.html.includes("https://lurdy.vercel.app/#/prihlasky"), "escaped, with the admin link");
   for (const word of ["fiktivní", "MUDr", "777", "Praha", "jan@example.com"]) assert.ok(!notice.html.includes(word) && !notice.text.includes(word), `the notice carries no ${word}`);
+  intakes.length = 0;
+  assert.equal((await call({ ...sick, title: "_other", title_other: "ThMgr." })).status, 303, "a written-in title");
+  assert.equal(intakes[0].body.title, "ThMgr.", "'other' takes the written-in title");
+  assert.equal((await call({ ...sick, title: "_other", title_other: "x".repeat(41) })).status, 400, "written-in title length");
   intakeOk = false;
   sent.length = 0;
   assert.equal((await call(sick)).status, 303, "the platform being down does not fail the applicant");

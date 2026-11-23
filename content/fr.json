@@ -150,7 +150,10 @@
   "cartSend": "Tout envoyer ({n})",
   "cartSending": "Envoi {i} sur {n}…",
   "cartError": "L’inscription « {name} » n’a pas pu être envoyée. Veuillez réessayer.",
-  "cartNote": "Les inscriptions enregistrées restent uniquement dans ce navigateur (30 jours au plus) jusqu’à leur envoi."
+  "cartNote": "Les inscriptions enregistrées restent uniquement dans ce navigateur (30 jours au plus) jusqu’à leur envoi.",
+  "titleNone": "sans titre",
+  "titleOther": "autre – je l’écris",
+  "titleOtherLabel": "Votre titre"
  },
  "nav": [
   "ucast",
@@ -437,7 +440,7 @@
   "subsidy": "Comment réglerez-vous le prix du pèlerinage ?",
   "subsidy_hint": "Nous ne voulons pas que quiconque renonce au pèlerinage pour des raisons financières. La Fondation Lourdes peut participer aux frais. Seuls les organisateurs voient votre réponse, et elle n’a aucun effet sur votre inscription.",
   "title": "Titre (avant le nom)",
-  "title_hint": "Choisissez dans la liste ou écrivez le vôtre (p. ex. P. pour un prêtre, S. pour une religieuse).",
+  "title_hint": "Choisissez dans la liste (p. ex. P. pour un prêtre, S. pour une religieuse). Si le vôtre n’y est pas, choisissez « autre » et écrivez-le.",
   "role": "Êtes-vous…",
   "role_hint": "Cochez tout ce qui s’applique."
  },

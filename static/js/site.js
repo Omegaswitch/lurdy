@@ -277,6 +277,19 @@
   }
   cartRender();
 
+  // a drop-down with "other" shows its write-in box only when "other" is chosen
+  function syncOther(sel) {
+    var box = document.getElementById(sel.getAttribute("data-other"));
+    if (!box) return;
+    var on = sel.value === "_other";
+    box.hidden = !on; box.required = on;
+    if (!on) box.value = "";
+  }
+  document.querySelectorAll("select[data-other]").forEach(function (sel) {
+    syncOther(sel);
+    sel.addEventListener("change", function () { syncOther(sel); if (sel.value === "_other") document.getElementById(sel.getAttribute("data-other")).focus(); });
+  });
+
   document.querySelectorAll("form.apply").forEach(function (f) {
     var b = f.querySelector("button[type=submit]");
     var input = f.querySelector("input[type=file]");
@@ -337,6 +350,11 @@
         if (el.type === "checkbox" || el.type === "radio") el.checked = [].concat(x).indexOf(el.value) >= 0;
         else if (el.type !== "file") el.value = x;
       });
+      f.querySelectorAll("select[data-other]").forEach(function (sel) {
+        var keep = vals[sel.getAttribute("name") + "_other"];
+        syncOther(sel);
+        if (keep && sel.value === "_other") document.getElementById(sel.getAttribute("data-other")).value = keep;
+      });
     }
     function save() {
       var v = collect();
@@ -359,6 +377,7 @@
       try { sent = sessionStorage.getItem("sent:" + KEY); sessionStorage.removeItem("sent:" + KEY); } catch (e) {}
       if (sent) { f.reset(); chosen = []; render(); if (note) note.hidden = true; }
     });
+    f.addEventListener("reset", function () { setTimeout(function () { f.querySelectorAll("select[data-other]").forEach(syncOther); }); });
     var clear = f.querySelector("[data-clear]");
     if (clear) clear.addEventListener("click", function () {
       store(null); f.reset(); chosen = []; render(); say(""); note.hidden = true;

@@ -173,6 +173,8 @@ module.exports = async (req, res) => {
   if (opens && new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Prague" }) < opens) return fail(res, lang, form, 403);
   const done = () => { res.statusCode = 303; res.setHeader("Location", TEXT[lang].pages.odeslano.url); res.end(); };
   if (body.web) return done();  // honeypot: bots fill every field; pretend it worked
+  // a drop-down with "other": the written-in value stands in for it (the title)
+  for (const f of FORMS[form]) if (f.list && body[f.k] === "_other") body[f.k] = typeof body[`${f.k}_other`] === "string" ? body[`${f.k}_other`] : "";
   const rows = clean(FORMS[form].filter((f) => f.t !== "file"), body);
   const attached = await attachments(files);
   if (!rows || !attached || body.declaration !== "yes" || body.consent !== "yes") return fail(res, lang, form, 400);

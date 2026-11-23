@@ -326,9 +326,12 @@ def field_html(f, lang, form):
         extra = ' inputmode="numeric" min="0" max="300"' if typ == "number" else f' maxlength="{f.get("max", 200)}"'
         if f.get("pat"): extra += f' pattern="{esc(f["pat"])}"'
         control = f'<input id="{fid}" name="{k}" type="{typ}"{extra}{ac}{r}{described}>'
-        if f.get("list"):  # suggestions to pick from, or anything written in
-            opts = "".join(f'<option value="{esc(o)}">' for o in f["list"])
-            control = f'<input id="{fid}" name="{k}" type="{typ}" list="{fid}-l"{extra}{ac}{r}{described}><datalist id="{fid}-l">{opts}</datalist>'
+        if f.get("list"):  # a drop-down like the date ones; "other" opens a box to write one in (site.js; without it the box shows)
+            u = t["ui"]
+            opts = (f'<option value="">{esc(u["titleNone"])}</option>' + "".join(f'<option value="{esc(o)}">{esc(o)}</option>' for o in f["list"])
+                    + f'<option value="_other">{esc(u["titleOther"])}</option>')
+            control = (f'<select id="{fid}" name="{k}" data-other="{fid}-o"{r}{described}>{opts}</select>'
+                       f'<input id="{fid}-o" class="other-input" name="{k}_other" type="text" maxlength="{f.get("max", 200)}" aria-label="{esc(u["titleOtherLabel"])}" placeholder="{esc(u["titleOtherLabel"])}">')
     # the hint goes under the box, so boxes side by side line up whatever the hints are
     return f'<div class="field{" field--wide" if typ == "area" or f.get("w") else ""}"><label for="{fid}">{label}</label>{control}{hint_html}</div>'
 

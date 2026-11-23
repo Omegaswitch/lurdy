@@ -150,7 +150,10 @@
   "cartSend": "Alle absenden ({n})",
   "cartSending": "Sende {i} von {n} …",
   "cartError": "„{name}“ konnte nicht gesendet werden. Bitte versuchen Sie es erneut.",
-  "cartNote": "Gespeicherte Anmeldungen bleiben nur in diesem Browser (höchstens 30 Tage), bis Sie sie absenden."
+  "cartNote": "Gespeicherte Anmeldungen bleiben nur in diesem Browser (höchstens 30 Tage), bis Sie sie absenden.",
+  "titleNone": "kein Titel",
+  "titleOther": "anderer – ich schreibe ihn",
+  "titleOtherLabel": "Ihr Titel"
  },
  "nav": [
   "ucast",
@@ -437,7 +440,7 @@
   "subsidy": "Wie werden Sie die Wallfahrt bezahlen?",
   "subsidy_hint": "Niemand soll aus finanziellen Gründen auf die Wallfahrt verzichten. Der Stiftungsfonds Lourdes kann zu den Kosten beitragen. Ihre Antwort sehen nur die Organisatoren, und sie hat keinen Einfluss auf Ihre Anmeldung.",
   "title": "Titel (vor dem Namen)",
-  "title_hint": "Wählen Sie aus der Liste oder schreiben Sie Ihren eigenen (z. B. P. für Priester, S. für Ordensschwestern).",
+  "title_hint": "Wählen Sie aus der Liste (z. B. P. für Priester, S. für Ordensschwestern). Steht Ihr Titel nicht dabei, wählen Sie „anderer“ und schreiben Sie ihn.",
   "role": "Sind Sie …",
   "role_hint": "Kreuzen Sie alles Zutreffende an."
  },
