@@ -3,7 +3,8 @@
  *
  * Lives in the registration list's own Apps Script project ("Lourdes 2027"), as a second file next to the
  * organisers' mail script (which it never touches). The website (api/prihlaska.js) POSTs every application here:
- *   1. a new line in the tab "Participants" (the first empty one; the sheet keeps its own VarSym), ON THE WAITING
+ *   1. a new line in the tab "Participants" (only: name, type, waiting, nurse / doctor / priest / SMOM, e-mail,
+ *      address, phone, travels together, passport, M / F, birth year, previous, registration, link to the folder) (the first empty one; the sheet keeps its own VarSym), ON THE WAITING
  *      LIST, so the mail script sends nothing but the waiting-list letter until an organiser unticks "Waiting".
  *      Columns are found by their header (row 8), not by position.
  *   2. a Google Drive folder for the person, next to this spreadsheet:
@@ -146,7 +147,11 @@ function addToRegister(book, data, folderUrl) {
     sheet.getRange(row, nameCol + 2).setValue(safe(surname));
     put('Type', { nemocni: 'M', poutnici: 'P', tym: 'T' }[data.form] || '');
     put('Waiting', true);
-    put('Stays', data.form === 'nemocni' ? (code('stay') === 'stay_hotel' ? 'H' : 'A') : 'H');
+    var roles = (by.role && by.role.codes) || [];
+    if (roles.indexOf('role_nurse') >= 0) put('Nurse', true);
+    if (roles.indexOf('role_doctor') >= 0) put('Doctor', true);
+    if (roles.indexOf('role_priest') >= 0) put('Priest', true);
+    if (roles.indexOf('role_smom') >= 0) put('SMOM', true);
     put('E-Mail', email);
     put('Address', v('address'));
     put('Telephone', v('telefon') || v('mobile') || v('phone'));
@@ -156,6 +161,10 @@ function addToRegister(book, data, folderUrl) {
     put('Y', birth ? Number(birth[1]) : '');
     put('Previous', times ? Number(times[1]) : '');
     put('Registration', new Date());
+    sheet.getRange(row, col('Registration') + 1).setNumberFormat('d.m.');  // as the rows typed by hand
+    // the person's Drive folder, one click away (column "Přílohy", right after Registration)
+    if (folderUrl && header.indexOf('Přílohy') >= 0)
+      sheet.getRange(row, col('Přílohy') + 1).setRichTextValue(SpreadsheetApp.newRichTextValue().setText('složka').setLinkUrl(folderUrl).build());
     var note = 'Přihláška z webu ' + data.submitted + (code('subsidy') === 'sub_ask' ? '\nŽádá o příspěvek na pouť' : '') +
       (folderUrl ? '\nPřihláška a přílohy: ' + folderUrl : '');
     sheet.getRange(row, nameCol + 1).setNote(note);
@@ -217,7 +226,7 @@ function testSetup() {
   if (!tab) Logger.log('Register: tab "%s" MISSING', REGISTER_TAB);
   else {
     var header = tab.getRange(REGISTER_HEADER_ROW, 1, 1, tab.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
-    var missing = ['Name', 'Type', 'Waiting', 'Cancel', 'Stays', 'E-Mail', 'Address', 'Telephone', 'Travels together', 'Passport number', 'M / F', 'Y', 'Previous', 'Registration']
+    var missing = ['Name', 'Type', 'Waiting', 'Cancel', 'Nurse', 'Doctor', 'Priest', 'SMOM', 'Přílohy', 'E-Mail', 'Address', 'Telephone', 'Travels together', 'Passport number', 'M / F', 'Y', 'Previous', 'Registration']
       .filter(function (n) { return header.indexOf(n) < 0; });
     Logger.log('Register "%s": %s', tab.getParent().getName(), missing.length ? 'columns MISSING: ' + missing.join(', ') : 'all columns found');
   }

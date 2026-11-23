@@ -491,6 +491,16 @@
    "t": "text"
   },
   {
+   "k": "role",
+   "t": "check",
+   "o": [
+    "role_nurse",
+    "role_doctor",
+    "role_priest",
+    "role_smom"
+   ]
+  },
+  {
    "g": "relative"
   },
   {
@@ -656,6 +666,16 @@
   {
    "k": "times",
    "t": "text"
+  },
+  {
+   "k": "role",
+   "t": "check",
+   "o": [
+    "role_nurse",
+    "role_doctor",
+    "role_priest",
+    "role_smom"
+   ]
   },
   {
    "g": "health"
