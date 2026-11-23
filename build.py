@@ -132,7 +132,8 @@ def nav_html(lang, key):
             items = "".join(f'<li><a href="{url_of(c, lang)}">{esc(t["pages"][c]["title"])}</a></li>' for c in CHILDREN[k])
             sub = (f'<button class="sub-toggle" type="button" aria-expanded="false" aria-label="{esc(p["title"])}: {esc(t["ui"]["morePages"])}">'
                    f'<span aria-hidden="true"></span></button><ul class="sub">{items}</ul>')
-        lis.append(f'<li class="{"has-sub" if sub else ""}"><a href="{p["url"]}"{cur}>{esc(t["ui"]["home"] if k == "home" else p["title"])}</a>{sub}</li>')
+        cls = " ".join(c for c in ("has-sub" if sub else "", "nav-apply" if k == "prihlasky" else "") if c)  # Přihlášky stands out in red
+        lis.append(f'<li class="{cls}"><a href="{p["url"]}"{cur}>{esc(t["ui"]["home"] if k == "home" else p["title"])}</a>{sub}</li>')
     return f'<ul class="nav-list">{"".join(lis)}</ul>'
 
 
@@ -213,7 +214,7 @@ def layout(*, lang, key, title, body, description="", image="/media/lurdy-1600.w
  </div></div>
  <nav class="mainnav" aria-label="{esc(u['menu'])}"><div class="wrap">
   <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu">{esc(u['menu'])}</button>
-  <a class="nav-cta" href="{url_of('prihlasky', lang)}">{esc(u['applyNow'])}</a>
+  <a class="nav-cta" href="{url_of('prihlasky', lang)}">{esc(L[lang]['pages']['prihlasky']['title'])}</a>
   <div id="menu" class="menu">{nav_html(lang, key)}</div>
  </div></nav>
 </header>
@@ -417,8 +418,15 @@ def render_section(key, lang):
     if key == "ucast":
         inner += f'<h2>{esc(t["ui"]["contactTitle"])}</h2>' + contact_card(lang)
     if key == "prihlasky":
-        inner = f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>' + inner + '<ul class="index-list">' + "".join(
-            f'<li><a href="{url_of(k, lang)}"><b>{esc(t["pages"][k]["title"])}</b><span>{esc(t["pages"][k]["lead"])}</span></a></li>' for k in CHILDREN["prihlasky"]) + "</ul>"
+        # the forms first, as cards (a form not open yet says from when; site.js drops that tag on the day)
+        today = datetime.now().date().isoformat()
+        def card(k):
+            opens = SITE.get("opensOn", {}).get(k)
+            tag = (f'<em class="card-tag" data-closed-until="{opens}">{esc(fill(t["ui"]["opensFrom"], date=day(opens, lang)))}</em>'
+                   if opens and opens > today else "")
+            return f'<li><a href="{url_of(k, lang)}"><b>{esc(t["pages"][k]["title"])}</b>{tag}<span>{esc(t["pages"][k]["lead"])}</span></a></li>'
+        inner = (f'<p class="notice{" is-open" if SITE["registrationOpen"] else ""}">{reg_html(lang)}</p>'
+                 f'<ul class="form-cards">{"".join(card(k) for k in CHILDREN["prihlasky"])}</ul>' + inner)
     return page(key, lang, inner)
 
 

@@ -129,8 +129,12 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .mainnav{background:var(--ink)}
 .mainnav .wrap{display:flex;align-items:stretch}
 .menu{flex:1 1 auto;min-width:0}
-/* "Přihlásit se": always in the menu bar, which stays at the top while scrolling */
-.nav-cta{order:2;flex:none;display:flex;align-items:center;padding:0 var(--s5);background:var(--red);color:#fff;font:600 .8rem var(--ui);letter-spacing:.07em;text-transform:uppercase;text-decoration:none;transition:background var(--fast) var(--ease)}
+/* Přihlášky in red, in the menu bar that stays at the top while scrolling; on phones a copy sits next to MENU
+   (hidden while the menu is open, so it is never there twice) */
+.nav-list>li.nav-apply>a{background:var(--red);font-weight:600}
+.nav-list>li.nav-apply>a:hover,.nav-list>li.nav-apply:focus-within>a{background:#c40f0d}
+.nav-list>li.nav-apply>a[aria-current],.nav-list>li.nav-apply>a.is-active,.nav-list>li.nav-apply.is-active>a{background:#b00d0b;box-shadow:inset 0 -3px 0 #fff}
+.nav-cta{display:none;order:2;flex:none;align-items:center;align-items:center;padding:0 var(--s5);background:var(--red);color:#fff;font:600 .8rem var(--ui);letter-spacing:.07em;text-transform:uppercase;text-decoration:none;transition:background var(--fast) var(--ease)}
 .nav-cta:hover{background:#c40f0d;color:#fff}
 /* the three forms, straight from the home page */
 .next-forms{list-style:none;margin:var(--s2) 0 0;padding:0;display:grid;gap:var(--s2)}
@@ -172,7 +176,8 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
   .banner-home{top:16px}
   .mainnav .wrap{padding-left:0;padding-right:0;flex-wrap:wrap}
   .menu-toggle{flex:1 1 auto;width:auto!important}
-  .nav-cta{order:0;padding:0 max(var(--gutter),env(safe-area-inset-right,0px))}
+  .nav-cta{display:flex;order:0;padding:0 max(var(--gutter),env(safe-area-inset-right,0px))}
+  .menu-toggle[aria-expanded="true"]~.nav-cta{display:none}
   .menu{order:3;flex:1 1 100%}
   .mainnav{border-top:1px solid rgba(255,255,255,.12)}
   .menu-toggle{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 max(var(--gutter),env(safe-area-inset-left,0px));background:none;border:0;color:#fff;font:600 .85rem var(--ui);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
@@ -263,6 +268,16 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .index-list b{font:500 1.3rem/1.25 var(--display);color:var(--ink-strong)}
 .index-list a:hover b{color:var(--red-text)}
 .index-list span{font-size:.94rem;color:var(--muted)}
+/* Přihlášky: the forms as cards, before the text */
+.form-cards{list-style:none;margin:0 0 var(--s7);padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s4)}
+.form-cards a{position:relative;display:flex;flex-direction:column;gap:var(--s2);height:100%;padding:var(--s5) var(--s5) calc(var(--s5) + 28px);background:#fff;border:1px solid var(--rule);border-top:4px solid var(--red);text-decoration:none;color:var(--ink);transition:box-shadow var(--med) var(--ease),transform var(--med) var(--ease)}
+.form-cards a::after{content:"→";position:absolute;left:var(--s5);bottom:var(--s4);font-size:1.3rem;color:var(--red);transition:transform var(--med) var(--ease)}
+.form-cards a:hover{box-shadow:0 12px 30px rgba(0,0,0,.12);transform:translateY(-2px)}
+.form-cards a:hover::after{transform:translateX(6px)}
+.form-cards b{font:500 1.3rem/1.25 var(--display);color:var(--ink-strong)}
+.form-cards span{font-size:.94rem;color:var(--muted)}
+.card-tag{align-self:flex-start;font-style:normal;font-size:.78rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--red-text);background:#fdeceb;padding:2px 8px;border-radius:2px}
+@media (max-width:760px){.form-cards{grid-template-columns:1fr}}
 
 .side-nav{position:sticky;top:var(--s5);border-top:3px solid var(--red);padding-top:var(--s3);font-size:.94rem}
 .side-nav .label a{color:var(--muted);text-decoration:none}
