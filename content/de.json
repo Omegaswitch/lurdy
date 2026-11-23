@@ -130,7 +130,8 @@
   "subsidyChoose": "Bitte wählen Sie eine Möglichkeit.",
   "notesTitle": "Bevor Sie beginnen",
   "opensLater": "Die Anmeldung öffnet Mitte Januar, am {date}. Bis dahin ist keine Anmeldung möglich – bitte schauen Sie dann wieder vorbei.",
-  "regPartly": "Die Anmeldung für das Team ist offen; Kranke und Pilger können sich ab dem {date} anmelden."
+  "regPartly": "Die Anmeldung für das Team ist offen; Kranke und Pilger können sich ab dem {date} anmelden.",
+  "applyNow": "Anmelden"
  },
  "nav": [
   "ucast",

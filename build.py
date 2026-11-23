@@ -213,6 +213,7 @@ def layout(*, lang, key, title, body, description="", image="/media/lurdy-1600.w
  </div></div>
  <nav class="mainnav" aria-label="{esc(u['menu'])}"><div class="wrap">
   <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu">{esc(u['menu'])}</button>
+  <a class="nav-cta" href="{url_of('prihlasky', lang)}">{esc(u['applyNow'])}</a>
   <div id="menu" class="menu">{nav_html(lang, key)}</div>
  </div></nav>
 </header>
@@ -375,7 +376,8 @@ def render_home(lang):
    <h2 id="next-title" class="display-s">{esc(fill(u['nextTitle'], year=year))}</h2>
    <p class="next-dates"><time datetime="{p['start']}">{esc(fill(u['nextDates'], n=p['number'], dates=date_span(p['start'], p['end'], lang)))}</time></p>
    <p class="next-reg{' is-open' if s['registrationOpen'] else ''}">{reg_html(lang)}</p>
-   <p class="next-links"><a class="btn" href="{url_of('prihlasky', lang)}">{esc(u['apply'])}</a> <a class="link-strong" href="{url_of('ucast', lang)}">{esc(u['howTo'])}</a></p>
+   <ul class="next-forms">{"".join(f'<li><a href="{url_of(k, lang)}">{esc(t["pages"][k]["title"])}</a></li>' for k in CHILDREN["prihlasky"] if k in FORMS)}</ul>
+   <p class="next-links"><a class="link-strong" href="{url_of('ucast', lang)}">{esc(u['howTo'])}</a></p>
   </div>
  </div>
 </section>

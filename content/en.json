@@ -130,7 +130,8 @@
   "subsidyChoose": "Please choose one option.",
   "notesTitle": "Before you start",
   "opensLater": "Applications open in mid-January, on {date}. Until then it is not possible to apply – please come back then.",
-  "regPartly": "Team applications are open; sick pilgrims and pilgrims can apply from {date}."
+  "regPartly": "Team applications are open; sick pilgrims and pilgrims can apply from {date}.",
+  "applyNow": "Apply"
  },
  "nav": [
   "ucast",

@@ -127,6 +127,16 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .fullname{color:#fff;text-align:right;font:600 clamp(.74rem,1.2vw,1rem)/1.32 var(--ui);letter-spacing:.035em;text-transform:uppercase;max-width:31em;text-shadow:0 1px 2px rgba(0,0,0,.45),0 0 14px rgba(14,28,46,.5)}
 .fullname span{display:block;margin-top:5px;font-size:.86em;letter-spacing:.09em}
 .mainnav{background:var(--ink)}
+.mainnav .wrap{display:flex;align-items:stretch}
+.menu{flex:1 1 auto;min-width:0}
+/* "Přihlásit se": always in the menu bar, which stays at the top while scrolling */
+.nav-cta{order:2;flex:none;display:flex;align-items:center;padding:0 var(--s5);background:var(--red);color:#fff;font:600 .8rem var(--ui);letter-spacing:.07em;text-transform:uppercase;text-decoration:none;transition:background var(--fast) var(--ease)}
+.nav-cta:hover{background:#c40f0d;color:#fff}
+/* the three forms, straight from the home page */
+.next-forms{list-style:none;margin:var(--s2) 0 0;padding:0;display:grid;gap:var(--s2)}
+.next-forms a{display:flex;justify-content:space-between;align-items:center;gap:var(--s3);padding:10px 14px;background:var(--red);color:#fff;font-weight:600;text-decoration:none;border-radius:2px;transition:background var(--fast) var(--ease)}
+.next-forms a::after{content:"→"}
+.next-forms a:hover{background:#c40f0d;color:#fff}
 .menu-toggle{display:none}
 .nav-list{list-style:none;margin:0;padding:0;display:flex}
 .nav-list>li{position:relative;flex:1 1 auto}
@@ -160,7 +170,10 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
   .fullname{text-align:left;font-size:.72rem}
   .banner{--shield:60px}
   .banner-home{top:16px}
-  .mainnav .wrap{padding-left:0;padding-right:0}
+  .mainnav .wrap{padding-left:0;padding-right:0;flex-wrap:wrap}
+  .menu-toggle{flex:1 1 auto;width:auto!important}
+  .nav-cta{order:0;padding:0 max(var(--gutter),env(safe-area-inset-right,0px))}
+  .menu{order:3;flex:1 1 100%}
   .mainnav{border-top:1px solid rgba(255,255,255,.12)}
   .menu-toggle{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:0 max(var(--gutter),env(safe-area-inset-left,0px));background:none;border:0;color:#fff;font:600 .85rem var(--ui);letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
   .menu-toggle::before{content:"";width:18px;height:12px;background:linear-gradient(#fff,#fff) 0 0/100% 2px no-repeat,linear-gradient(#fff,#fff) 0 50%/100% 2px no-repeat,linear-gradient(#fff,#fff) 0 100%/100% 2px no-repeat;transition:transform var(--med) var(--ease)}

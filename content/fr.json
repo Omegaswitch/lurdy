@@ -130,7 +130,8 @@
   "subsidyChoose": "Veuillez choisir une option.",
   "notesTitle": "Avant de commencer",
   "opensLater": "Les inscriptions ouvriront mi-janvier, le {date}. D’ici là, il n’est pas possible de s’inscrire – revenez nous voir à cette date.",
-  "regPartly": "Les inscriptions de l’équipe sont ouvertes ; les malades et les pèlerins pourront s’inscrire à partir du {date}."
+  "regPartly": "Les inscriptions de l’équipe sont ouvertes ; les malades et les pèlerins pourront s’inscrire à partir du {date}.",
+  "applyNow": "S’inscrire"
  },
  "nav": [
   "ucast",
