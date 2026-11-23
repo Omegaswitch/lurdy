@@ -144,7 +144,10 @@ function addToRegister(book, data, folderUrl) {
     var birth = v('birth').match(/(\d{4})$/), times = v('times').match(/^\s*(\d{1,2})\s*$/);
     var put = function (name, value) { if (value !== '' && value != null) sheet.getRange(row, col(name) + 1).setValue(typeof value === 'string' ? safe(value) : value); };
     put('Name', first);
-    sheet.getRange(row, nameCol + 2).setValue(safe(surname));
+    // the surname links to the person's folder (the text stays as it is, so the mail script reads it as before)
+    var surnameCell = sheet.getRange(row, nameCol + 2);
+    if (folderUrl) surnameCell.setRichTextValue(SpreadsheetApp.newRichTextValue().setText(surname).setLinkUrl(folderUrl).build());
+    else surnameCell.setValue(safe(surname));
     put('Type', { nemocni: 'M', poutnici: 'P', tym: 'T' }[data.form] || '');
     put('Waiting', true);
     var roles = (by.role && by.role.codes) || [];
@@ -162,7 +165,7 @@ function addToRegister(book, data, folderUrl) {
     put('Previous', times ? Number(times[1]) : '');
     put('Registration', new Date());
     sheet.getRange(row, col('Registration') + 1).setNumberFormat('d.m.');  // as the rows typed by hand
-    // the person's Drive folder, one click away (column "Přílohy", right after Registration)
+    // and in the column "Přílohy", if the sheet has one
     if (folderUrl && header.indexOf('Přílohy') >= 0)
       sheet.getRange(row, col('Přílohy') + 1).setRichTextValue(SpreadsheetApp.newRichTextValue().setText('složka').setLinkUrl(folderUrl).build());
     var note = 'Přihláška z webu ' + data.submitted + (code('subsidy') === 'sub_ask' ? '\nŽádá o příspěvek na pouť' : '') +
@@ -226,7 +229,7 @@ function testSetup() {
   if (!tab) Logger.log('Register: tab "%s" MISSING', REGISTER_TAB);
   else {
     var header = tab.getRange(REGISTER_HEADER_ROW, 1, 1, tab.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
-    var missing = ['Name', 'Type', 'Waiting', 'Cancel', 'Nurse', 'Doctor', 'Priest', 'SMOM', 'Přílohy', 'E-Mail', 'Address', 'Telephone', 'Travels together', 'Passport number', 'M / F', 'Y', 'Previous', 'Registration']
+    var missing = ['Name', 'Type', 'Waiting', 'Cancel', 'Nurse', 'Doctor', 'Priest', 'SMOM', 'E-Mail', 'Address', 'Telephone', 'Travels together', 'Passport number', 'M / F', 'Y', 'Previous', 'Registration']
       .filter(function (n) { return header.indexOf(n) < 0; });
     Logger.log('Register "%s": %s', tab.getParent().getName(), missing.length ? 'columns MISSING: ' + missing.join(', ') : 'all columns found');
   }
