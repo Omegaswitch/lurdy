@@ -1,5 +1,5 @@
 // Online application for the pilgrimage: validates the form against content/forms.json and emails it
-// to the organisers through Resend; the applicant gets a confirmation in their language (no application data in it).
+// to the organisers through Resend (optional: without RESEND_API_KEY only the Google Sheet feed below keeps it); the applicant gets a confirmation in their language (no application data in it).
 // Env: RESEND_API_KEY, MAIL_TO, MAIL_FROM, LURDY_ADMIN_URL (default https://lurdy.vercel.app).
 // With LURDY_INTAKE_URL + LURDY_INTAKE_SECRET set, the identity, contact and emergency-contact fields also go to the
 // management platform (admin → Přihlášky); health answers and attachments never do. The platform
@@ -208,12 +208,15 @@ module.exports = async (req, res) => {
       (filed ? MAIL.button(`${ADMIN_URL}/#/prihlasky`, "Otevřít Přihlášky") : ""),
     footer: esc(stamp) });
 
+  // E-mail is optional (no RESEND_API_KEY: the Google Sheet and Drive are the record). The applicant sees an error
+  // only when the application was saved nowhere.
+  if (!process.env.RESEND_API_KEY) return sheet ? done() : fail(res, lang, form, 502);
   try {
     await send({ to: [process.env.MAIL_TO || SITE.contact.email], reply_to: email, subject: title, html, text,
       attachments: [MAIL.logo("cs"), ...attached] });
   } catch (e) {
     console.error(e.message);
-    return fail(res, lang, form, 502);
+    if (!sheet) return fail(res, lang, form, 502);
   }
   const later = [];
   // the people chosen in the admin (Přihlášky → Upozornění) get a short notice: who and which form, nothing else

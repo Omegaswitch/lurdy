@@ -154,6 +154,14 @@ const good = { form: "poutnici", lang: "en", name: "Jan <b>Novák</b>", birth_d:
   sheetOk = false; sent.length = 0;
   assert.equal((await call(sick)).status, 303, "the sheet being down does not fail the applicant");
   assert.ok(sent[0].text.includes("NEZAPSÁNO do Google tabulky"));
+  // no e-mail service: the sheet alone keeps it; nothing saved anywhere is an error for the applicant
+  delete process.env.RESEND_API_KEY;
+  sheetOk = true; sent.length = 0;
+  assert.equal((await call(sick)).status, 303, "without Resend the sheet is enough");
+  assert.equal(sent.length, 0, "no e-mail without Resend");
+  sheetOk = false;
+  assert.equal((await call(sick)).status, 502, "saved nowhere: the applicant is told");
+  process.env.RESEND_API_KEY = "test";
   delete process.env.GOOGLE_SHEETS_URL;
   intakes.length = 0;
   sent.length = 0;
