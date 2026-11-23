@@ -153,7 +153,13 @@
   "cartNote": "Le iscrizioni salvate restano solo in questo browser (al massimo 30 giorni) finché non le invia.",
   "titleNone": "nessun titolo",
   "titleOther": "altro – lo scrivo",
-  "titleOtherLabel": "Il suo titolo"
+  "titleOtherLabel": "Il suo titolo",
+  "errSummary": "Corregga per favore quanto segue:",
+  "errRequired": "Compili questo campo.",
+  "errChoose": "Scelga una delle opzioni.",
+  "errEmail": "Inserisca un’e-mail del tipo nome@esempio.it.",
+  "errFormat": "Inserisca il dato nel formato corretto.",
+  "errConsent": "Senza questo consenso l’iscrizione non può essere inviata."
  },
  "nav": [
   "ucast",

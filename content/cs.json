@@ -153,7 +153,13 @@
   "cartNote": "Uložené přihlášky zůstávají jen v tomto prohlížeči (nejdéle 30 dní), dokud je neodešlete.",
   "titleNone": "bez titulu",
   "titleOther": "jiný – napíšu sám",
-  "titleOtherLabel": "Váš titul"
+  "titleOtherLabel": "Váš titul",
+  "errSummary": "Opravte prosím tyto údaje:",
+  "errRequired": "Vyplňte prosím toto pole.",
+  "errChoose": "Vyberte prosím jednu možnost.",
+  "errEmail": "Zadejte e-mail ve tvaru jmeno@example.cz.",
+  "errFormat": "Zadejte údaj ve správném tvaru.",
+  "errConsent": "Bez tohoto souhlasu nelze přihlášku odeslat."
  },
  "nav": [
   "ucast",

@@ -153,7 +153,13 @@
   "cartNote": "Saved applications stay only in this browser (up to 30 days) until you send them.",
   "titleNone": "no title",
   "titleOther": "other – I’ll type it",
-  "titleOtherLabel": "Your title"
+  "titleOtherLabel": "Your title",
+  "errSummary": "Please correct the following:",
+  "errRequired": "Please fill in this field.",
+  "errChoose": "Please choose one option.",
+  "errEmail": "Enter an e-mail address like name@example.com.",
+  "errFormat": "Enter this in the correct format.",
+  "errConsent": "The application cannot be sent without this consent."
  },
  "nav": [
   "ucast",

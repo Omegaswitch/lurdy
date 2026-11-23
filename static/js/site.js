@@ -278,16 +278,23 @@
   cartRender();
 
   // a drop-down with "other" shows its write-in box only when "other" is chosen
+  // "jiný": the drop-down itself turns into a text field in the same place; emptied, it turns back
   function syncOther(sel) {
     var box = document.getElementById(sel.getAttribute("data-other"));
     if (!box) return;
     var on = sel.value === "_other";
-    box.hidden = !on; box.required = on;
+    box.hidden = !on; sel.hidden = on; box.required = on;
     if (!on) box.value = "";
   }
   document.querySelectorAll("select[data-other]").forEach(function (sel) {
+    var box = document.getElementById(sel.getAttribute("data-other"));
+    if (!box) return;
+    box.setAttribute("aria-label", (document.querySelector('label[for="' + sel.id + '"]') || {}).textContent || box.getAttribute("aria-label"));
     syncOther(sel);
-    sel.addEventListener("change", function () { syncOther(sel); if (sel.value === "_other") document.getElementById(sel.getAttribute("data-other")).focus(); });
+    sel.addEventListener("change", function () { syncOther(sel); if (sel.value === "_other") box.focus(); });
+    var back = function () { sel.value = ""; syncOther(sel); sel.focus(); };
+    box.addEventListener("blur", function () { if (!box.value.trim()) back(); });
+    box.addEventListener("keydown", function (e) { if (e.key === "Escape") back(); });
   });
 
   document.querySelectorAll("form.apply").forEach(function (f) {
@@ -377,11 +384,80 @@
       try { sent = sessionStorage.getItem("sent:" + KEY); sessionStorage.removeItem("sent:" + KEY); } catch (e) {}
       if (sent) { f.reset(); chosen = []; render(); if (note) note.hidden = true; }
     });
-    f.addEventListener("reset", function () { setTimeout(function () { f.querySelectorAll("select[data-other]").forEach(syncOther); }); });
+    f.addEventListener("reset", function () { setTimeout(function () { f.querySelectorAll("select[data-other]").forEach(syncOther); if (E) clearErrors(); }); });
     var clear = f.querySelector("[data-clear]");
     if (clear) clear.addEventListener("click", function () {
       store(null); f.reset(); chosen = []; render(); say(""); note.hidden = true;
     });
+
+    // Errors in words (GOV.UK): each under its label and hint, and a summary at the top linking to each field.
+    // The browser's own bubbles stay for any form without the texts.
+    var E = JSON.parse(f.getAttribute("data-errors") || "null");
+    if (E) f.noValidate = true;
+    function boxOf(el) { return el.closest(".field, .consent") || el.parentNode; }
+    function nameOf(box, el) {
+      if (box.classList.contains("consent")) {  // the consent sentence itself, shortened
+        var t = box.textContent.replace(/\s*\*\s*$/, "").replace(/\s+/g, " ").trim();
+        return t.length > 60 ? t.slice(0, 57).replace(/\s+\S*$/, "") + "…" : t;
+      }
+      var l = box.querySelector("label, legend");
+      return ((l && l.textContent) || el.name).replace(/\s*\*\s*$/, "").trim();
+    }
+    function why(el) {
+      var v = el.validity;
+      if (v.valueMissing) return el.type === "checkbox" && el.closest(".consent") ? E.consent : el.type === "radio" || (el.tagName === "SELECT" && !el.closest(".date")) ? E.choose : E.required;
+      if (v.typeMismatch && el.type === "email") return E.email;
+      return E.format;
+    }
+    function clearErrors() {
+      f.querySelectorAll(".field-error, .error-summary").forEach(function (n) { n.remove(); });
+      f.querySelectorAll(".has-error").forEach(function (n) { n.classList.remove("has-error"); });
+      f.querySelectorAll("[aria-invalid]").forEach(function (n) { n.removeAttribute("aria-invalid"); });
+    }
+    function validate() {
+      if (!E) return f.reportValidity();
+      clearErrors();
+      var seen = [], list = [];
+      Array.prototype.forEach.call(f.elements, function (el) {
+        if (!el.willValidate || el.closest("dialog") || el.checkValidity()) return;
+        var box = boxOf(el);
+        if (seen.indexOf(box) >= 0) return;
+        seen.push(box);
+        var msg = why(el), p = document.createElement("p");
+        p.className = "field-error"; p.id = (el.id || el.name) + "-err"; p.textContent = msg;
+        box.classList.add("has-error"); el.setAttribute("aria-invalid", "true");
+        var after = box.querySelector(":scope > .hint") || box.querySelector(":scope > label, :scope > legend");
+        if (box.classList.contains("consent") || !after) box.appendChild(p); else after.insertAdjacentElement("afterend", p);
+        list.push({ el: el, text: nameOf(box, el) + ": " + msg });
+      });
+      if (!list.length) return true;
+      var sum = document.createElement("div"), h = document.createElement("h2"), ul = document.createElement("ul");
+      sum.className = "error-summary"; sum.setAttribute("role", "alert"); sum.tabIndex = -1; h.textContent = E.summary;
+      list.forEach(function (x) {
+        var li = document.createElement("li"), a = document.createElement("a");
+        a.href = "#" + (x.el.id || ""); a.textContent = x.text;
+        a.addEventListener("click", function (e) { e.preventDefault(); boxOf(x.el).scrollIntoView({ block: "center" }); x.el.focus({ preventScroll: true }); });
+        li.appendChild(a); ul.appendChild(li);
+      });
+      sum.appendChild(h); sum.appendChild(ul);
+      f.insertBefore(sum, f.firstChild);
+      sum.focus();
+      return false;
+    }
+    if (E) {
+      f.addEventListener("submit", function (e) { if (!validate()) { e.preventDefault(); e.stopImmediatePropagation(); } });
+      // a corrected field loses its message as soon as it is right
+      var recheck = function (e) {
+        var box = e.target.closest && e.target.closest(".has-error");
+        if (!box) return;
+        var bad = Array.prototype.some.call(box.querySelectorAll("input, select, textarea"), function (x) { return x.willValidate && !x.checkValidity(); });
+        if (bad) return;
+        box.classList.remove("has-error");
+        box.querySelectorAll(".field-error").forEach(function (n) { n.remove(); });
+        box.querySelectorAll("[aria-invalid]").forEach(function (n) { n.removeAttribute("aria-invalid"); });
+      };
+      f.addEventListener("input", recheck); f.addEventListener("change", recheck);
+    }
 
     // The question marked data-dialog (e.g. whether the pilgrim would like a subsidy) is asked in a window just
     // before sending, once the rest of the form is valid. Without JavaScript it stays an ordinary part of the form.
@@ -444,7 +520,7 @@
         });
       };
       cartBtn.addEventListener("click", function () {
-        if (!f.reportValidity()) return;
+        if (!validate()) return;
         if (dlg) { afterAsk = toCart; dlg.querySelector(".form-error").hidden = true; dlg.showModal(); }
         else toCart();
       });

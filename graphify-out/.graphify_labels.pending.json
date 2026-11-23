@@ -67,12 +67,12 @@
   "65": "20261019150000_advisor_followup.sql",
   "66": "public.participants",
   "67": "Participants.tsx",
-  "68": "Login.tsx",
+  "68": "Notice",
   "69": "lurdy.eu",
-  "70": "t",
-  "71": "src/index.ts",
+  "70": "useReady",
+  "71": "session.tsx",
   "72": "Module",
-  "73": "useReady",
+  "73": "Accommodation.tsx",
   "74": "admin/vercel.json",
   "75": "08_hardening.sql",
   "76": "20261019123937_zz_probe_column_privileges.sql",
@@ -98,5 +98,7 @@
   "96": "20261023100000_registration_register.sql",
   "97": "react-native-safe-area-context",
   "98": "Přihlášky z webu → Lourdes 2027",
-  "99": "14_register.sql"
+  "99": "14_register.sql",
+  "100": "Applications.tsx",
+  "101": "shim.sql"
 }

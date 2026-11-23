@@ -153,7 +153,13 @@
   "cartNote": "Gespeicherte Anmeldungen bleiben nur in diesem Browser (höchstens 30 Tage), bis Sie sie absenden.",
   "titleNone": "kein Titel",
   "titleOther": "anderer – ich schreibe ihn",
-  "titleOtherLabel": "Ihr Titel"
+  "titleOtherLabel": "Ihr Titel",
+  "errSummary": "Bitte korrigieren Sie Folgendes:",
+  "errRequired": "Bitte füllen Sie dieses Feld aus.",
+  "errChoose": "Bitte wählen Sie eine Möglichkeit.",
+  "errEmail": "Geben Sie eine E-Mail-Adresse wie name@beispiel.de ein.",
+  "errFormat": "Bitte geben Sie dies im richtigen Format ein.",
+  "errConsent": "Ohne diese Einwilligung kann die Anmeldung nicht gesendet werden."
  },
  "nav": [
   "ucast",

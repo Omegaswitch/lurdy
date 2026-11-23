@@ -153,7 +153,13 @@
   "cartNote": "Les inscriptions enregistrées restent uniquement dans ce navigateur (30 jours au plus) jusqu’à leur envoi.",
   "titleNone": "sans titre",
   "titleOther": "autre – je l’écris",
-  "titleOtherLabel": "Votre titre"
+  "titleOtherLabel": "Votre titre",
+  "errSummary": "Veuillez corriger les points suivants :",
+  "errRequired": "Veuillez remplir ce champ.",
+  "errChoose": "Veuillez choisir une option.",
+  "errEmail": "Saisissez une adresse e-mail du type nom@exemple.fr.",
+  "errFormat": "Saisissez cette donnée au bon format.",
+  "errConsent": "L’inscription ne peut pas être envoyée sans ce consentement."
  },
  "nav": [
   "ucast",

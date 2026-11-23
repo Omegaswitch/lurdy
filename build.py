@@ -332,8 +332,9 @@ def field_html(f, lang, form):
                     + f'<option value="_other">{esc(u["titleOther"])}</option>')
             control = (f'<select id="{fid}" name="{k}" data-other="{fid}-o"{r}{described}>{opts}</select>'
                        f'<input id="{fid}-o" class="other-input" name="{k}_other" type="text" maxlength="{f.get("max", 200)}" aria-label="{esc(u["titleOtherLabel"])}" placeholder="{esc(u["titleOtherLabel"])}">')
-    # the hint goes under the box, so boxes side by side line up whatever the hints are
-    return f'<div class="field{" field--wide" if typ == "area" or f.get("w") else ""}"><label for="{fid}">{label}</label>{control}{hint_html}</div>'
+    # label, then hint, then the box (GOV.UK / DWP); short answers get a short box
+    short = typ in ("tel", "number") or f.get("list") or k in ("idnum", "rc", "times")
+    return f'<div class="field{" field--s" if short else ""}"><label for="{fid}">{label}</label>{hint_html}{control}</div>'
 
 
 CART_KEYS = ("cartTitle", "cartSaved", "cartEdit", "cartRemove", "cartSend", "cartSending", "cartError", "cartNote")
@@ -350,7 +351,8 @@ def form_html(form, lang):
     fields = "".join(field_html(f, lang, form) for f in FORMS[form])
     return f"""<form class="apply" method="post" action="/api/prihlaska/" accept-charset="utf-8" enctype="multipart/form-data"
  data-preparing="{esc(u['preparing'])}" data-uploading="{esc(u['uploading'])}" data-too-big="{esc(u['filesTooBig'])}" data-type="{esc(u['filesType'])}" data-count="{esc(u['filesCount'])}" data-error="{esc(u['sendError'])}" data-remove="{esc(u['removeFile'])}" data-draft="{form}"
- data-dlg-send="{esc(u['subsidyContinue'])}" data-dlg-back="{esc(u['subsidyBack'])}" data-dlg-choose="{esc(u['subsidyChoose'])}">
+ data-dlg-send="{esc(u['subsidyContinue'])}" data-dlg-back="{esc(u['subsidyBack'])}" data-dlg-choose="{esc(u['subsidyChoose'])}"
+ data-errors="{esc(json.dumps({k[3:].lower(): u[k] for k in ('errSummary', 'errRequired', 'errChoose', 'errEmail', 'errFormat', 'errConsent')}, ensure_ascii=False))}">
  <input type="hidden" name="form" value="{form}"><input type="hidden" name="lang" value="{lang}">
  <p class="small">{esc(u['required'])}</p>
  <p class="small draft-note" hidden>{esc(u['draftNote'])} <button class="link-btn" type="button" data-clear>{esc(u['draftClear'])}</button></p>
