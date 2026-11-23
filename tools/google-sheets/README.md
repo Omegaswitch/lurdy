@@ -1,94 +1,45 @@
-# Přihlášky z webu do Google tabulky
+# Přihlášky z webu → Lourdes 2027
 
-Every application sent on the website is also written to a Google Sheet:
+Every application sent on the website:
 
-- **one tab per form** ("Přihláška – nemocní", "Přihláška – poutníci", "Přihláška – tým"), one row per application;
-- for **sick pilgrims**, also **a copy of the paper form** (tab `Formulář`), filled in, on its own tab named after the
-  pilgrim (e.g. `Ing. Novák Jan 20.11.26 14:05`). It reads and prints like the paper form;
-- **a Google Drive folder per applicant**, sorted by form, with the files they attached (medical report, photos):
+1. **becomes a line in Lourdes 2027 → Participants**, in the first empty row (the sheet keeps its own VarSym), with
+   name (and title), type P / M / T, Accueil or hotel, e-mail, address, phone, travels together, passport number,
+   M / F, birth year, earlier pilgrimages and registration date. **Waiting is ticked**, so the mail script sends
+   only the waiting-list letter until an organiser checks the person and unticks it. A note on the name links to
+   their folder and says if they ask for a subsidy. Someone who sends the form twice is not added twice.
+2. **gets a folder in Drive, next to Lourdes 2027:**
 
-  ```
-  (the folder with the spreadsheet)
-    Lurdy – přílohy přihlášek
-      Přihláška – nemocní
-        Ing. Jan Novák – 20.11.26 14:05
-      Přihláška – poutníci
-      Přihláška – tým
-  ```
- Every applicant gets
-  a folder, even without attachments, so a report that arrives later by post or e-mail can be dropped in. The row
-  (column "Složka s přílohami") and the form tab (cell B92) link to it.
+   ```
+   Lourdes 2027 (folder)
+     Lourdes 2027 (the list)
+     Lurdy – přílohy přihlášek
+       Přihláška – nemocní
+         Ing. Jan Novák – 20.11.26 14:05
+           1-zprava_lekare.pdf
+           Přihláška – Ing. Jan Novák – …        (all answers)
+           Formulář – Ing. Jan Novák – …         (sick pilgrims: the paper form, filled in)
+       Přihláška – poutníci
+       Přihláška – tým
+   ```
 
-- **a new row in the registration list** ("Lourdes 2027" → tab `Participants`), **on the waiting list**: name
-  (with the title), type P / M / T, Accueil or hotel, e-mail, address, phone, travels together, passport number,
-  M / F, birth year, earlier pilgrimages, registration date. A note on the name says it came from the website (and
-  whether they ask for a subsidy). The VarSym is the sheet's own. Someone who sends the form twice is not added twice.
+Health answers are only in the person's folder, never in the list. The e-mail to the organisers still carries
+everything; its footer says whether the list and the folder were written.
 
-  The **waiting list tick is on purpose**: the registration list's mail script sends the flight and payment letter to
-  every row that is not on the waiting list, so new applicants get only the waiting-list letter until an organiser
-  checks them and unticks "Waiting".
+## Setup
 
-The main folder is created automatically the first time, in the same Drive folder as the spreadsheet. To use a folder
-you already have (e.g. on a shared drive), put its ID (the last part of its address) in Script Properties as
-`FOLDER_ID`.
+1. Open **Lourdes 2027** → Extensions → Apps Script. Leave `Code.gs` (the mail script) as it is.
+2. Click **+ → Script**, name it `prihlasky`, paste `prihlasky.gs` into it, save.
+3. Project Settings → Script Properties:
+   - `SECRET` = a random string of 32+ characters (the same goes into Vercel)
+   - `TEMPLATE_ID` = ID of the spreadsheet with the `Formulář` tab (the uploaded "Přihláška Lurdy" saved as Google
+     Sheets), from its address `…/spreadsheets/d/<ID>/edit`. Optional: without it there is no filled-in paper form.
+4. Editor → choose `testSetup` → Run → allow access. The log should say `SECRET: set`, `all columns found`, where
+   the folders go and `template … found`.
+5. Deploy → New deployment → Web app; Execute as **Me**; Who has access **Anyone** → Deploy; copy the URL.
+6. Vercel → lurdy-pilgrimage → Settings → Environment Variables (Production): `GOOGLE_SHEETS_URL` = the URL,
+   `GOOGLE_SHEETS_SECRET` = the secret → Redeploy.
 
-The e-mail to the organisers still goes out as before; it is the record. Its footer says whether the sheet saved the
-application ("zapsáno do Google tabulky" / "NEZAPSÁNO … – doplňte ručně") and its attachments ("přílohy uloženy na
-Google Disk" / "NEULOŽENY … – uložte je z tohoto e-mailu").
+After changing the script: Deploy → Manage deployments → pencil → Version: New version → Deploy (same URL).
 
-## Setup (about 10 minutes)
-
-1. **Upload the form to Google Drive.** Upload `Přihláška Lurdy.xlsx` and open it with Google Sheets
-   (File → Save as Google Sheets). Keep the tab `Formulář` (it is the template) and `Ciselniky`. You can delete
-   `Formulář vyplněný`.
-2. **Add the script.** In that sheet: Extensions → Apps Script. Delete what is there, paste the contents of
-   `prihlasky.gs`, and save.
-3. **Set the secret.** In Apps Script: Project Settings (gear) → Script Properties → Add property:
-   `SECRET` = a long random string (at least 32 characters). You can generate one with `openssl rand -hex 32`.
-3b. **Connect the registration list.** Open "Lourdes 2027" and copy its ID from the address bar: the part between
-   `/d/` and `/edit`. Add it in Script Properties as `REGISTER_ID`. The person who deploys the script (step 5) needs
-   edit access to that spreadsheet.
-4. **Check it.** Select `testSetup` in the toolbar and click Run. Allow the access Google asks for (Sheets and
-   Drive: the script saves the attachments). The log should say `Template "Formulář": found`, `SECRET: set` and
-   where the attachment folders will go, and `Register "Lourdes 2027": all columns found`.
-5. **Publish it.** Deploy → New deployment → type **Web app**:
-   - Execute as: **Me**
-   - Who has access: **Anyone** (the secret is what protects it; Google login cannot be used by the website)
-
-   Click Deploy and copy the **Web app URL** (ends in `/exec`).
-6. **Connect the website.** In Vercel → the website project → Settings → Environment Variables (Production):
-   - `GOOGLE_SHEETS_URL` = the Web app URL
-   - `GOOGLE_SHEETS_SECRET` = the same secret as in step 3
-
-   Then redeploy the website (Deployments → … → Redeploy).
-7. **Test.** Send a test application on the website. A new row and (for the sick form) a new tab appear.
-
-If you set this up before the attachment folders existed: paste the new `prihlasky.gs`, run `testSetup` once to allow
-Drive access, then publish a new version as below.
-
-After you change the script later: Deploy → Manage deployments → edit (pencil) → Version: **New version** → Deploy.
-The URL stays the same.
-
-## Privacy – please read
-
-The sick pilgrims' form carries **health data and the rodné číslo** (special-category data under GDPR).
-
-- Use a Google account **of the organisation** (Google Workspace), not a personal Gmail, so a data-processing
-  agreement with Google covers it.
-- Share the sheet and the **Lurdy – přílohy přihlášek** folder **only with named organisers**; never "anyone with the link". Turn on 2-step verification for
-  everyone who has access.
-- Delete the sheet's data and the applicant folders after the pilgrimage, as the privacy policy says (the website's "Ochrana osobních údajů").
-- The organisers' e-mail already contains the same data, so the mailbox needs the same care.
-
-## What goes where
-
-| | E-mail to organisers | Google Sheet | Správa pouti (admin) |
-|---|---|---|---|
-| Name, contact, ID number, emergency contact | yes | yes | yes |
-| Health answers, rodné číslo | yes | yes | **never** |
-| Attachments | yes | yes, in the applicant's Drive folder | **never** |
-| Subsidy request | yes | yes | yes ("žádá o příspěvek") |
-
-Notes on the paper form copy: the website lets people tick several hygiene aids, so cell D46 may hold more than one
-(Sheets then marks it as not matching its drop-down; the text is right). Answers the paper form has no cell for (stay,
-subsidy) are written under the form, in B91. The title is written in front of the first name.
+The person who deploys needs edit access to Lourdes 2027, its folder and the template. Files are created under
+their account. Share the folder only with named organisers; delete the applicant folders after the pilgrimage.

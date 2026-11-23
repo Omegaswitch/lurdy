@@ -1,19 +1,18 @@
 /**
- * Lurdy – přihlášky z webu do Google tabulky.
+ * Lurdy – přihlášky z webu.
  *
- * The website (api/prihlaska.js) POSTs every application here. This script:
- *   1. appends one row to the tab named after the form ("Přihláška – nemocní", "Přihláška – poutníci", …),
- *      with a header row made from the question labels the first time;
- *   2. for the sick pilgrims' form, copies the "Formulář" tab (the organisers' paper form) to a new tab named
- *      after the pilgrim and fills its answer cells, so it reads and prints like the paper form;
- *   3. makes a Google Drive folder for the applicant ("Lurdy – přílohy přihlášek" / the form / the person, next to
- *      this spreadsheet) and saves the attachments there; the row and the form tab link to it. Every applicant gets one, so a medical
- *      report that comes later by post or e-mail has its place too;
- *   4. adds the applicant to the registration list (Script Property REGISTER_ID: the "Lourdes 2027" spreadsheet's
- *      ID, tab "Participants") ON THE WAITING LIST, so its mail script sends them nothing but the waiting-list
- *      letter until an organiser unticks "Waiting". Columns are found by their header (row 8), not by position.
+ * Lives in the registration list's own Apps Script project ("Lourdes 2027"), as a second file next to the
+ * organisers' mail script (which it never touches). The website (api/prihlaska.js) POSTs every application here:
+ *   1. a new line in the tab "Participants" (the first empty one; the sheet keeps its own VarSym), ON THE WAITING
+ *      LIST, so the mail script sends nothing but the waiting-list letter until an organiser unticks "Waiting".
+ *      Columns are found by their header (row 8), not by position.
+ *   2. a Google Drive folder for the person, next to this spreadsheet:
+ *        Lurdy – přílohy přihlášek / Přihláška – nemocní / Ing. Jan Novák – 20.11.26 14:05
+ *      with their attachments, a sheet with all their answers and, for sick pilgrims, the filled-in paper form
+ *      (copied from the template in Script Property TEMPLATE_ID). Health answers live only there, not in the list.
  *
- * Setup: tools/google-sheets/README.md. The shared secret lives in Project Settings → Script Properties → SECRET.
+ * Setup: tools/google-sheets/README.md. Script Properties: SECRET (required), TEMPLATE_ID, FOLDER_ID, REGISTER_ID
+ * (only if this script is NOT inside the registration list's project).
  */
 
 // The paper form's answer cells (tab "Formulář"), by the website's field key
@@ -58,10 +57,8 @@ function doPost(e) {
   lock.waitLock(20000);  // two applications at once must not write into the same row
   try {
     var book = SpreadsheetApp.getActiveSpreadsheet();
-    var files = saveFiles(book, data);  // the answers are written even when Drive or the register fails;
-    var register = addToRegister(data);  // the website tells the organisers which part did not
-    appendRow(book, data, files.url);
-    if (data.form === 'nemocni' && book.getSheetByName(TEMPLATE)) fillPaperForm(book, data, files.url);
+    var files = saveFiles(book, data);  // each part is done even when the other fails;
+    var register = addToRegister(book, data, files.url);  // the website tells the organisers which part did not
     return reply({ ok: true, files: files.saved, register: register });
   } finally {
     lock.releaseLock();
@@ -101,6 +98,8 @@ function saveFiles(book, data) {
       if (!TYPES[ext]) return;
       folder.createFile(Utilities.newBlob(Utilities.base64Decode(f.data), TYPES[ext], f.name));
     });
+    writeAnswers(folder, data, label);
+    if (data.form === 'nemocni') paperForm(folder, data, label);
     return { url: folder.getUrl(), saved: true };
   } catch (err) {
     console.error(err);
@@ -108,13 +107,15 @@ function saveFiles(book, data) {
   }
 }
 
-// The registration list ("Lourdes 2027" → Participants): one new row, waiting list ticked. Returns null when not
-// set up (no REGISTER_ID), true when added or already there, false when it failed.
-function addToRegister(data) {
+// The registration list (this spreadsheet, or REGISTER_ID → Participants): one new row, waiting list ticked.
+// Returns true when added or already there, false when it failed.
+function register(book) {
   var id = PropertiesService.getScriptProperties().getProperty('REGISTER_ID');
-  if (!id) return null;
+  return (id ? SpreadsheetApp.openById(id) : book).getSheetByName(REGISTER_TAB);
+}
+function addToRegister(book, data, folderUrl) {
   try {
-    var sheet = SpreadsheetApp.openById(id).getSheetByName(REGISTER_TAB);
+    var sheet = register(book);
     var last = sheet.getLastRow(), width = sheet.getLastColumn();
     var header = sheet.getRange(REGISTER_HEADER_ROW, 1, 1, width).getValues()[0].map(function (h) { return String(h).trim(); });
     var col = function (name) { var i = header.indexOf(name); if (i < 0) throw new Error('column "' + name + '" not found in row ' + REGISTER_HEADER_ROW); return i; };
@@ -155,7 +156,8 @@ function addToRegister(data) {
     put('Y', birth ? Number(birth[1]) : '');
     put('Previous', times ? Number(times[1]) : '');
     put('Registration', new Date());
-    var note = 'Přihláška z webu ' + data.submitted + (code('subsidy') === 'sub_ask' ? '\nŽádá o příspěvek na pouť' : '');
+    var note = 'Přihláška z webu ' + data.submitted + (code('subsidy') === 'sub_ask' ? '\nŽádá o příspěvek na pouť' : '') +
+      (folderUrl ? '\nPřihláška a přílohy: ' + folderUrl : '');
     sheet.getRange(row, nameCol + 1).setNote(note);
     return true;
   } catch (err) {
@@ -164,35 +166,27 @@ function addToRegister(data) {
   }
 }
 
-function appendRow(book, data, folderUrl) {
-  var name = String(data.title || data.form).slice(0, 90);
-  var sheet = book.getSheetByName(name) || book.insertSheet(name);
-  var labels = ['Odesláno', 'Jazyk', 'Složka s přílohami'].concat(data.fields.map(function (f) { return (f.group ? f.group + ' – ' : '') + f.label; }));
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(labels);
-    sheet.setFrozenRows(1);
-    sheet.getRange(1, 1, 1, labels.length).setFontWeight('bold');
-  }
-  // columns follow the header row, so a question added to the website later lands in a new column, not a wrong one
-  var header = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-  var row = new Array(header.length).fill('');
-  row[0] = data.submitted; row[1] = data.lang; row[2] = folderUrl || '';
-  labels.slice(3).forEach(function (label, i) {
-    var col = header.indexOf(label);
-    if (col < 0) { header.push(label); sheet.getRange(1, header.length).setValue(label).setFontWeight('bold'); col = header.length - 1; row.push(''); }
-    row[col] = safe(data.fields[i].value);
-  });
-  sheet.appendRow(row);
+// every answer, as question → answer, in a sheet in the person's folder
+function writeAnswers(folder, data, label) {
+  var ss = SpreadsheetApp.create('Přihláška – ' + label);
+  var rows = [['Přihláška', data.title || data.form], ['Odesláno', data.submitted], ['Jazyk webu', data.lang]]
+    .concat(data.fields.map(function (f) { return [(f.group ? f.group + ' – ' : '') + f.label, safe(f.value)]; }));
+  var sheet = ss.getSheets()[0].setName('Přihláška');
+  sheet.getRange(1, 1, rows.length, 2).setValues(rows).setWrap(true).setVerticalAlignment('top');
+  sheet.setColumnWidth(1, 340).setColumnWidth(2, 520);
+  sheet.getRange(1, 1, rows.length, 1).setFontWeight('bold');
+  DriveApp.getFileById(ss.getId()).moveTo(folder);
 }
 
-function fillPaperForm(book, data, folderUrl) {
+// the sick pilgrims' paper form, filled in: a copy of the template spreadsheet (TEMPLATE_ID, tab "Formulář") in the folder
+function paperForm(folder, data, label) {
+  var id = PropertiesService.getScriptProperties().getProperty('TEMPLATE_ID');
+  if (!id) return;
   var by = {};
   data.fields.forEach(function (f) { by[f.key] = f; });
-  var title = [by.title && by.title.value, by.lastname && by.lastname.value, by.firstname && by.firstname.value].filter(Boolean).join(' ');
-  var name = (title || 'Přihláška') + ' ' + data.submitted.replace(/[^\d. :]/g, '');
-  name = name.replace(/[\[\]*?:\/\\]/g, ' ').slice(0, 90);
-  for (var n = 2, base = name; book.getSheetByName(name); n++) name = base + ' (' + n + ')';
-  var sheet = book.getSheetByName(TEMPLATE).copyTo(book).setName(name);
+  var ss = SpreadsheetApp.openById(DriveApp.getFileById(id).makeCopy('Formulář – ' + label, folder).getId());
+  ss.getSheets().forEach(function (sh) { if ([TEMPLATE, 'Ciselniky'].indexOf(sh.getName()) < 0) ss.deleteSheet(sh); });
+  var sheet = ss.getSheetByName(TEMPLATE);
   var accueil = by.stay && by.stay.codes && by.stay.codes[0] === 'stay_accueil';
   sheet.getRange('B1').setValue('Lurdy přihláška - nemocný poutník ubytovaný ' + (accueil ? 'v Accueil' : 'v hotelu'));
   Object.keys(CELLS).forEach(function (key) {
@@ -212,23 +206,25 @@ function fillPaperForm(book, data, folderUrl) {
   // what the paper form has no cell for: the stay, the subsidy answer
   var subsidy = by.subsidy ? by.subsidy.value : '';
   sheet.getRange('B91').setValue('Ubytování: ' + (by.stay ? by.stay.value : '') + ' · Úhrada: ' + subsidy + ' · Odesláno z webu ' + data.submitted);
-  if (folderUrl) sheet.getRange('B92').setValue('Přílohy: ' + folderUrl);
 }
 
-// Run once by hand from the editor (Run → testSetup) to check the template is found and the secret is set.
+// Run once by hand from the editor (Run → testSetup): checks the secret, the list, the folder and the template.
 function testSetup() {
-  var book = SpreadsheetApp.getActiveSpreadsheet();
-  Logger.log('Template "%s": %s', TEMPLATE, book.getSheetByName(TEMPLATE) ? 'found' : 'MISSING');
-  var s = PropertiesService.getScriptProperties().getProperty('SECRET');
-  Logger.log('SECRET: %s', s && s.length >= 32 ? 'set' : 'missing or shorter than 32 characters');
+  var props = PropertiesService.getScriptProperties(), book = SpreadsheetApp.getActiveSpreadsheet();
+  var s = props.getProperty('SECRET');
+  Logger.log('SECRET: %s', s && s.length >= 32 ? 'set' : 'MISSING or shorter than 32 characters');
+  var tab = register(book);
+  if (!tab) Logger.log('Register: tab "%s" MISSING', REGISTER_TAB);
+  else {
+    var header = tab.getRange(REGISTER_HEADER_ROW, 1, 1, tab.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
+    var missing = ['Name', 'Type', 'Waiting', 'Cancel', 'Stays', 'E-Mail', 'Address', 'Telephone', 'Travels together', 'Passport number', 'M / F', 'Y', 'Previous', 'Registration']
+      .filter(function (n) { return header.indexOf(n) < 0; });
+    Logger.log('Register "%s": %s', tab.getParent().getName(), missing.length ? 'columns MISSING: ' + missing.join(', ') : 'all columns found');
+  }
   var parents = DriveApp.getFileById(book.getId()).getParents();  // also asks for the Drive permission
-  Logger.log('Attachment folders will go in: %s / %s', parents.hasNext() ? parents.next().getName() : 'My Drive', FILES_FOLDER);
-  var id = PropertiesService.getScriptProperties().getProperty('REGISTER_ID');
-  if (!id) return Logger.log('Register: not connected (Script Property REGISTER_ID missing)');
-  var reg = SpreadsheetApp.openById(id), tab = reg.getSheetByName(REGISTER_TAB);
-  if (!tab) return Logger.log('Register "%s": tab "%s" MISSING', reg.getName(), REGISTER_TAB);
-  var header = tab.getRange(REGISTER_HEADER_ROW, 1, 1, tab.getLastColumn()).getValues()[0].map(function (h) { return String(h).trim(); });
-  var missing = ['Name', 'Type', 'Waiting', 'Cancel', 'Stays', 'E-Mail', 'Address', 'Telephone', 'Travels together', 'Passport number', 'M / F', 'Y', 'Previous', 'Registration']
-    .filter(function (n) { return header.indexOf(n) < 0; });
-  Logger.log('Register "%s": %s', reg.getName(), missing.length ? 'columns MISSING: ' + missing.join(', ') : 'all columns found');
+  Logger.log('Folders will go in: %s / %s', parents.hasNext() ? parents.next().getName() : 'My Drive', FILES_FOLDER);
+  var t = props.getProperty('TEMPLATE_ID');
+  if (!t) return Logger.log('Paper form template: not set (TEMPLATE_ID) – sick pilgrims get only the answers sheet');
+  var tpl = SpreadsheetApp.openById(t);
+  Logger.log('Paper form template "%s": %s', tpl.getName(), tpl.getSheetByName(TEMPLATE) ? 'found' : 'tab "' + TEMPLATE + '" MISSING');
 }
