@@ -5,8 +5,17 @@ Every application sent on the website is also written to a Google Sheet:
 - **one tab per form** ("Přihláška – nemocní", "Přihláška – poutníci", "Přihláška – tým"), one row per application;
 - for **sick pilgrims**, also **a copy of the paper form** (tab `Formulář`), filled in, on its own tab named after the
   pilgrim (e.g. `Ing. Novák Jan 20.11.26 14:05`). It reads and prints like the paper form;
-- **a Google Drive folder per applicant** (e.g. `Ing. Jan Novák – Přihláška – nemocní – 20.11.26 14:05`) inside the
-  folder **Lurdy – přílohy přihlášek**, with the files they attached (medical report, photos). Every applicant gets
+- **a Google Drive folder per applicant**, sorted by form, with the files they attached (medical report, photos):
+
+  ```
+  (the folder with the spreadsheet)
+    Lurdy – přílohy přihlášek
+      Přihláška – nemocní
+        Ing. Jan Novák – 20.11.26 14:05
+      Přihláška – poutníci
+      Přihláška – tým
+  ```
+ Every applicant gets
   a folder, even without attachments, so a report that arrives later by post or e-mail can be dropped in. The row
   (column "Složka s přílohami") and the form tab (cell B92) link to it.
 

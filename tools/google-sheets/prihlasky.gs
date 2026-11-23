@@ -6,8 +6,8 @@
  *      with a header row made from the question labels the first time;
  *   2. for the sick pilgrims' form, copies the "Formulář" tab (the organisers' paper form) to a new tab named
  *      after the pilgrim and fills its answer cells, so it reads and prints like the paper form;
- *   3. makes a Google Drive folder for the applicant (inside "Lurdy – přílohy přihlášek", next to this spreadsheet)
- *      and saves the attachments there; the row and the form tab link to it. Every applicant gets one, so a medical
+ *   3. makes a Google Drive folder for the applicant ("Lurdy – přílohy přihlášek" / the form / the person, next to
+ *      this spreadsheet) and saves the attachments there; the row and the form tab link to it. Every applicant gets one, so a medical
  *      report that comes later by post or e-mail has its place too.
  *
  * Setup: tools/google-sheets/README.md. The shared secret lives in Project Settings → Script Properties → SECRET.
@@ -73,8 +73,12 @@ function safe(v) {
   return /^[=+\-@]/.test(v) ? "'" + v : v;
 }
 
-// the applicant's folder: "<name> – <form> – <sent>", inside FILES_FOLDER (Script Property FOLDER_ID, or made next to
-// this spreadsheet the first time and remembered)
+// the applicant's folder: FILES_FOLDER / <form> / "<name> – <sent>". FILES_FOLDER is the Script Property FOLDER_ID,
+// or made next to this spreadsheet the first time and remembered; the form's folder is made when its first application comes
+function child(parent, name) {
+  var it = parent.getFoldersByName(name);
+  return it.hasNext() ? it.next() : parent.createFolder(name);
+}
 function saveFiles(book, data) {
   try {
     var props = PropertiesService.getScriptProperties(), id = props.getProperty('FOLDER_ID'), root = null;
@@ -85,8 +89,8 @@ function saveFiles(book, data) {
       props.setProperty('FOLDER_ID', root.getId());
     }
     var t = data.fields.filter(function (f) { return f.key === 'title'; })[0];
-    var label = [[t && t.value, data.name].filter(Boolean).join(' '), data.title, data.submitted].filter(Boolean).join(' – ').replace(/[\/\\]/g, ' ').slice(0, 200);
-    var folder = root.createFolder(label);
+    var label = [[t && t.value, data.name].filter(Boolean).join(' '), data.submitted].filter(Boolean).join(' – ').replace(/[\/\\]/g, ' ').slice(0, 200);
+    var folder = child(root, String(data.title || data.form).replace(/[\/\\]/g, ' ')).createFolder(label);
     (data.files || []).forEach(function (f) {
       var ext = String(f.name).split('.').pop().toLowerCase();
       if (!TYPES[ext]) return;
