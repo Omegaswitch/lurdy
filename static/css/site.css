@@ -320,7 +320,7 @@ html:active-view-transition-type(slide)::view-transition-new(page-main){animatio
 .form-cards a:hover .btn--big:not(.btn--soon)::after{transform:translateX(5px)}
 /* not open yet: grey, and it stays grey on hover */
 .btn--soon,.btn--soon:hover,.form-cards a:hover .btn--soon{background:var(--grey);color:var(--muted);box-shadow:none;transform:none}
-.form-cards a:has(.btn--soon:not([hidden])):hover{box-shadow:none;transform:none}
+.form-cards a[data-off-until]{pointer-events:none;cursor:default}
 @media (max-width:760px){.form-cards{grid-template-columns:1fr}}
 
 .side-nav{position:sticky;top:var(--s5);border-top:3px solid var(--red);padding-top:var(--s3);font-size:.94rem}

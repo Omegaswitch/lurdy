@@ -437,7 +437,8 @@ def render_section(key, lang):
             if opens and opens > today:
                 go = (f'<span class="btn btn--big btn--soon" data-closed-until="{opens}">{esc(fill(u["opensBtn"], date=day(opens, lang)))}</span>'
                       f'<span class="btn btn--big" data-opens="{opens}" hidden>{esc(u["fillIn"])}</span>')
-            return f'<li><a href="{url_of(k, lang)}"><b>{esc(t["pages"][k]["title"])}</b><span class="card-lead">{esc(t["pages"][k]["lead"])}</span>{go}</a></li>'
+            off = f' data-off-until="{opens}" aria-disabled="true" tabindex="-1"' if opens and opens > today else ""  # not clickable until it opens
+            return f'<li><a href="{url_of(k, lang)}"{off}><b>{esc(t["pages"][k]["title"])}</b><span class="card-lead">{esc(t["pages"][k]["lead"])}</span>{go}</a></li>'
         # three steps (how it works, consent, choose); site.js shows them one at a time, without it they read as one page
         how, consent = fill(t["pages"][key]["body"], **kw).split("<h2>", 1)
         wz = f' data-names="{esc(json.dumps(u["wzSteps"], ensure_ascii=False))}" data-next="{esc(u["wzNext"])}" data-agree="{esc(u["wzAgree"])}" data-back="{esc(u["wzBack"])}"'

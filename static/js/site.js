@@ -130,6 +130,9 @@
     if (Date.now() < new Date(el.getAttribute("data-opens") + "T00:00:00+01:00").getTime()) return;
     el.hidden = false;
     document.querySelectorAll('[data-closed-until="' + el.getAttribute("data-opens") + '"]').forEach(function (n) { n.remove(); });
+    document.querySelectorAll('[data-off-until="' + el.getAttribute("data-opens") + '"]').forEach(function (n) {
+      n.removeAttribute("data-off-until"); n.removeAttribute("aria-disabled"); n.removeAttribute("tabindex");
+    });
   });
 
   // ---- application form: attachments are shrunk on this device (photos on a canvas, large PDFs with
