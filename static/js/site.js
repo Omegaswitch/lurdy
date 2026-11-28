@@ -664,3 +664,29 @@
     document.querySelectorAll("form.apply button[disabled]").forEach(function (b) { b.disabled = false; b.textContent = b.getAttribute("data-label"); });
   });
 })();
+
+// A button whose icon or label changes (password eye, "Odesílám…", "Uloženo", an open/closed toggle…) blurs softly into its new
+// state. Content-only when the button holds just elements (icon, spans), so its background stays crisp; off for reduced motion.
+(function () {
+  if (!window.MutationObserver || !Element.prototype.animate || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var last = new WeakMap();
+  var html = function (nodes) { return [].map.call(nodes, function (n) { return n.outerHTML || n.textContent; }).join(""); };
+  new MutationObserver(function (list) {
+    var seen = new Set(), now = performance.now();
+    list.forEach(function (m) {
+      var node = m.target.nodeType === 1 ? m.target : m.target.parentElement;
+      var b = node && node.closest("button, .btn, [role=button]");
+      if (!b || seen.has(b) || now - (last.get(b) || -1e4) < 250) return;
+      if (m.type === "attributes" ? m.oldValue === m.target.getAttribute(m.attributeName)
+        : m.type === "characterData" ? m.oldValue === m.target.data : html(m.removedNodes) === html(m.addedNodes)) return;  // rewritten, not changed
+      seen.add(b); last.set(b, now);
+      var bare = [].some.call(b.childNodes, function (n) { return n.nodeType === 3 && n.textContent.trim(); });
+      (bare ? [b] : [].slice.call(b.children)).forEach(function (t) {
+        t.animate(bare ? [{ filter: "blur(1.5px)", opacity: 0.55 }, { filter: "blur(0)", opacity: 1 }]
+                       : [{ filter: "blur(3px)", opacity: 0.2 }, { filter: "blur(0)", opacity: 1 }],
+                  { duration: 260, easing: "cubic-bezier(.2,.7,.2,1)" });
+      });
+    });
+  }).observe(document.body, { subtree: true, childList: true, characterData: true, characterDataOldValue: true,
+      attributes: true, attributeOldValue: true, attributeFilter: ["aria-pressed", "aria-expanded", "aria-checked", "data-state"] });
+})();
